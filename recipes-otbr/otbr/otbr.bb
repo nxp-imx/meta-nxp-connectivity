@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main"
 
 #SRCREV = "8e0ee639b174ab74ca9e90f4b2557f42336e9d8b"
-SRCREV = "344ba4af8d196bc0417b629fc1d2041a32d741bf"
+SRCREV = "3bdb2fe63f8c5c23c6d17d66573ec0c4a697118d"
 
 S = "${WORKDIR}/git"
 FILES_${PN} += "lib/systemd"
