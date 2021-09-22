@@ -1,12 +1,11 @@
 PN = "openthread-v11"
 SUMMARY = "OTBR on i.MX boards"
 DESCRIPTION = "OTBR applications"
-LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+LICENSE = "BSD-3-Clause"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=fbe4957c430eed6cc20521d4eb429fae"
 
 SRC_URI = "gitsm://github.com/openthread/openthread.git;branch=main"
 
-#SRCREV = "05fd1deb497451464ff050102d8f2994e53e6820"
 SRCREV = "812fc1eaead946b00f6b32387cf2381709fe793c"
 
 S = "${WORKDIR}/git"
