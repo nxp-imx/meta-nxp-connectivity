@@ -1,0 +1,16 @@
+NXP Software Content Register
+
+Release - Matter Solutions
+2021-September
+
+License File: EULA.txt  NXP Proprietary LA_OPT_NXP_SOFTWARE_License – No distribution permitted, license in Section 2.2 applies.
+--------------------------------------------
+NXP Provided Packages
+--------------------------------------------
+Package:                   meta-matter
+Outgoing License:          LA_OPT_NXP_SOFTWARE_License – No distribution permitted, license in Section 2.2 applies
+Release Location:          https://github.com/NXPmicro
+Type of content:           Yocto recipe files
+Description and comments:  Yocto recipe files for Matter solutions. Subproject is connecthomeip and openthread
+Origin:                    NXP (Proprietary)
+
