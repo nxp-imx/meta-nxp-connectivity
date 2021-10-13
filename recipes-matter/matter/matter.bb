@@ -4,9 +4,9 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=http;name=matter;branch=master"
+SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=http;name=matter;branch=test_event_6"
 
-SRCREV = "cb5d39e7087ac98c2d7ded4eb491ba998cdfe700"
+SRCREV = "82bcd4e36f4856a4216cb76a16116faeec40e223"
 
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native "
 RDEPENDS_${PN} += " libavahi-client "

@@ -2,7 +2,7 @@ PN = "openthread"
 SUMMARY = "OTBR on i.MX boards"
 DESCRIPTION = "OTBR applications"
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=fbe4957c430eed6cc20521d4eb429fae"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=543b6fe90ec5901a683320a36390c65f"
 
 SRC_URI = "gitsm://github.com/openthread/openthread.git;branch=main"
 
