@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=87109e44b2fda96a8991f27684a7349c"
 
 SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main"
 
-SRCREV = "3bdb2fe63f8c5c23c6d17d66573ec0c4a697118d"
+SRCREV = "72bb3d45684f837e67e7f1ec20a9a8e3ac4a4419"
 
 S = "${WORKDIR}/git"
 FILES_${PN} += "lib/systemd"

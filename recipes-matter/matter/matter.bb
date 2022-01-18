@@ -4,9 +4,9 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=http;name=matter;branch=test_event_6"
+SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=http;name=matter;branch=master"
 
-SRCREV = "82bcd4e36f4856a4216cb76a16116faeec40e223"
+SRCREV = "b0af6ba42b6ce494748f18ecf3e054a400b8f45b"
 
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native "
 RDEPENDS_${PN} += " libavahi-client "
@@ -59,6 +59,21 @@ do_configure() {
         target_cxx="${CXX}"
         target_ar="${AR}"'
 
+    cd ${S}/examples/chip-tool
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64 --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
+        import("//build_overrides/build.gni")
+        target_cflags=[
+        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+        "-O3"
+        ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
+
 }
 
 do_compile() {
@@ -70,6 +85,9 @@ do_compile() {
 
 	cd ${S}/examples/thermostat/linux
     ninja -C out/aarch64
+
+	cd ${S}/examples/chip-tool
+    ninja -C out/aarch64
 }
 
 do_install() {
@@ -77,6 +95,7 @@ do_install() {
 	install ${S}/examples/lighting-app/linux/out/aarch64/chip-lighting-app ${D}${bindir}
 	install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
 	install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
+	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
 }
 
 INSANE_SKIP_${PN} = "ldflags"
