@@ -17,7 +17,7 @@ do_configure() {
     cd ${S}/examples/lighting-app/linux
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -32,7 +32,7 @@ do_configure() {
 	cd ${S}/examples/all-clusters-app/linux
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -47,7 +47,7 @@ do_configure() {
 	cd ${S}/examples/thermostat/linux
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -62,7 +62,7 @@ do_configure() {
     cd ${S}/examples/chip-tool
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="arm64" arm_arch="armv8-a"
         import("//build_overrides/build.gni")
         target_cflags=[
         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
