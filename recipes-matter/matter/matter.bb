@@ -6,7 +6,10 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=http;name=matter;branch=master"
 
-SRCREV = "b0af6ba42b6ce494748f18ecf3e054a400b8f45b"
+SRCREV = "5cbe2931f64e16a44fc843e148325909fbe1511d"
+
+SRC_URI += "file://0001-Add-Network-Commissioning-cluster-setup-for-lighting.patch"
+SRC_URI += "file://0002-Add-Network-Commissioning-cluster-setup-for-thermost.patch"
 
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native "
 RDEPENDS_${PN} += " libavahi-client "
