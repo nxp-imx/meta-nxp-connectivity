@@ -4,6 +4,8 @@ This repo contains the i.MX MPU project Matter related Yocto recipes. Below is a
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
+All the software components revision are based on [project Matter TE8/RC3](https://github.com/project-chip/connectedhomeip/commits/TE8/rc3).
+
 The the Following Matter related binaries will be installed into the Yocto image root filesystem with this recipe repo:
  - chip-lighting-app: Matter lighting app demo
  - chip-all-clusters-app: Matter all-clusters demo
@@ -44,7 +46,7 @@ To build the Yocto Project, some packages need to be installed. The list of pack
     $ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \
     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
     xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-    pylint3 xterm
+    pylint3 xterm npm
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -120,3 +122,9 @@ When using the NXP K32W0 USB module, programmed with OpenThread Spinel firmware 
     $iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $otbr-web &
+
+# How to build Matter application
+
+A document described how to build Matter application for i.MX platforms can be found in [Matter community](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/nxp_imx8m_linux_examples.md).
+
+A Matter official document about how to use chip-tool as Matter controller can be found in [here](https://github.com/project-chip/connectedhomeip/blob/TE8/rc3/examples/chip-tool/README.md).
