@@ -9,11 +9,11 @@ SRC_URI = "gitsm://github.com/openthread/openthread.git;branch=main"
 SRCREV = "3f40cf78e61215f8841877ab7327d06e47485e55"
 
 S = "${WORKDIR}/git"
-#FILES_${PN} += "lib/systemd"
-#FILES_${PN} += "usr/share"
+#FILES:${PN} += "lib/systemd"
+#FILES:${PN} += "usr/share"
 
 DEPENDS += " avahi boost "
-RDEPENDS_${PN} += " libavahi-client "
+RDEPENDS:${PN} += " libavahi-client "
 
 TARGET_CFLAGS += " -Wno-error "
 
