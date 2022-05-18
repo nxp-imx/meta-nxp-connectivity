@@ -12,7 +12,7 @@ SRC_URI += "file://0001-Add-Network-Commissioning-cluster-setup-for-lighting.pat
 SRC_URI += "file://0002-Add-Network-Commissioning-cluster-setup-for-thermost.patch"
 
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native "
-RDEPENDS_${PN} += " libavahi-client "
+RDEPENDS:${PN} += " libavahi-client "
 
 S = "${WORKDIR}/git"
 
@@ -101,4 +101,4 @@ do_install() {
 	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
 }
 
-INSANE_SKIP_${PN} = "ldflags"
+INSANE_SKIP:${PN} = "ldflags"
