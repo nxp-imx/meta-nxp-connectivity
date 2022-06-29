@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=543b6fe90ec5901a683320a36390c65f"
 
 SRC_URI = "gitsm://github.com/openthread/openthread.git;branch=main"
 
-SRCREV = "3f40cf78e61215f8841877ab7327d06e47485e55"
+SRCREV = "9f30e0498141efbff10569f57f9353f02a0d7856"
 
 S = "${WORKDIR}/git"
 #FILES_${PN} += "lib/systemd"
