@@ -4,27 +4,24 @@ This repo contains the i.MX MPU project Matter related Yocto recipes. Below is a
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revision are based on [project Matter TE8/RC3](https://github.com/project-chip/connectedhomeip/commits/TE8/rc3).
+All the software components revision are based on [project Matter TE9](https://github.com/project-chip/connectedhomeip/commits/TE9).
 
 The the Following Matter related binaries will be installed into the Yocto image root filesystem with this recipe repo:
  - chip-lighting-app: Matter lighting app demo
  - chip-all-clusters-app: Matter all-clusters demo
  - thermostat-app: Matter thermostat demo
- - ot-daemon: OpenThread Daemon for OpenThread client using OpenThread v1.2 spec (For Nodic RCP module)
- - ot-client-ctl: OpenThread ctrl tool for OpenThread client using OpenThread v1.2 spec (For Nodic RCP module)
- - ot-daemon-v11: OpenThread Daemon for OpenThread client using OpenThread v1.1 spec (For K32W RCP Module)
- - ot-client-ctl-v11: OpenThread Daemon for OpenThread client using OpenThread v1.1 spec (For K32W RCP Module)
- - otbr-agent: OpenThread Border Router agent using OpenThread v1.2 spec (For Nodic RCP module)
- - ot-ctl: OpenThread Border Router ctrl tool using OpenThread v1.2 spec (For Nodic RCP module)
- - otbr-agent-v11: OpenThread Border Router agent using OpenThread v1.1 spec (For K32W RCP Module)
- - ot-ctl-v11: OpenThread Border Router ctrl tool using OpenThread v1.1 spec (For K32W RCP Module)
+ - chip-tool: Matter Controller tools
+ - ot-daemon: OpenThread Daemon for OpenThread client
+ - ot-client-ctl: OpenThread ctrl tool for OpenThread client
+ - otbr-agent: OpenThread Border Router agent
+ - ot-ctl: OpenThread Border Router ctrl tool
  - otbr-web: OpenThread Border Router web management daemon
 
 # How to build the Yocto image with integrated OpenThread Border Router
 Yocto build environment must first be setup.
 
 The Yocto source code is maintained with a repo manifest, the tool repo is used to download the source code.
-This document is tested with the i.MX Yocto 5.10.35_2.0.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK.
+This document is tested with the i.MX Yocto 5.15.32_2.0.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK and i.MX6ULL EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -34,7 +31,7 @@ Run the commands below to download this release:
     
     $ mkdir yocto # this directory will be the top directory of the Yocto source code
     $ cd yocto
-    $ repo init -u https://source.codeaurora.org/external/imx/imx-manifest -b imx-linux-hardknott -m imx-5.10.35-2.0.0.xml
+    $ repo init -u https://source.codeaurora.org/external/imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.32-2.0.0.xml
     $ repo sync
 Then integrate the meta-matter recipe into the Yocto code base
 
@@ -50,18 +47,31 @@ To build the Yocto Project, some packages need to be installed. The list of pack
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
+Make sure your default Python of the Linux host is Python2.
+
+    $ python --version
+      Python 2.7.18
+
 Change the current directory to the top directory of the Yocto source code and execute the commands below to generate the Yocto images.
 
+    #For i.MX8M Mini EVK:
     $MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland
+    #For i.MX6ULL EVK:
+    $MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland
     $bitbake imx-image-multimedia
 
-After execution of previous two commands, the Yocto images will be generated under ${MY_YOCTO}/bld-xwayland/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2. The bzip2 command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used 
-to boot the image of an i.MX 8M Mini EVK.
+
+After execution of previous two commands, the Yocto images will be generated under ${MY_YOCTO}/bld-xwayland/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 for i.MX8M Mini EVK and ${MY_YOCTO}/bld-xwayland/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.bz2. The bzip2 command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used
+to boot the image of an i.MX 8M Mini EVK or i.MX6ULL EVK.
 
 ___Be cautious when executing the dd command below, make sure the of represents the microSD card device!, /dev/sdc in the command below represents a microSD card connected to the host machine with a USB adapter, however the output device name may vary. Use the command "ls /dev/sd*" to verify the name of the SD card device.___
 
+    #For i.MX8M Mini EVK:
     $ bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2
     $ sudo dd if=imx-image-multimedia-imx8mmevk.wic of=/dev/sdc bs=4M conv=fsync
+    #For i.MX6ULL EVK:
+    $ bzip2 -d imx-image-multimedia-imx6ullevk.wic.bz2
+    $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
 
 # How to build OpenThread Border Router with Yocto SDK
 There are 3 module for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web. The otbr-web need liboost static and jsoncpp modules which are not included into default built Yocto images.
@@ -74,34 +84,49 @@ To build these binaries, the Yocto SDK with meta-matter generated must be used. 
 Install the NXP Yocto SDK and set toolchain environment variables.
 Run the SDK installation script with root permission.
 
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa53-crypto-imx8mmevk-toolchain-5.10-hardknott.sh
+    #For i.MX8M Mini EVK:
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-toolchain-5.15-kirkstone.sh
+    #For i.MX6ULL EVK
+    $ sudo tmp/deploy/sdk/fsl-imx-wayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-5.15-kirkstone.sh
 
 After the Yocto SDK is installed on the host machine, an environment setup script is also generated, and there are prompt lines telling the user to source the script each time when using the SDK in a new shell, for example:
 
-    $ . /opt/fsl-imx-xwayland/5.10-hardknott/environment-setup-cortexa53-crypto-poky-linux
+    #For i.MX8M Mini EVK
+    $ . /opt/fsl-imx-xwayland/5.15-kirkstone/environment-setup-armv8a-poky-linux
+    $For i.MX6ULL EVK
+    $ . /opt/fsl-imx-wayland/5.15-kirkstone/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
 After the SDK package installed in the build machine, import the Yocto build environment using the command:
 
-    $source ${SDK_INSTALLED_PATH}/environment-setup-cortexa53-crypto-poky-linux
+    #For i.MX8M Mini EVK
+    $source ${SDK_INSTALLED_PATH}/environment-setup-armv8a-poky-linux
+    #For i.MX6ULL EVK
+    $source ${SDK_INSTALLED_PATH}/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
 Fetch latest otbr source codes and execute the build:
 
     $git clone https://github.com/openthread/ot-br-posix
     $git checkout -t origin/main
     $git submodule update --init
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON \
-    -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON \
-    -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.1 \
-    -DOTBR_INFRA_IF_NAME=mlan0 \
-    -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+    #For i.MX8M Mini EVK
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DOTBR_BACKBONE_ROUTER=ON \
+     -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON \
+     -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.2 -DOTBR_INFRA_IF_NAME=mlan0 \
+     -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+    #For i.MX6ULL EVK
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DOTBR_BACKBONE_ROUTER=ON \
+     -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON \
+     -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.2 -DOTBR_INFRA_IF_NAME=mlan0 \
+     -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
 
-The otbr-agent is built in ${MY_OTBR}/build/otbr/src/agent/otbr-agent . Please copy it into Yocto's /usr/sbin/.
-The ot-ctl is built in ${MY_OTBR}/build/otbr/third_party/openthread/repo/src/posix/ot-ctl . Please copy it into Yocto's /usr/sbin/.
-The otbr-web is built in ${MY_OTBR}/build/otbr/src/web/otbr-web . Please copy it into Yocto's /usr/sbin/.
+The otbr-agent is built in ${MY_OTBR}/build/otbr/src/agent/otbr-agent.
+The ot-ctl is built in ${MY_OTBR}/build/otbr/third_party/openthread/repo/src/posix/ot-ctl.
+The otbr-web is built in ${MY_OTBR}/build/otbr/src/web/otbr-web.
+Please copy them into Yocto's /usr/sbin/.
 
 # How to setup OpenThread Border Router environment within the Yocto
 
-After the OTBR boot, the __i.MX8M Mini__ must connect the OTBR to the target Wi-Fi AP network.
+After the OTBR boot, the __i.MX8M Mini EVK__ or __i.MX6ULL EVK__ must connect the OTBR to the target Wi-Fi AP network.
 
     $modprobe moal mod_para=nxp/wifi_mod_para.conf
     $wpa_passphrase ${SSID} ${PASSWORD} > imxrouter.conf
@@ -111,13 +136,11 @@ After the OTBR boot, the __i.MX8M Mini__ must connect the OTBR to the target Wi-
     $echo 1 > /proc/sys/net/ipv4/ip_forward
     $echo 2 > /proc/sys/net/ipv6/conf/all/accept_ra
 
-Plugin the Thread module into the USB OTG port of __i.MX8M Mini__. A USB device should be visible as _/dev/ttyUSB_. 
+Plugin the Thread module into the USB OTG port of __i.MX8M Mini EVK__ or __i.MX6ULL EVK__. A USB device should be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
 Once the USB device is detected, start te OTBR related services.
 
-When using the NXP K32W0 USB module, programmed with OpenThread Spinel firmware image, execute the following commands:
+When using the RCP module, programmed with OpenThread Spinel firmware image, execute the following commands:
 
-    $otbr-agent-v11 -I wpan0 -B mlan0 spinel+hdlc+uart:///dev/ttyUSB0 &
-    If you are using Nodic USB Dongle, you need run:
     $otbr-agent -I wpan0 -B mlan0 spinel+hdlc+uart:///dev/ttyACM0 &
     $iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
