@@ -71,7 +71,7 @@ The system will create a directory bld-xwayland-imx8mm/ for i.MX8M Mini EVK or b
 
     $ bitbake imx-image-multimedia
 
-After execution of previous commands, the Yocto images will be generated under $\{MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 for i.MX8M Mini EVK and $\{MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.bz2 for i.MX6ULL EVK. The bz2 images are symbolic link files, so you should copy it to another fold $\{MY_images} before unzip it.
+After execution of previous commands, the Yocto images will be generated under $\{MY_YOCTO\}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 for i.MX8M Mini EVK and $\{MY_YOCTO\}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.bz2 for i.MX6ULL EVK. The bz2 images are symbolic link files, so you should copy it to another fold $\{MY_images\} before unzip it.
     
     #For i.MX8M Mini EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 ${MY_images}
