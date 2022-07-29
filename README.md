@@ -237,18 +237,7 @@ A Matter official document about how to use chip-tool as Matter controller can b
 
 # FAQ
 
-Q1 : Why does repo sync get stuck for a long time like this?
-
-    Receiving objects: 100% (158102/158102), 14.93 MiB | 35.80 MiB/s, done.02)
-    Resolving deltas: 100% (103740/103740), done.
-    Fetching: 92% (12/13) meta-nxp-demo-experience
-
-A : repo sync only takes a few minutes. If it gets stuck here for a long time, whitch may be the problem of network restrictions. To ensure that the release and Yocto code can be completely downloaded，you can use the following command to set up http proxy and https proxy before sync code:
-
-    $ export https_proxy=http://username:password@example.com:8080 && \
-      export http_proxy=http://username:password@example.com:8080
-
-Q2 : How to solve the following error occur while install python dependency packages?
+Q1 : How to solve the following error occur while install python dependency packages?
      
      ERROR: launchpadlib 1.10.13 requires testresources, which is not installed.ERROR: pip-tools 6.1.0 has requirement pip>=20.3, but you'll have pip 20.0.2 which is incompatible.
 
@@ -256,25 +245,25 @@ A : Run the commands below to install python3-testresources. It won't affect for
      
      $ sudo apt install python3-testresources
 
-Q3 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solve it?
+Q2 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solve it?
      
      | npm ERR! code EAI_AGAIN
      | npm ERR! errno EAI_AGAIN
      | npm ERR! request to https://registry.npmjs.org/angular failed, reason:reason: getaddrinfo EAI_AGAIN registry.cnpmjs.org registry.cnpmjs.org:80 
 
-A : This npm EAI_AGAIN error occurs When otbr is compiled more than once. You should clear the otbr compilation information and the re bitbake.
+A : This npm EAI_AGAIN error occurs when otbr is compiled more than once. You should clear the otbr compilation information and then re-bitbake.
     
      $ bitbake -c cleanall otbr
      $ bitbake imx-image-multimedia
 
-Q4 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" in floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
+Q3 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" in floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
 
-A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, You can bzip2 the linked file or cp imx-image-multimedia-imx8mmevk.wic.bz2 to other floder then bizp2.
+A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, you can bzip2 the linked file or cp imx-image-multimedia-imx8mmevk.wic.bz2 to other floder then bizp2.
 
     $ ls -al
     imx-image-multimedia-imx8mmevk.wic.bz2 -> imx-image-multimedia-imx8mmevk-20220721181418.rootfs.wic.bz2
 
-Q5 : How to solve the bellow problem?
+Q4 : How to solve the bellow problem?
 
     FAILED: src/web/web-service/frontend/CMakeFiles/otbr-web-frontend /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend/CMakeFiles/otbr-web-frontend
     cd /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend && cp /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/src/web/web-service/frontend/package.json . && npm install
@@ -290,7 +279,7 @@ A : Update node to latest version.
     $ nvm install 18
     $ node --version  --make sure that it was successfully installed.
 
-Q6 : What if the Yocto SDK environment is not removed when building the matter application?
+Q5 : What if the Yocto SDK environment is not removed when building the matter application?
 
 A : open a new shell, then remove the SDK envrinment and resource the apps build enviroment. 
    
