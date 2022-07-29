@@ -188,8 +188,8 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
 
 The Matter application has be installed into the Yocto image defaultly, but the software are based on project Matter TE9. If you want use the latest SVE versions, you shoule build it separately. Run the commands below to download the Matter application code And switch to SVE branch:
 
-    $ mkdir ${MY_Matter_Apps}
-    $ cd ${MY_Matter_Apps}
+    $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
+    $ cd ${MY_Matter_Apps}  
     $ git clone https://github.com/project-chip/connectedhomeip.git
     $ cd connectedhomeip
     $ git checkout -b sve origin/sve
@@ -197,14 +197,14 @@ The Matter application has be installed into the Yocto image defaultly, but the 
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    #For i.MX8M Mini EVK  
-    #/opt/fsl-imx-xwayland/5.15-hardknott-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
+    #For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/5.15-hardknott-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-hardknott-imx8mm     
-    #For i.MX6ULL EVK    
-    #/opt/fsl-imx-xwayland/5.15-hardknott-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
+    #For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/5.15-hardknott-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-hardknott-imx6ull
 
-Building those examples with the Yocto SDK specified by the IMX_SDK_ROOT has been integrated into the tool build_examples.py
+Building those apps with the Yocto SDK specified by the IMX_SDK_ROOT has been integrated into the tool build_examples.py. Use it to build the examples.
+
+Assuming that the working directory is changed to the top level directory of this project.
 
     $ source scripts/activate.sh
 
