@@ -263,7 +263,7 @@ A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, you can bzip2
     $ ls -al
     imx-image-multimedia-imx8mmevk.wic.bz2 -> imx-image-multimedia-imx8mmevk-20220721181418.rootfs.wic.bz2
 
-Q4 : How to solve the bellow problem?
+Q4 : How to solve the bellow issue?
 
     FAILED: src/web/web-service/frontend/CMakeFiles/otbr-web-frontend /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend/CMakeFiles/otbr-web-frontend
     cd /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend && cp /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/src/web/web-service/frontend/package.json . && npm install
@@ -273,13 +273,12 @@ Q4 : How to solve the bellow problem?
 
 A : Update node to latest version.
 
-    $ curl  https://raw.githubusercontent.com/creationix/nvm/master/install.sh | 
-    $ bash
-    $ source ~/.profiles
+    $ curl  https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    $ source ~/.profiles      __or__    source ~/.bashrc        #You can choose one of them as prompted by the previous command
     $ nvm install 18
-    $ node --version  --make sure that it was successfully installed.
+    $ node --version  # make sure that it was successfully installed.
 
-Q5 : What if the Yocto SDK environment is not removed when building the matter application?
+Q5 : What if Yocto SDK Python3 involved into Matter bootstrap process and make the bootstrap/active process failed?
 
 A : open a new shell, then remove the SDK envrinment and resource the apps build enviroment. 
    
