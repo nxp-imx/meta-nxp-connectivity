@@ -274,7 +274,7 @@ Q4 : How to solve the bellow issue?
 A : Update node to latest version.
 
     $ curl  https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-    $ source ~/.profiles      __or__    source ~/.bashrc        #You can choose one of them as prompted by the previous command
+    $ source ~/.profiles       or     source ~/.bashrc        #You can choose one of them as prompted by the previous command
     $ nvm install 18
     $ node --version  # make sure that it was successfully installed.
 
