@@ -241,7 +241,7 @@ Q1 : How to solve the following error occur while install python dependency pack
      
      ERROR: launchpadlib 1.10.13 requires testresources, which is not installed.ERROR: pip-tools 6.1.0 has requirement pip>=20.3, but you'll have pip 20.0.2 which is incompatible.
 
-A : Run the commands below to install python3-testresources. It won't affect for now if don't install python3-testresources.
+A : Run the commands below to install python3-testresources. It has no effect for now if the python3-testresources is not installed.
      
      $ sudo apt install python3-testresources
 
@@ -251,19 +251,19 @@ Q2 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solv
      | npm ERR! errno EAI_AGAIN
      | npm ERR! request to https://registry.npmjs.org/angular failed, reason:reason: getaddrinfo EAI_AGAIN registry.cnpmjs.org registry.cnpmjs.org:80 
 
-A : This npm EAI_AGAIN error occurs when otbr is compiled more than once. You should clear the otbr compilation information and then re-bitbake.
+A : This npm EAI_AGAIN error occurs when otbr is compiled more than once. The otbr intermediate compilation files should be cleared before executing the bitbake command again.
     
      $ bitbake -c cleanall otbr
      $ bitbake imx-image-multimedia
 
-Q3 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" in floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
+Q3 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" be executed in the floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
 
-A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, you can bzip2 the linked file or cp imx-image-multimedia-imx8mmevk.wic.bz2 to other floder then bizp2.
+A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, you can bzip2 the linked file or cp imx-image-multimedia-imx8mmevk.wic.bz2 to another floder then bizp2.
 
     $ ls -al
     imx-image-multimedia-imx8mmevk.wic.bz2 -> imx-image-multimedia-imx8mmevk-20220721181418.rootfs.wic.bz2
 
-Q4 : How to solve the bellow issue?
+Q4 : How to solve the issue bellow?
 
     FAILED: src/web/web-service/frontend/CMakeFiles/otbr-web-frontend /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend/CMakeFiles/otbr-web-frontend
     cd /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend && cp /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/src/web/web-service/frontend/package.json . && npm install
@@ -271,14 +271,14 @@ Q4 : How to solve the bellow issue?
     You'll need to upgrade to a newer Node.js version in order to use this
     version of npm. You can find the latest version at https://nodejs.org/
 
-A : Update node to latest version.
+A : Update the node to latest version.
 
     $ curl  https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
     $ source ~/.profiles       or     source ~/.bashrc        #You can choose one of them as prompted by the previous command
     $ nvm install 18
     $ node --version  # make sure that it was successfully installed.
 
-Q5 : What if Yocto SDK Python3 involved into Matter bootstrap process and make the bootstrap/active process failed?
+Q5 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
 
 A : open a new shell, then remove the SDK envrinment and resource the apps build enviroment. 
    
