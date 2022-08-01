@@ -280,7 +280,7 @@ A : Update the node to latest version.
 
 Q5 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
 
-A : open a new shell, then remove the SDK envrinment and resource the apps build enviroment. 
+A : open a new shell, then remove the Yocto SDK envrinment and resource the apps build enviroment. 
    
     $ cd ${MY_Matter_Apps}
     $ rm -rf .environment
