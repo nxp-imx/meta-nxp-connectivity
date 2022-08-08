@@ -158,9 +158,23 @@ In order to run IW612, following Yocto images under directory ${MY_YOCTO}/bld-xw
  - imx-boot-imx8mmevk-sd.bin-flash_evk.
  - imx-image-multimedia-imx8mmevk.wic.bz2.
  
-UUU is used to program above two files to eMMC by running the commands below.
+UUU is used to program above two files to eMMC by running the commands below:
 
     $ sudo uuu -b emmc_all imx-boot-imx8mmevk-sd.bin-flash_evk imx-image-multimedia-imx8mmevk.wic.bz2
+    
+Setting of Boot Switches to boot from eMMC:
+ - SW1101 -> 0110110001
+ - SW1102 -> 0001010100
+
+Use Minicom as debug console:
+
+    $ sudo TERM=linux minicom -D /dev/ttyUSB1 -b 115200
+    
+ - Reach the configuration by typing CTRL-A Z (Press key Z after releasing CTRL and A)
+ - At the screen configuration, type O, choosing cOnfigure Minicom
+ - In menu, choose Serial Port Setup and confirm following settings:
+
+   Bps/Par/Bits : 115200 8N1, Hardware Flow Control : No, and Software Flow Control : No
 
 # How to build UUU
 
