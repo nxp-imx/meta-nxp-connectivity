@@ -151,3 +151,22 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
 A document described how to build Matter application for i.MX platforms can be found in [Matter community](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/nxp_imx8m_linux_examples.md).
 
 A Matter official document about how to use chip-tool as Matter controller can be found in [here](https://github.com/project-chip/connectedhomeip/blob/TE8/rc3/examples/chip-tool/README.md).
+
+# How to run IW612 with i.MX8M Mini EVK
+
+In order to run IW612, following Yocto images under directory ${MY_YOCTO}/bld-xwayland/tmp/deploy/images/imx8mmevk should be used:
+ - imx-boot-imx8mmevk-sd.bin-flash_evk.
+ - imx-image-multimedia-imx8mmevk.wic.bz2.
+ 
+UUU is used to program above two files to eMMC by running the commands below.
+
+    $ sudo uuu -b emmc_all imx-boot-imx8mmevk-sd.bin-flash_evk imx-image-multimedia-imx8mmevk.wic.bz2
+
+# How to build UUU
+
+The Universal Update Utility (UUU) is used to download images to different devices on an i.MX board. Download UUU version 1.4.193 or later from https://github.com/NXPmicro/mfgtools/releases and execute the commands below to build it.
+
+    $ tar xvf uuu_source-1.4.193.tar.gz
+    $ cd uuu-1.4.193
+    $ cmake .
+    $ make
