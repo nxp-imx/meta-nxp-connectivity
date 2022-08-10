@@ -29,9 +29,9 @@ To build the Yocto Project, some packages need to be installed. The list of pack
 
 To build the Yocto Project, some python dependency packages need to be installed. 
 
+    $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3 
     $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/master/scripts/constraints.txt
     $ pip3 install -r constraints.txt
-    $ pip3 install build mypy==0.910 types-setuptools pylint==2.9.3 
     $ pip install dbus-python
 
 Then, Yocto build environment must be setup.
@@ -163,6 +163,11 @@ The ot-ctl is built in \${MY_OTBR}/build/otbr/third_party/openthread/repo/src/po
 
 Please copy them into Yocto's /usr/sbin/.
 
+__The OTBR does not support incremental compilation. If there is an error occur in the compilation process or you need to recompile, please delete ${MY_OTBR}/build and recompile.__
+  
+    $ cd ${MY_OTBR}
+    $ rm -rf build/
+
 # How to setup OpenThread Border Router environment within the Yocto
 
 After the OTBR boot, the __i.MX8M Mini EVK__ or __i.MX6ULL EVK__ must connect the OTBR to the target Wi-Fi AP network.
@@ -267,15 +272,7 @@ A Matter official document about how to use chip-tool as Matter controller can b
 
 # FAQ
 
-Q1 : How to solve the following error occur while install python dependency packages?
-     
-     ERROR: launchpadlib 1.10.13 requires testresources, which is not installed.ERROR: pip-tools 6.1.0 has requirement pip>=20.3, but you'll have pip 20.0.2 which is incompatible.
-
-A : Run the commands below to install python3-testresources. It has no effect for now if the python3-testresources is not installed.
-     
-     $ sudo apt install python3-testresources
-
-Q2 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solve it?
+Q1 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solve it?
      
      | npm ERR! code EAI_AGAIN
      | npm ERR! errno EAI_AGAIN
@@ -286,14 +283,14 @@ A : This npm EAI_AGAIN error occurs when otbr is compiled more than once. The ot
      $ bitbake -c cleanall otbr
      $ bitbake imx-image-multimedia
 
-Q3 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" be executed in the floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
+Q2 : why can't "bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2" be executed in the floder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
 
 A : Because imx-image-multimedia-imx8mmevk.wic.bz2 is a link file, you can bzip2 the linked file or cp imx-image-multimedia-imx8mmevk.wic.bz2 to another floder then bizp2.
 
     $ ls -al
     imx-image-multimedia-imx8mmevk.wic.bz2 -> imx-image-multimedia-imx8mmevk-20220721181418.rootfs.wic.bz2
 
-Q4 : How to solve the issue bellow?
+Q3 : How to solve the issue bellow?
 
     FAILED: src/web/web-service/frontend/CMakeFiles/otbr-web-frontend /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend/CMakeFiles/otbr-web-frontend
     cd /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend && cp /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/src/web/web-service/frontend/package.json . && npm install
@@ -308,10 +305,11 @@ A : Update the node to latest version.
     $ nvm install 18
     $ node --version  # make sure that it was successfully installed.
 
-Q5 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
+Q4 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
 
 A : open a new shell, then remove the Yocto SDK envrinment and resource the apps build enviroment. 
    
     $ cd ${MY_Matter_Apps}
     $ rm -rf .environment
     $ source scripts/activate.sh
+
