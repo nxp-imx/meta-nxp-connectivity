@@ -2,7 +2,7 @@ SUMMARY = "NXP IW612 stuffs for Matter"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://gpl-2.0.txt;md5=ab04ac0f249af12befccb94447c08b77"
 
-SRC_URI = "file://bin_sdw61x file://FwImage"
+SRC_URI = "file://gpl-2.0.txt file://bin_sdw61x file://FwImage"
 
 S = "${WORKDIR}"
 
@@ -22,5 +22,7 @@ do_install () {
     install -m 644 bin_sdw61x/config/* ${D}${datadir}/nxp_iw612/config
     install -m 444 FwImage/* ${D}/lib/firmware/nxp
 }
+
+FILES:${PN} = "${datadir}/nxp_iw612 /lib/firmware/nxp"
 
 RRECOMMENDS:${PN} = "wireless-tools"
