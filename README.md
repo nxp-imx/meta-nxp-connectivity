@@ -157,11 +157,15 @@ A Matter official document about how to use chip-tool as Matter controller can b
 In order to run IW612, following Yocto images under directory ${MY_YOCTO}/bld-xwayland/tmp/deploy/images/imx8mmevk should be used:
  - imx-boot-imx8mmevk-sd.bin-flash_evk.
  - imx-image-multimedia-imx8mmevk.wic.bz2.
- 
+
+Setting of Boot Switches to serial download mode:
+ - SW1101 -> 10XXXXXXXX
+ - SW1102 -> XXXXXXXXXX
+
 UUU is used to program above two files to eMMC by running the commands below:
 
     $ sudo uuu -b emmc_all imx-boot-imx8mmevk-sd.bin-flash_evk imx-image-multimedia-imx8mmevk.wic.bz2
-    
+
 Setting of Boot Switches to boot from eMMC:
  - SW1101 -> 0110110001
  - SW1102 -> 0001010100
@@ -169,7 +173,7 @@ Setting of Boot Switches to boot from eMMC:
 Use Minicom as debug console:
 
     $ sudo TERM=linux minicom -D /dev/ttyUSB1 -b 115200
-    
+
  - Reach the configuration by typing CTRL-A Z (Press key Z after releasing CTRL and A)
  - At the screen configuration, type O, choosing cOnfigure Minicom
  - In menu, choose Serial Port Setup and confirm following settings:
