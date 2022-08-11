@@ -23,6 +23,8 @@ do_install () {
     install -m 444 FwImage/* ${D}/lib/firmware/nxp
 }
 
+INHIBIT_PACKAGE_STRIP = "1"
+
 FILES:${PN} = "${datadir}/nxp_iw612 /lib/firmware/nxp"
 
 RRECOMMENDS:${PN} = "wireless-tools"
