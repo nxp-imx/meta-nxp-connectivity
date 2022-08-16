@@ -14,6 +14,7 @@ do_install () {
     install -m 644 bin_sdw61x/version ${D}${datadir}/nxp_iw612
     install -m 644 bin_sdw61x/mlan.ko ${D}${datadir}/nxp_iw612
     install -m 644 bin_sdw61x/sdw61x.ko ${D}${datadir}/nxp_iw612
+    install -m 755 bin_sdw61x/fw_loader_imx_lnx ${D}${datadir}/nxp_iw612
     install -m 755 bin_sdw61x/mlanutl ${D}${datadir}/nxp_iw612
     install -m 755 bin_sdw61x/uaputl.exe ${D}${datadir}/nxp_iw612
     install -m 644 bin_sdw61x/README ${D}${datadir}/nxp_iw612
