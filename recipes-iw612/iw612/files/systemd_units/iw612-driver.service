@@ -1,0 +1,9 @@
+[Unit]
+Description=Load kernel module for IW612
+After=network.target
+
+[Service]
+ExecStart=/usr/share/nxp_iw612/scripts/load.sh
+
+[Install]
+WantedBy=multi-user.target
