@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/share/nxp_iw612/scripts/load.sh
+ExecStartPost=/usr/share/nxp_iw612/scripts/reset_sdio.sh
 
 [Install]
 WantedBy=multi-user.target
