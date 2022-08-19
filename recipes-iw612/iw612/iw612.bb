@@ -29,6 +29,7 @@ do_install () {
     install -m 644 scripts/config/* ${D}${datadir}/nxp_iw612/scripts/config
     install -m 644 systemd_units/* ${D}/lib/systemd/system
     ln -s -r ${D}/lib/systemd/system/iw612-driver.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-driver.service
+    ln -s -r ${D}/lib/systemd/system/iw612-client.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-client.service
     install -m 444 FwImage/* ${D}/lib/firmware/nxp
 }
 

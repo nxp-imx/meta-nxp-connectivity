@@ -1,0 +1,10 @@
+[Unit]
+Description=Set up wpa_supplicant to connect to AP after wireless of IW612 is ready
+
+[Service]
+Type=forking
+ExecStart=/usr/share/nxp_iw612/scripts/client.sh
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target
