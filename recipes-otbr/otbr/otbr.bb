@@ -17,3 +17,7 @@ RDEPENDS:${PN} += " jsoncpp libavahi-client mdns radvd libnetfilter-queue ipset 
 
 inherit cmake
 EXTRA_OECMAKE = "-GNinja -DOTBR_BORDER_ROUTING=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.2 -DOTBR_INFRA_IF_NAME=mlan0 -DOT_POSIX_CONFIG_RCP_BUS=SPI"
+
+do_install:append() {
+    install -m 755 ${WORKDIR}/build/tools/pskc ${D}${sbindir}/pskc
+}
