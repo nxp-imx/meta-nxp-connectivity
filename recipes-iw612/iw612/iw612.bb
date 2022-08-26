@@ -31,6 +31,9 @@ do_install () {
     ln -s -r ${D}/lib/systemd/system/iw612-driver.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-driver.service
     ln -s -r ${D}/lib/systemd/system/iw612-client.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-client.service
     install -m 444 FwImage/* ${D}/lib/firmware/nxp
+    ln -s -r ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin.se ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin
+    ln -s -r ${D}/lib/firmware/nxp/sd_w61x_v1.bin.se ${D}/lib/firmware/nxp/sd_w61x_v1.bin
+    ln -s -r ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin.se ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin
 }
 
 INHIBIT_PACKAGE_STRIP = "1"
