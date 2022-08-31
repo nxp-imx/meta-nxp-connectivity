@@ -20,4 +20,6 @@ echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 2 > /proc/sys/net/ipv6/conf/all/accept_ra
 
+systemctl restart radvd
+
 cd $cwd
