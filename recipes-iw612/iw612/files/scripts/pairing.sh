@@ -1,3 +1,8 @@
+#!/bin/bash -x
+# =============================================
+# Parameters
+#
+
 type=help
 
 if [ $# -gt 0 ]; then
