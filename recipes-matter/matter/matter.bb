@@ -4,9 +4,9 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=https;tags=TE9"
+SRC_URI = "gitsm://github.com/nxptest/connectedhomeip.git;protocol=https;branch=sve-2-patch"
 
-SRCREV = "cfc35951be66a664a6efdadea56d1b8ea6e63e96"
+SRCREV = "3c2fa18632b12a69f7da4dc8c2d87896b73a0b31"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
