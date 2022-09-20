@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 SRC_URI = "gitsm://github.com/nxptest/connectedhomeip.git;protocol=https;branch=sve-2-patch"
 
-SRCREV = "3c2fa18632b12a69f7da4dc8c2d87896b73a0b31"
+SRCREV = "59787e398ed4cbdbe1c652a7ed76f7b52222c4fe"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
