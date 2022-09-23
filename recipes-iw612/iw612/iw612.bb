@@ -2,7 +2,7 @@ SUMMARY = "NXP IW612 stuffs for Matter"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://gpl-2.0.txt;md5=ab04ac0f249af12befccb94447c08b77"
 
-SRC_URI = "file://gpl-2.0.txt file://etc file://bin_sdw61x file://scripts file://systemd_units file://FwImage"
+SRC_URI = "file://gpl-2.0.txt file://etc file://bin_sdw61x file://scripts file://network file://systemd_units file://FwImage"
 
 S = "${WORKDIR}"
 
@@ -12,6 +12,7 @@ do_install () {
     install -d ${D}${datadir}/nxp_iw612/bin_sdw61x/config
     install -d ${D}${datadir}/nxp_iw612/scripts
     install -d ${D}${datadir}/nxp_iw612/scripts/config
+    install -d ${D}/lib/systemd/network
     install -d ${D}/lib/systemd/system
     install -d ${D}/etc/systemd/system/multi-user.target.wants
     install -d ${D}/lib/firmware/nxp
@@ -29,6 +30,7 @@ do_install () {
     install -m 644 bin_sdw61x/config/* ${D}${datadir}/nxp_iw612/bin_sdw61x/config
     install -m 755 scripts/*.sh ${D}${datadir}/nxp_iw612/scripts
     install -m 644 scripts/config/* ${D}${datadir}/nxp_iw612/scripts/config
+    install -m 644 network/* ${D}/lib/systemd/network
     install -m 644 systemd_units/* ${D}/lib/systemd/system
     ln -s -r ${D}/lib/systemd/system/iw612-driver.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-driver.service
     ln -s -r ${D}/lib/systemd/system/iw612-client.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-client.service
@@ -42,7 +44,7 @@ do_install () {
 
 INHIBIT_PACKAGE_STRIP = "1"
 
-FILES:${PN} = "/etc ${datadir}/nxp_iw612/bin_sdw61x ${datadir}/nxp_iw612/scripts /etc/systemd/system /lib/firmware/nxp /lib/systemd/system"
+FILES:${PN} = "/etc ${datadir}/nxp_iw612/bin_sdw61x ${datadir}/nxp_iw612/scripts /etc/systemd/system /lib/firmware/nxp /lib/systemd/network /lib/systemd/system"
 
 RDEPENDS:${PN} = "bash"
 
