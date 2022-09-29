@@ -4,9 +4,9 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "gitsm://github.com/nxptest/connectedhomeip.git;protocol=https;branch=sve-2-patch"
+SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=sve-2-patch"
 
-SRCREV = "59787e398ed4cbdbe1c652a7ed76f7b52222c4fe"
+SRCREV = "b8cb0fdc96be87b295bbcdb8b3b0a6f6697eec62"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
