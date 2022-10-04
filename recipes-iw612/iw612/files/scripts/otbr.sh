@@ -11,7 +11,7 @@ function init_bt()
 
 function init_otbr()
 {
-    otbr-agent -d ${debuglevel} -I wpan0 -B mlan0 'spinel+spi:///dev/spidev1.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip5&gpio-int-line=12&gpio-reset-line=13&spi-mode=0&spi-speed=1000000&spi-reset-delay=0&skip-rcp-compatibility-check=1'&
+    otbr-agent -d ${debuglevel} -I wpan0 -B mlan0 'spinel+spi:///dev/spidev1.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip5&gpio-int-line=12&gpio-reset-line=13&spi-mode=0&spi-speed=1000000&spi-reset-delay=0'&
     sleep 2
 
     iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
