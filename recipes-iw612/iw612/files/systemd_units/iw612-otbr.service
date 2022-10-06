@@ -1,5 +1,6 @@
 [Unit]
 Description=Set up OTBR after wireless of IW612 is ready
+After=iw612-initbt
 
 [Service]
 Type=forking

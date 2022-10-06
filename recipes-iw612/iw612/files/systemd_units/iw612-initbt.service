@@ -1,0 +1,10 @@
+[Unit]
+Description=Initialize BT of IW612
+
+[Service]
+Type=forking
+ExecStart=/usr/share/nxp_iw612/scripts/init_bt.sh
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target

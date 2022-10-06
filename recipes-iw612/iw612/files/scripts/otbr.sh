@@ -3,12 +3,6 @@
 # Parameters
 #
 
-function init_bt()
-{
-    hciattach /dev/ttymxc2 any -s 3000000 3000000 flow dtron
-    hciconfig hci0 up
-}
-
 function init_otbr()
 {
     otbr-agent -d ${debuglevel} -I wpan0 -B mlan0 'spinel+spi:///dev/spidev1.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip5&gpio-int-line=12&gpio-reset-line=13&spi-mode=0&spi-speed=1000000&spi-reset-delay=0'&
@@ -50,7 +44,6 @@ sleep 1
 
 cd /usr/share/nxp_iw612/scripts
 source config/nxp_otbr.ini
-init_bt
 init_otbr
 form_ot_network
 
