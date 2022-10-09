@@ -15,6 +15,7 @@ EULA=$EULA DISTRO=$DISTRO MACHINE=$MACHINE . ./imx-setup-release.sh -b $@
 echo "# layers for i.MX IoT for MATTER & OpenThread Broader Router" >> conf/bblayers.conf
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-matter\"" >> conf/bblayers.conf
 echo "IMAGE_INSTALL:append += \" boost boost-dev boost-staticdev \"" >> conf/local.conf
+echo "PACKAGECONFIG:append:pn-iptables += \" libnftnl\"" >> conf/local.conf
 
 echo ""
 echo "Now you can use below command to generate your image:"

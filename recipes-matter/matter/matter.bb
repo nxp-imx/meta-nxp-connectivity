@@ -4,9 +4,10 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "gitsm://github.com/project-chip/connectedhomeip.git;protocol=https;tags=TE9"
+SRCBRANCH = "v1.0-branch-imx"
+SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
 
-SRCREV = "cfc35951be66a664a6efdadea56d1b8ea6e63e96"
+SRCREV = "4e0250ff282462dd6a4839815539ba123d6eae49"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
@@ -88,6 +89,21 @@ do_configure() {
         target_cxx="${CXX}"
         target_ar="${AR}"'
 
+	cd ${S}/examples/nxp-thermostat/linux
+	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
+        import("//build_overrides/build.gni")
+        target_cflags=[
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+                        "-O3"
+                       ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
+
     cd ${S}/examples/chip-tool
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
@@ -145,6 +161,9 @@ do_compile() {
 	cd ${S}/examples/thermostat/linux
     ninja -C out/aarch64
 
+	cd ${S}/examples/nxp-thermostat/linux
+    ninja -C out/aarch64
+
 	cd ${S}/examples/chip-tool
     ninja -C out/aarch64
 
@@ -160,6 +179,7 @@ do_install() {
 	install ${S}/examples/lighting-app/linux/out/aarch64/chip-lighting-app ${D}${bindir}
 	install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
 	install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
+	install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
 	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
 	install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
 	install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
