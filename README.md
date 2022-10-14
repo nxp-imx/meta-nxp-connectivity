@@ -4,12 +4,13 @@ This repo contains the i.MX MPU project Matter related Yocto recipes. Below is a
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revision are based on [project Matter TE9](https://github.com/project-chip/connectedhomeip/commits/TE9).
+All the software components revision are based on [project Matter v1.0.0](https://github.com/project-chip/connectedhomeip/tree/v1.0.0).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem with this recipe repo:
  - chip-lighting-app: Matter lighting app demo
  - chip-all-clusters-app: Matter all-clusters demo
  - thermostat-app: Matter thermostat demo
+ - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
  - chip-tool: Matter Controller tools
  - ot-daemon: OpenThread Daemon for OpenThread client
  - ot-client-ctl: OpenThread ctrl tool for OpenThread client
@@ -36,7 +37,7 @@ To build the Yocto Project, some python dependency packages need to be installed
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a repo manifest, the tool repo is used to download the source code.
-This document is tested with the i.MX Yocto 5.15.32_2.0.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK and i.MX6ULL EVK.
+This document is tested with the i.MX Yocto 5.15.52_2.1.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK and i.MX6ULL EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -46,7 +47,7 @@ Run the commands below to download this release:
     
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://source.codeaurora.org/external/imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.32-2.0.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.52-2.1.0.xml
     $ repo sync
 Then integrate the meta-matter recipe into the Yocto code base
 
@@ -144,14 +145,14 @@ Fetch latest otbr source codes and execute the build:
     $ git checkout -t origin/main
     $ git submodule update --init
     #For i.MX8M Mini EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DOTBR_BACKBONE_ROUTER=ON \
-     -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON \
-     -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.2 -DOTBR_INFRA_IF_NAME=mlan0 \
-     -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+      -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
+      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
     #For i.MX6ULL EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DOTBR_BACKBONE_ROUTER=ON \
-     -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON -DOTBR_DNSSD_DISCOVERY_PROXY=ON \
-     -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.2 -DOTBR_INFRA_IF_NAME=mlan0 \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+      -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
 
 The otbr-agent is built in \${MY_OTBR}/build/otbr/src/agent/otbr-agent. 
@@ -174,12 +175,38 @@ After the OTBR boot, the __i.MX8M Mini EVK__ or __i.MX6ULL EVK__ must connect th
     $echo 1 > /proc/sys/net/ipv4/ip_forward
     $echo 2 > /proc/sys/net/ipv6/conf/all/accept_ra
 
+    $sudo sh -c 'echo "88 openthread" >>/etc/iproute2/rt_tables'
+    $sudo sh -c 'echo "" >>/etc/sysctl.conf'
+    $sudo sh -c 'echo "# OpenThread configuration" >>/etc/sysctl.conf'
+    $sudo sh -c 'echo "net.core.optmem_max=65536" >>/etc/sysctl.conf'
+    $sudo sh -c 'sysctl -p /etc/sysctl.conf'
+    
+    $ipset create -exist otbr-ingress-deny-src hash:net family inet6
+    $ipset create -exist otbr-ingress-deny-src-swap hash:net family inet6
+    $ipset create -exist otbr-ingress-allow-dst hash:net family inet6
+    $ipset create -exist otbr-ingress-allow-dst-swap hash:net family inet6
+    
+    $ip6tables -N OTBR_FORWARD_INGRESS
+    $ip6tables -I FORWARD 1 -o wpan0 -j OTBR_FORWARD_INGRESS
+    
+    $ip6tables -A OTBR_FORWARD_INGRESS -m pkttype --pkt-type unicast -i wpan0 -j DROP
+    $ip6tables -A OTBR_FORWARD_INGRESS -m set --match-set otbr-ingress-deny-src src -j DROP
+    $ip6tables -A OTBR_FORWARD_INGRESS -m set --match-set otbr-ingress-allow-dst dst -j ACCEPT
+    $ip6tables -A OTBR_FORWARD_INGRESS -m pkttype --pkt-type unicast -j DROP
+    $ip6tables -A OTBR_FORWARD_INGRESS -j ACCEPT
+    
+    $echo 1 | sudo tee /proc/sys/net/ipv6/conf/all/forwarding
+    $echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+
 Plugin the Thread module into the USB OTG port of __i.MX8M Mini EVK__ or __i.MX6ULL EVK__. A USB device should be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
 Once the USB device is detected, start te OTBR related services.
 
 When using the RCP module, programmed with OpenThread Spinel firmware image, execute the following commands:
 
+    #If you are using third-party reference RCP
     $otbr-agent -I wpan0 -B mlan0 spinel+hdlc+uart:///dev/ttyACM0 &
+    #If you are using K32W RCP
+    $otbr-agent -I wpan0 -B mlan0 'spinel+hdlc+uart:///dev/ttyUSB0?uart-baudrate=1000000' &
     $iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $otbr-web &
@@ -190,9 +217,9 @@ The Matter application has be installed into the Yocto image defaultly, but the 
 
     $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
     $ cd ${MY_Matter_Apps}  
-    $ git clone https://github.com/project-chip/connectedhomeip.git
+    $ git clone https://github.com/NXPmicro/matter.git
     $ cd connectedhomeip
-    $ git checkout -b sve origin/sve
+    $ git checkout -t origin/v1.0-branch-imx
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
@@ -222,6 +249,9 @@ Assuming that the working directory is changed to the top level directory of thi
 
     #If the ota-provider example is to be built
     $ ./scripts/build/build_examples.py  --target imx-ota-provider-app build
+
+    #If the nxp-thermostat-app is to be built for certification device reference
+    $ ./scripts/examples/imxlinux_example.sh examples/nxp-thermostat/linux/ out/nxp-thermostat debug
 
 The apps are built in the subdirectories under out/, the subdirectory name is the same as the argument specified after the option --target when build the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 
