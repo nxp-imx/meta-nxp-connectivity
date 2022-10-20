@@ -1,6 +1,6 @@
 # Introduction
 This repo contains the i.MX MPU project Matter related Yocto recipes. Below is a list of modules that will be built with the meta-matter repo integrated.
- - Matter (CHIP) : https://github.com/project-chip/connectedhomeip
+ - Matter (CHIP) : https://github.com/NXPmicro/matter.git
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
@@ -72,27 +72,27 @@ The system will create a directory bld-xwayland-imx8mm/ for i.MX8M Mini EVK or b
 
     $ bitbake imx-image-multimedia
 
-After execution of previous commands, the Yocto images will be generated under ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 for i.MX8M Mini EVK.
+After execution of previous commands, the Yocto images will be generated under ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.zst for i.MX8M Mini EVK.
 
-And ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.bz2 for i.MX6ULL EVK. 
+And ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
 
-The bz2 images are symbolic link files, so you should copy it to another fold ${MY_images} before unzip it.
+The zst images are symbolic link files, so you should copy it to another fold ${MY_images} before unzip it.
     
     #For i.MX8M Mini EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.bz2 ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.zst ${MY_images}
     #For i.MX6ULL EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.bz2 ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
 
-The bzip2 command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used to boot the image of an i.MX 8M Mini EVK or i.MX6ULL EVK.
+The zstd command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used to boot the image of an i.MX 8M Mini EVK or i.MX6ULL EVK.
 
 ___Be cautious when executing the dd command below, make sure the of represents the microSD card device!, /dev/sdc in the command below represents a microSD card connected to the host machine with a USB adapter, however the output device name may vary. Use the command "ls /dev/sd*" to verify the name of the SD card device.___
 
     $ cd ${MY_images}
     #For i.MX8M Mini EVK:
-    $ bzip2 -d imx-image-multimedia-imx8mmevk.wic.bz2
+    $ zstd -d imx-image-multimedia-imx8mmevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx8mmevk.wic of=/dev/sdc bs=4M conv=fsync
     #For i.MX6ULL EVK:
-    $ bzip2 -d imx-image-multimedia-imx6ullevk.wic.bz2
+    $ zstd -d imx-image-multimedia-imx6ullevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
 
 # How to build OpenThread Border Router with Yocto SDK
@@ -218,12 +218,12 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
 
 # How to build Matter application
 
-The Matter application has be installed into the Yocto image defaultly, but the software are based on project Matter TE9. If you want use the latest SVE versions, you shoule build it separately. Run the commands below to download the Matter application code And switch to SVE branch:
+The Matter application has be installed into the Yocto image defaultly. If you want build it separately. Run the commands below to download the Matter application code and switch to v1.0 branch:
 
     $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
     $ cd ${MY_Matter_Apps}  
     $ git clone https://github.com/NXPmicro/matter.git
-    $ cd connectedhomeip
+    $ cd matter
     $ git checkout -t origin/v1.0-branch-imx
     $ git submodule update --init
 
