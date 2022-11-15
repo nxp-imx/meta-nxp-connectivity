@@ -1,0 +1,56 @@
+From 0743163202e827415debbac0b0e1b347ce1cdc8b Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Wed, 19 Oct 2022 03:18:22 +0000
+Subject: [PATCH 1/2] correct otbr reference scripts install folder
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ tools/reference_device/CMakeLists.txt                | 2 +-
+ tools/reference_device/testharness-discovery         | 4 ++--
+ tools/reference_device/testharness-discovery.init.in | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/reference_device/CMakeLists.txt b/tools/reference_device/CMakeLists.txt
+index 25513c3533..2f91342cb1 100644
+--- a/tools/reference_device/CMakeLists.txt
++++ b/tools/reference_device/CMakeLists.txt
+@@ -30,7 +30,7 @@
+ install(
+         DIRECTORY ${CMAKE_SOURCE_DIR}/script/reference-device
+         FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+-        DESTINATION /home/pi
++        DESTINATION sbin
+ )
+ 
+ install(
+diff --git a/tools/reference_device/testharness-discovery b/tools/reference_device/testharness-discovery
+index 58a22eae8d..cdd0aa96fc 100755
+--- a/tools/reference_device/testharness-discovery
++++ b/tools/reference_device/testharness-discovery
+@@ -60,8 +60,8 @@ def get_ipaddr():
+ 
+ def advertise_bbr(s: socket.socket, src):
+     bbr_info = {
+-        'ven': 'OpenThread_BR',
+-        'mod': 'OpenThread_BR',
++        'ven': 'IMX_OT13_BR',
++        'mod': 'IMX_OT13_BR',
+         'ver': '1.0',
+         'add': get_ipaddr(),
+         'por': 22,
+diff --git a/tools/reference_device/testharness-discovery.init.in b/tools/reference_device/testharness-discovery.init.in
+index 2628106611..04db0a16f5 100755
+--- a/tools/reference_device/testharness-discovery.init.in
++++ b/tools/reference_device/testharness-discovery.init.in
+@@ -42,7 +42,7 @@ set -e
+ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+ DESC="TestHarness Discovery"
+ NAME=testharness-discovery
+-DAEMON=/home/pi/scripts/
++DAEMON=@CMAKE_INSTALL_FULL_SBINDIR@/scripts
+ PIDFILE=/var/run/testharness-discovery.pid
+ 
+ . /lib/lsb/init-functions
+-- 
+2.25.1
+
