@@ -4,9 +4,12 @@ DESCRIPTION = "OTBR applications"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=87109e44b2fda96a8991f27684a7349c"
 
+PATCHTOOL = "git"
+
 SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main"
 
 SRC_URI += "file://0001-correct-otbr-reference-scripts-install-folder.patch"
+SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
 
 SRCREV = "1813352247aa60fb8993773918f1e5b4af6f3b79"
 
@@ -19,6 +22,7 @@ RDEPENDS:${PN} += " jsoncpp libavahi-client mdns radvd libnetfilter-queue ipset 
 
 do_configure:prepend () {
     export REFERENCE_DEVICE=1
+    export OTBRWEB_PREBUILT_FRONTEND=1
 }
 
 inherit cmake
