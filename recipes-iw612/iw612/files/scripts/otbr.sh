@@ -47,4 +47,7 @@ source config/nxp_otbr.ini
 init_otbr
 form_ot_network
 
+sed -i '/^\tprefix/c\\tprefix '"$meshlocalprefix"' {' /etc/radvd.conf
+systemctl restart radvd
+
 cd $cwd
