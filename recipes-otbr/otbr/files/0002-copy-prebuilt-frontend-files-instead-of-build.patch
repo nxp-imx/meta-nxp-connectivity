@@ -1,7 +1,7 @@
 From 8d4bcc6c3a70b1351868ab416a31a5f9c4068e55 Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Mon, 14 Nov 2022 17:52:10 +0000
-Subject: [PATCH 2/2] copy prebuilt frontend files instead of build
+Subject: [PATCH 2/3] copy prebuilt frontend files instead of build
 
 copy prebuilt frontend files instead of built to prevent the npm build
 issue in Yocto.

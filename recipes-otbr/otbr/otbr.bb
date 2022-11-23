@@ -10,6 +10,7 @@ SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main"
 
 SRC_URI += "file://0001-correct-otbr-reference-scripts-install-folder.patch"
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
+SRC_URI += "file://0003-Install-pskc-for-otbr-agent-credentials-generation.patch"
 
 SRCREV = "1813352247aa60fb8993773918f1e5b4af6f3b79"
 
