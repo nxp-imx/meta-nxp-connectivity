@@ -4,10 +4,12 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.0-branch-imx"
-SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
+SRCBRANCH = "v1.0-branch-nxp"
+SRC_URI = "git://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
 
-SRCREV = "4e0250ff282462dd6a4839815539ba123d6eae49"
+SRC_URI += "file://0001-Add-Network-Commissioning-cluster-setup-for-bridge-a.patch"
+
+SRCREV = "9ffcf50a59281d25a6465680bed8249a5a68fe70"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
@@ -44,6 +46,8 @@ TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 S = "${WORKDIR}/git"
 
 do_configure() {
+    cd ${S}/
+    python3 ./scripts/checkout_submodules.py --platform linux
     cd ${S}/examples/lighting-app/linux
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
@@ -149,6 +153,21 @@ do_configure() {
         target_cxx="${CXX}"
         target_ar="${AR}"'
 
+    cd ${S}/examples/bridge-app/linux
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
+        import("//build_overrides/build.gni")
+        target_cflags=[
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+                        "-O3"
+        ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
+
 }
 
 do_compile() {
@@ -172,6 +191,9 @@ do_compile() {
 
     cd ${S}/examples/ota-requestor-app/linux
     ninja -C out/aarch64
+
+    cd ${S}/examples/bridge-app/linux
+    ninja -C out/aarch64
 }
 
 do_install() {
@@ -183,6 +205,7 @@ do_install() {
 	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
 	install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
 	install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
+	install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
 }
 
 INSANE_SKIP_${PN} = "ldflags"
