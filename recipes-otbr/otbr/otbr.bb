@@ -11,6 +11,7 @@ SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main"
 SRC_URI += "file://0001-correct-otbr-reference-scripts-install-folder.patch"
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
 SRC_URI += "file://0003-Install-pskc-for-otbr-agent-credentials-generation.patch"
+SRC_URI += "file://0004-Add-service-otbr_fwcfg-to-config-the-firewall-policy.patch"
 
 SRCREV = "1813352247aa60fb8993773918f1e5b4af6f3b79"
 
@@ -19,7 +20,8 @@ FILES:${PN} += "lib/systemd"
 FILES:${PN} += "usr/share"
 
 DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables "
-RDEPENDS:${PN} += " jsoncpp libavahi-client mdns radvd libnetfilter-queue ipset libnftnl nftables "
+RDEPENDS:${PN} += " jsoncpp libavahi-client mdns radvd libnetfilter-queue ipset libnftnl nftables bash "
+
 
 do_configure:prepend () {
     export REFERENCE_DEVICE=1
