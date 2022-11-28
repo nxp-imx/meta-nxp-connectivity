@@ -1,0 +1,91 @@
+From 2b98584bf0fbe164fc6812c34ef948874336e68e Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Wed, 23 Nov 2022 12:47:28 +0000
+Subject: [PATCH 4/4] Add service otbr_fwcfg to config the firewall policy
+
+To pass the certification 1.3, need config the firewall.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ tools/reference_device/CMakeLists.txt     | 10 +++++++++
+ tools/reference_device/otbr_fwcfg.service |  9 ++++++++
+ tools/reference_device/otbr_fwcfg.sh      | 25 +++++++++++++++++++++++
+ 3 files changed, 44 insertions(+)
+ create mode 100644 tools/reference_device/otbr_fwcfg.service
+ create mode 100755 tools/reference_device/otbr_fwcfg.sh
+
+diff --git a/tools/reference_device/CMakeLists.txt b/tools/reference_device/CMakeLists.txt
+index 2f91342cb1..d4bcd76a68 100644
+--- a/tools/reference_device/CMakeLists.txt
++++ b/tools/reference_device/CMakeLists.txt
+@@ -38,11 +38,21 @@ install(
+         DESTINATION sbin
+ )
+ 
++install(
++        PROGRAMS otbr_fwcfg.sh
++        DESTINATION /usr/bin/
++)
++
+ if(OTBR_SYSTEMD_UNIT_DIR)
+     configure_file(testharness-discovery.service.in testharness-discovery.service)
++    install(FILES otbr_fwcfg.service
++            DESTINATION ${OTBR_SYSTEMD_UNIT_DIR}
++            )
++
+     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/testharness-discovery.service
+             DESTINATION ${OTBR_SYSTEMD_UNIT_DIR}
+             )
++
+ else()
+     configure_file(testharness-discovery.init.in testharness-discovery.init)
+     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/testharness-discovery.init
+diff --git a/tools/reference_device/otbr_fwcfg.service b/tools/reference_device/otbr_fwcfg.service
+new file mode 100644
+index 0000000000..b35df65e8b
+--- /dev/null
++++ b/tools/reference_device/otbr_fwcfg.service
+@@ -0,0 +1,9 @@
++[Unit]
++Description=NXP i.MX OTBR firewall config
++
++[Service]
++Type=simple
++ExecStart=/bin/bash /usr/bin/otbr_fwcfg.sh
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/tools/reference_device/otbr_fwcfg.sh b/tools/reference_device/otbr_fwcfg.sh
+new file mode 100755
+index 0000000000..0a445ce7f4
+--- /dev/null
++++ b/tools/reference_device/otbr_fwcfg.sh
+@@ -0,0 +1,25 @@
++#!/bin/bash
++echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
++echo 1 > /proc/sys/net/ipv4/ip_forward
++echo 2 > /proc/sys/net/ipv6/conf/all/accept_ra
++echo 64 | sudo tee /proc/sys/net/ipv6/conf/all/accept_ra_rt_info_max_plen
++echo 65536 > /proc/sys/net/core/optmem_max
++ipset create -exist otbr-ingress-deny-src hash:net family inet6
++ipset create -exist otbr-ingress-deny-src-swap hash:net family inet6
++ipset create -exist otbr-ingress-allow-dst hash:net family inet6
++ipset create -exist otbr-ingress-allow-dst-swap hash:net family inet6
++ip6tables -N OTBR_FORWARD_INGRESS
++ip6tables -I FORWARD 1 -o wpan0 -j OTBR_FORWARD_INGRESS
++ip6tables -A OTBR_FORWARD_INGRESS -m pkttype --pkt-type unicast -i wpan0 -j DROP
++ip6tables -A OTBR_FORWARD_INGRESS -m set --match-set otbr-ingress-deny-src src -j DROP
++ip6tables -A OTBR_FORWARD_INGRESS -m set --match-set otbr-ingress-allow-dst dst -j ACCEPT
++ip6tables -A OTBR_FORWARD_INGRESS -m pkttype --pkt-type unicast -j DROP
++ip6tables -A OTBR_FORWARD_INGRESS -j ACCEPT
++
++rttable_file="/etc/iproute2/rt_tables"
++check=`grep openthread ${rttable_file}`
++if [[ ! $check ]]; then
++    echo "88 openthread" >> ${rttable_file}
++fi
++echo "done"
++
+-- 
+2.25.1
+
