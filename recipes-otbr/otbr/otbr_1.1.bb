@@ -1,5 +1,5 @@
 PN = "otbr"
-PR = "r1"
+PR = "r0"
 SUMMARY = "OTBR on i.MX boards"
 DESCRIPTION = "OTBR applications"
 LICENSE = "BSD-3-Clause"

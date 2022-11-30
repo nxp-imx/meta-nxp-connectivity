@@ -1,5 +1,5 @@
 PN = "matter"
-PR = "r1"
+PR = "r0"
 SUMMARY = "Matter IoT connectivity on i.MX boards"
 DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
