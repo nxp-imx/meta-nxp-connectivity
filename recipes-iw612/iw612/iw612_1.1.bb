@@ -39,9 +39,9 @@ do_install () {
     ln -s -r ${D}/lib/systemd/system/iw612-initbt.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-initbt.service
     ln -s -r ${D}/lib/systemd/system/iw612-otbr.service ${D}/etc/systemd/system/multi-user.target.wants/iw612-otbr.service
     install -m 444 FwImage/* ${D}/lib/firmware/nxp
-    ln -s -r ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin.se ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin
-    ln -s -r ${D}/lib/firmware/nxp/sd_w61x_v1.bin.se ${D}/lib/firmware/nxp/sd_w61x_v1.bin
-    ln -s -r ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin.se ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin
+    ln -s -r ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin.se.mrk ${D}/lib/firmware/nxp/sduart_nw61x_v1.bin.mrk
+    ln -s -r ${D}/lib/firmware/nxp/sd_w61x_v1.bin.se.mrk ${D}/lib/firmware/nxp/sd_w61x_v1.bin.mrk
+    ln -s -r ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin.se.mrk ${D}/lib/firmware/nxp/uartspi_n61x_v1.bin.mrk
     ln -s -r ${D}${datadir}/nxp_iw612/bin_sdw61x/config/WlanCalData_ext_RD-IW61x-QFN-IPA-2A_V2_without_diversity.conf ${D}/lib/firmware/nxp/WlanCalData_ext_IW612.conf
 }
 
