@@ -5,7 +5,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRCBRANCH = "v1.0-branch-nxp"
-SRC_URI = "git://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
+SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
 
 SRCREV = "9ffcf50a59281d25a6465680bed8249a5a68fe70"
 
@@ -45,7 +45,6 @@ S = "${WORKDIR}/git"
 
 do_configure() {
     cd ${S}/
-    python3 ./scripts/checkout_submodules.py --platform linux
     cd ${S}/examples/lighting-app/linux
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
