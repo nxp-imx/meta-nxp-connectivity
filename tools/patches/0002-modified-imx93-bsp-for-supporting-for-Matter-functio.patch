@@ -1,0 +1,294 @@
+From a22e3f83aeae527dac5ab35a6f3f0dd3a22f43f8 Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Tue, 6 Dec 2022 19:05:34 +0000
+Subject: [PATCH 2/2] modified imx93 bsp for supporting for Matter function
+
+Added a device tree for IW612 M.2 module for i.MX93 EVK.
+Config u-boot to use the imx93-11x11-evk-iw612-otbr.dtb by default.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ .../conf/machine/imx93-11x11-lpddr4x-evk.conf |  1 +
+ ...om-imx93-11x11-evk-iw612-otbr.dtb-fo.patch | 26 +++++
+ .../recipes-bsp/u-boot/u-boot-imx_2022.04.bb  |  2 +
+ ...001-enable-otbr-and-firewall-configs.patch | 29 +++---
+ ...device-tree-to-support-IW612-SPI-RCP.patch | 97 +++++++++++++++++++
+ .../recipes-kernel/linux/linux-imx_5.15.bb    |  1 +
+ 6 files changed, 143 insertions(+), 13 deletions(-)
+ create mode 100644 meta-bsp/recipes-bsp/u-boot/files/0001-imx93evk-boot-from-imx93-11x11-evk-iw612-otbr.dtb-fo.patch
+ create mode 100644 meta-bsp/recipes-kernel/linux/files/0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch
+
+diff --git a/meta-bsp/conf/machine/imx93-11x11-lpddr4x-evk.conf b/meta-bsp/conf/machine/imx93-11x11-lpddr4x-evk.conf
+index b5856f058..c981b85dd 100644
+--- a/meta-bsp/conf/machine/imx93-11x11-lpddr4x-evk.conf
++++ b/meta-bsp/conf/machine/imx93-11x11-lpddr4x-evk.conf
+@@ -24,6 +24,7 @@ KERNEL_DEVICETREE += " \
+       freescale/imx93-11x11-evk-mt9m114.dtb \
+       freescale/imx93-11x11-evk-rm67199.dtb \
+       freescale/imx93-11x11-evk-root.dtb \
++      freescale/imx93-11x11-evk-iw612-otbr.dtb \
+  "
+ 
+ UBOOT_CONFIG_BASENAME = "imx93_11x11_evk"
+diff --git a/meta-bsp/recipes-bsp/u-boot/files/0001-imx93evk-boot-from-imx93-11x11-evk-iw612-otbr.dtb-fo.patch b/meta-bsp/recipes-bsp/u-boot/files/0001-imx93evk-boot-from-imx93-11x11-evk-iw612-otbr.dtb-fo.patch
+new file mode 100644
+index 000000000..361ded49a
+--- /dev/null
++++ b/meta-bsp/recipes-bsp/u-boot/files/0001-imx93evk-boot-from-imx93-11x11-evk-iw612-otbr.dtb-fo.patch
+@@ -0,0 +1,26 @@
++From 89bda79ce5fea08482382b839f07c11634258c31 Mon Sep 17 00:00:00 2001
++From: "Haoran.Wang" <elven.wang@nxp.com>
++Date: Fri, 2 Dec 2022 10:19:02 +0800
++Subject: [PATCH] imx93evk: boot from imx93-11x11-evk-iw612-otbr.dtb for matter
++
++Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
++---
++ configs/imx93_11x11_evk_defconfig | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/configs/imx93_11x11_evk_defconfig b/configs/imx93_11x11_evk_defconfig
++index 4bf4aac854..0d95fa58ce 100644
++--- a/configs/imx93_11x11_evk_defconfig
+++++ b/configs/imx93_11x11_evk_defconfig
++@@ -29,7 +29,7 @@ CONFIG_SYS_LOAD_ADDR=0x80400000
++ CONFIG_FIT=y
++ CONFIG_FIT_VERBOSE=y
++ CONFIG_BOOTCOMMAND="run distro_bootcmd;run bsp_bootcmd"
++-CONFIG_DEFAULT_FDT_FILE="imx93-11x11-evk.dtb"
+++CONFIG_DEFAULT_FDT_FILE="imx93-11x11-evk-iw612-otbr.dtb"
++ CONFIG_ARCH_MISC_INIT=y
++ CONFIG_BOARD_EARLY_INIT_F=y
++ CONFIG_BOARD_LATE_INIT=y
++-- 
++2.36.0
++
+diff --git a/meta-bsp/recipes-bsp/u-boot/u-boot-imx_2022.04.bb b/meta-bsp/recipes-bsp/u-boot/u-boot-imx_2022.04.bb
+index c4c9a9dc0..e268b405b 100644
+--- a/meta-bsp/recipes-bsp/u-boot/u-boot-imx_2022.04.bb
++++ b/meta-bsp/recipes-bsp/u-boot/u-boot-imx_2022.04.bb
+@@ -55,3 +55,5 @@ do_deploy:append:mx8m-nxp-bsp() {
+ 
+ PACKAGE_ARCH = "${MACHINE_ARCH}"
+ COMPATIBLE_MACHINE = "(mx6-generic-bsp|mx7-generic-bsp|mx8-generic-bsp|mx9-generic-bsp)"
++
++SRC_URI += "file://0001-imx93evk-boot-from-imx93-11x11-evk-iw612-otbr.dtb-fo.patch"
+diff --git a/meta-bsp/recipes-kernel/linux/files/0001-enable-otbr-and-firewall-configs.patch b/meta-bsp/recipes-kernel/linux/files/0001-enable-otbr-and-firewall-configs.patch
+index 4c105ca29..1d2073ddd 100644
+--- a/meta-bsp/recipes-kernel/linux/files/0001-enable-otbr-and-firewall-configs.patch
++++ b/meta-bsp/recipes-kernel/linux/files/0001-enable-otbr-and-firewall-configs.patch
+@@ -1,7 +1,7 @@
+-From 2adb15904260afafe0acd8018ddeaf5960806ebc Mon Sep 17 00:00:00 2001
++From 6e32cc717b05b29e128b4219b49dc38e63de2813 Mon Sep 17 00:00:00 2001
+ From: Haoran Wang <elven.wang@nxp.com>
+ Date: Tue, 24 May 2022 13:08:40 +0000
+-Subject: [PATCH] enable otbr and firewall configs
++Subject: [PATCH 1/2] enable otbr and firewall configs
+ 
+ Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+ ---
+@@ -10,7 +10,7 @@ Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+  2 files changed, 373 insertions(+), 45 deletions(-)
+ 
+ diff --git a/arch/arm/configs/imx_v7_defconfig b/arch/arm/configs/imx_v7_defconfig
+-index 582625f227d5..35763105a177 100644
++index be46db234e01..ea3fbedf6dbb 100644
+ --- a/arch/arm/configs/imx_v7_defconfig
+ +++ b/arch/arm/configs/imx_v7_defconfig
+ @@ -62,11 +62,74 @@ CONFIG_CMA=y
+@@ -107,11 +107,10 @@ index 582625f227d5..35763105a177 100644
+  CONFIG_DMA_CMA=y
+  CONFIG_FONTS=y
+  CONFIG_FONT_8x8=y
+-@@ -577,12 +642,3 @@ CONFIG_DEBUG_FS=y
+- # CONFIG_SCHED_DEBUG is not set
++@@ -578,15 +643,6 @@ CONFIG_DEBUG_FS=y
+  # CONFIG_DEBUG_PREEMPT is not set
+  # CONFIG_FTRACE is not set
+--
++ 
+ -# enable AF_ALG
+ -CONFIG_CRYPTO_USER_API_HASH=m
+ -CONFIG_CRYPTO_USER_API_SKCIPHER=m
+@@ -120,8 +119,12 @@ index 582625f227d5..35763105a177 100644
+ -# enable KTLS
+ -CONFIG_TLS=y
+ -CONFIG_TLS_DEVICE=y
++-
++ #enable trust based hardware key
++ CONFIG_TRUSTED_KEYS=m
++ CONFIG_TRUSTED_KEYS_TPM=n
+ diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
+-index 1ef259ee4254..4c88eef64cd9 100644
++index 97dc633d7800..d2c657d1cfe0 100644
+ --- a/arch/arm64/configs/imx_v8_defconfig
+ +++ b/arch/arm64/configs/imx_v8_defconfig
+ @@ -62,13 +62,6 @@ CONFIG_ARM_SCPI_CPUFREQ=y
+@@ -556,7 +559,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_SDR_PLATFORM_DRIVERS=y
+  CONFIG_VIDEO_IMX219=m
+  CONFIG_VIDEO_OV5640=y
+-@@ -594,12 +876,10 @@ CONFIG_DRM_TI_SN65DSI86=m
++@@ -596,12 +878,10 @@ CONFIG_DRM_TI_SN65DSI86=m
+  CONFIG_DRM_I2C_ADV7511=y
+  CONFIG_DRM_I2C_ADV7511_AUDIO=y
+  CONFIG_DRM_CDNS_HDCP=y
+@@ -569,7 +572,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_DRM_ITE_IT6263=y
+  CONFIG_DRM_ITE_IT6161=y
+  CONFIG_DRM_IMX=y
+-@@ -656,7 +936,6 @@ CONFIG_SND_SOC_IMX_PDM_MIC=m
++@@ -659,7 +939,6 @@ CONFIG_SND_SOC_IMX_PDM_MIC=m
+  CONFIG_SND_SOC_IMX_PCM512X=m
+  CONFIG_SND_SOC_SOF_TOPLEVEL=y
+  CONFIG_SND_SOC_SOF_OF=m
+@@ -577,7 +580,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_SND_SOC_SOF_IMX_TOPLEVEL=y
+  CONFIG_SND_SOC_SOF_IMX8=m
+  CONFIG_SND_SOC_SOF_IMX8M=m
+-@@ -787,8 +1066,8 @@ CONFIG_NEW_LEDS=y
++@@ -790,8 +1069,8 @@ CONFIG_NEW_LEDS=y
+  CONFIG_LEDS_CLASS=y
+  CONFIG_LEDS_LM3692X=m
+  CONFIG_LEDS_PCA9532=m
+@@ -587,7 +590,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_LEDS_PWM=y
+  CONFIG_LEDS_SYSCON=y
+  CONFIG_LEDS_TRIGGER_TIMER=y
+-@@ -861,6 +1140,7 @@ CONFIG_MHDP_HDMIRX_CEC=y
++@@ -864,6 +1143,7 @@ CONFIG_MHDP_HDMIRX_CEC=y
+  CONFIG_FSL_DPAA2=y
+  CONFIG_FSL_PPFE=y
+  CONFIG_FSL_PPFE_UTIL_DISABLED=y
+@@ -595,7 +598,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_CHROME_PLATFORMS=y
+  CONFIG_CROS_EC=y
+  CONFIG_CROS_EC_I2C=y
+-@@ -996,6 +1276,9 @@ CONFIG_ROOT_NFS=y
++@@ -994,6 +1274,9 @@ CONFIG_ROOT_NFS=y
+  CONFIG_9P_FS=y
+  CONFIG_NLS_CODEPAGE_437=y
+  CONFIG_NLS_ISO8859_1=y
+@@ -605,7 +608,7 @@ index 1ef259ee4254..4c88eef64cd9 100644
+  CONFIG_SECURITY=y
+  CONFIG_CRYPTO_USER=y
+  CONFIG_CRYPTO_TEST=m
+-@@ -1058,14 +1341,3 @@ CONFIG_CORESIGHT=y
++@@ -1056,14 +1339,3 @@ CONFIG_CORESIGHT=y
+  CONFIG_CORESIGHT_LINK_AND_SINK_TMC=y
+  CONFIG_CORESIGHT_SOURCE_ETM4X=y
+  CONFIG_MEMTEST=y
+diff --git a/meta-bsp/recipes-kernel/linux/files/0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch b/meta-bsp/recipes-kernel/linux/files/0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch
+new file mode 100644
+index 000000000..c67bc5ee5
+--- /dev/null
++++ b/meta-bsp/recipes-kernel/linux/files/0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch
+@@ -0,0 +1,97 @@
++From a892a340cb5f0be6dbaa37ebf6942607c2e18603 Mon Sep 17 00:00:00 2001
++From: "Haoran.Wang" <elven.wang@nxp.com>
++Date: Tue, 6 Dec 2022 12:57:03 +0800
++Subject: [PATCH 2/2] Add i.MX93 device tree to support IW612 SPI RCP
++
++Added imx93-11x11-evk-iw612-otbr.dts tree to make the IW612 SPI RCP
++work on i.MX93 EVK.
++
++TEST:
++root@imx93evk:~# gpiodetect
++gpiochip0 [43810080.gpio] (32 lines)
++gpiochip1 [43820080.gpio] (32 lines)
++gpiochip2 [43830080.gpio] (32 lines)
++gpiochip3 [47400080.gpio] (32 lines)
++gpiochip4 [1-0022] (24 lines)
++gpiochip5 [adp5585-gpio] (10 lines)
++gpiochip6 [0-0020] (8 lines)
++gpiochip7 [wm8962] (6 lines)
++
++root@imx93evk:~# gpioset gpiochip6 0=1
++
++root@imx93evk:~# ./otbr-agent-spi -I wpan0 -B eth0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
++
++Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
++---
++ arch/arm64/boot/dts/freescale/Makefile        |  3 +-
++ .../freescale/imx93-11x11-evk-iw612-otbr.dts  | 44 +++++++++++++++++++
++ 2 files changed, 46 insertions(+), 1 deletion(-)
++ create mode 100644 arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
++
++diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
++index 9a7319c6b4e3..35fd0f4c2d0d 100644
++--- a/arch/arm64/boot/dts/freescale/Makefile
+++++ b/arch/arm64/boot/dts/freescale/Makefile
++@@ -228,7 +228,8 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-11x11-evk.dtb \
++ 			  imx93-11x11-evk-boe-wxga-lvds-panel.dtb imx93-11x11-evk-lpuart.dtb \
++ 			  imx93-11x11-evk-mqs.dtb imx93-11x11-evk-aud-hat.dtb \
++ 			  imx93-11x11-evk-flexspi-m2.dtb \
++-			  imx93-11x11-evk-mt9m114.dtb
+++			  imx93-11x11-evk-mt9m114.dtb \
+++			  imx93-11x11-evk-iw612-otbr.dtb
++ dtb-$(CONFIG_ARCH_MXC) += imx93-9x9-qsb.dtb \
++ 			  imx93-9x9-qsb-can1.dtb \
++ 			  imx93-9x9-qsb-flexspi-m2.dtb \
++diff --git a/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
++new file mode 100644
++index 000000000000..bc8e49ac3e74
++--- /dev/null
+++++ b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
++@@ -0,0 +1,44 @@
+++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+++/*
+++ * Copyright 2022 NXP
+++ */
+++
+++#include "imx93-11x11-evk.dts"
+++
+++&lpi2c1 {
+++    pinctrl-assert-gpios = <&pcal6524 13 GPIO_ACTIVE_HIGH>;
+++    pcal6408: gpio@20 {
+++        compatible = "nxp,pcal9554b";
+++        reg = <0x20>;
+++        gpio-controller;
+++        #gpio-cells = <2>;
+++        status = "okay";
+++    };
+++};
+++
+++&lpspi3 {
+++    fsl,spi-num-chipselects = <1>;
+++    pinctrl-names = "default", "sleep";
+++    pinctrl-0 = <&pinctrl_lpspi3>;
+++    pinctrl-1 = <&pinctrl_lpspi3>;
+++    cs-gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+++    pinctrl-assert-gpios = <&adp5585gpio 4 GPIO_ACTIVE_LOW>;
+++    status = "okay";
+++
+++    spidev0: spi@0 {
+++        reg = <0>;
+++        compatible = "lwn,bk4";
+++        spi-max-frequency = <1000000>;
+++    };
+++};
+++
+++&iomuxc {
+++    pinctrl_lpspi3: lpspi3grp {
+++        fsl,pins = <
+++            MX93_PAD_GPIO_IO08__GPIO2_IO08      0x3fe
+++            MX93_PAD_GPIO_IO09__LPSPI3_SIN      0x3fe
+++            MX93_PAD_GPIO_IO10__LPSPI3_SOUT     0x3fe
+++            MX93_PAD_GPIO_IO11__LPSPI3_SCK      0x3fe
+++        >;
+++    };
+++};
++-- 
++2.36.0
++
+diff --git a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
+index 0ffb2e30d..6a5d790c2 100644
+--- a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
++++ b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
+@@ -97,3 +97,4 @@ KERNEL_VERSION_SANITY_SKIP="1"
+ COMPATIBLE_MACHINE = "(imx-nxp-bsp)"
+ 
+ SRC_URI += "file://0001-enable-otbr-and-firewall-configs.patch"
++SRC_URI += "file://0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch"
+-- 
+2.25.1
+

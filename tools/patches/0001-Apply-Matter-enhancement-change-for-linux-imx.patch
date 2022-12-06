@@ -1,7 +1,7 @@
-From 05dff1843c543510475f915c3fd57f715c490acb Mon Sep 17 00:00:00 2001
+From 5ebdd13806e152280f9b32bca27bf988d5d60ae9 Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Mon, 13 Jun 2022 11:48:10 +0000
-Subject: [PATCH] Apply Matter enhancement change for linux-imx
+Subject: [PATCH 1/2] Apply Matter enhancement change for linux-imx
 
 Signed-off-by: Haoran Wang <elven.wang@nxp.com>
 ---
@@ -642,7 +642,7 @@ index 000000000..4c105ca29
 +2.36.0
 +
 diff --git a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
-index e3fcfeae0..2d662d6c6 100644
+index 5dfa158e3..0ffb2e30d 100644
 --- a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
 +++ b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
 @@ -95,3 +95,5 @@ do_kernel_configcheck[noexec] = "1"
