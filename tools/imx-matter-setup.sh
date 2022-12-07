@@ -13,6 +13,16 @@ cd ../..
 
 EULA=$EULA DISTRO=$DISTRO MACHINE=$MACHINE . ./imx-setup-release.sh -b $@
 
+if [ -n "$MATTER_OTBR_SPI" ]; then
+  if ! grep -q "MATTER_OTBR_SPI = "true"" conf/local.conf; then
+    echo "MATTER_OTBR_SPI = "true"" >> conf/local.conf
+  fi
+else
+  if grep -q "MATTER_OTBR_SPI = "true"" conf/local.conf; then
+    sed -i '/MATTER_OTBR_SPI = "true"/d' conf/local.conf
+  fi
+fi
+
 echo "# layers for i.MX IoT for MATTER & OpenThread Broader Router" >> conf/bblayers.conf
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-matter\"" >> conf/bblayers.conf
 echo "IMAGE_INSTALL:append += \" boost boost-dev boost-staticdev \"" >> conf/local.conf
