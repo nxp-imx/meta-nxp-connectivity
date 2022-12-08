@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=v1.0-branch-nxp-ref-kit"
 
-SRCREV = "b66063a44a9e80a8d175f27a7be4ec221e323f32"
+SRCREV = "7fbdc54d98558c6a6470d881d0b89fd33d41e6d9"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
