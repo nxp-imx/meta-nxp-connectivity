@@ -1,5 +1,5 @@
 PN = "iw612"
-PR = "r0"
+PR = "r1"
 SUMMARY = "NXP IW612 stuffs for Matter"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://gpl-2.0.txt;md5=ab04ac0f249af12befccb94447c08b77"
