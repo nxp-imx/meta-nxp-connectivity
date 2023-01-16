@@ -1,0 +1,239 @@
+From 232324e56ad896219d685d83075a5627daf63f0d Mon Sep 17 00:00:00 2001
+From: nxf87843 <jean-yves.salaun@nxp.com>
+Date: Fri, 9 Dec 2022 09:35:34 +0100
+Subject: [PATCH 1/1] dtb and network kernel config for IW612
+
+Signed-off-by: nxf87843 <jean-yves.salaun@nxp.com>
+---
+ ...ges-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch | 42 +++++++++
+ .../linux/files/0001-imx8-otbr-agent-v2.patch | 86 +++++++++++++++++++
+ .../linux/files/0002-imx8-otbr-firewall.patch | 62 +++++++++++++
+ .../recipes-kernel/linux/linux-imx_5.15.bb    |  4 +
+ 4 files changed, 194 insertions(+)
+ create mode 100644 meta-bsp/recipes-kernel/linux/files/0001-Changes-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch
+ create mode 100644 meta-bsp/recipes-kernel/linux/files/0001-imx8-otbr-agent-v2.patch
+ create mode 100644 meta-bsp/recipes-kernel/linux/files/0002-imx8-otbr-firewall.patch
+
+diff --git a/meta-bsp/recipes-kernel/linux/files/0001-Changes-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch b/meta-bsp/recipes-kernel/linux/files/0001-Changes-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch
+new file mode 100644
+index 000000000..fcf3186e4
+--- /dev/null
++++ b/meta-bsp/recipes-kernel/linux/files/0001-Changes-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch
+@@ -0,0 +1,42 @@
++From 945d6dc7e8d7b4986ebcc8595f57fef8c9bbce34 Mon Sep 17 00:00:00 2001
++From: nxf87843 <jean-yves.salaun@nxp.com>
++Date: Thu, 8 Dec 2022 08:51:57 +0100
++Subject: [PATCH 1/1] Changes on GPIO INT for IW612 SPI OOB v2
++
++Signed-off-by: nxf87843 <jean-yves.salaun@nxp.com>
++---
++ arch/arm64/boot/dts/freescale/imx8mm-evk.dts | 20 ++++++++++++++++++++
++ 1 file changed, 20 insertions(+)
++
++diff --git a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
++index 8540d71b5eef..13297112b7a2 100755
++--- a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
+++++ b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
++@@ -160,4 +160,24 @@ MX8MM_IOMUXC_GPIO1_IO00_ANAMIX_REF_CLK_32K	0x141
++ 			MX8MM_IOMUXC_SD1_DATA7_GPIO2_IO9		0x159
++ 		>;
++ 	};
+++
+++	pinctrl_pca6416_irq: pca6416irq {
+++		fsl,pins = <
+++			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12		0x141
+++		>;
+++	};
++ };
+++
+++&i2c3 {
+++	pca6416: gpio@20 {
+++		compatible = "ti,tca6416";
+++		reg = <0x20>;
+++		gpio-controller;
+++		#gpio-cells = <2>;
+++		interrupt-parent = <&gpio1>;
+++		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&pinctrl_pca6416_irq>;
+++		vcc-supply = <&buck4_reg>;
+++	};
+++};
++-- 
++2.34.1
++
+diff --git a/meta-bsp/recipes-kernel/linux/files/0001-imx8-otbr-agent-v2.patch b/meta-bsp/recipes-kernel/linux/files/0001-imx8-otbr-agent-v2.patch
+new file mode 100644
+index 000000000..38e619c13
+--- /dev/null
++++ b/meta-bsp/recipes-kernel/linux/files/0001-imx8-otbr-agent-v2.patch
+@@ -0,0 +1,86 @@
++From 48179db895085a275e22a724616a45f04479f723 Mon Sep 17 00:00:00 2001
++From: Guillaume Legoupil <guillaume.legoupil@nxp.com>
++Date: Wed, 19 Oct 2022 16:01:30 +0200
++Subject: imx8 otbr-agent ready
++
++
++diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
++index 74dc82cb4dde..3764499859ea 100644
++--- a/arch/arm64/configs/imx_v8_defconfig
+++++ b/arch/arm64/configs/imx_v8_defconfig
++@@ -100,16 +100,75 @@ CONFIG_NET=y
++ CONFIG_PACKET=y
++ CONFIG_UNIX=y
++ CONFIG_INET=y
+++CONFIG_IP_MROUTE=y
++ CONFIG_IP_MULTICAST=y
++ CONFIG_IP_PNP=y
++ CONFIG_IP_PNP_DHCP=y
++ CONFIG_IP_PNP_BOOTP=y
+++CONFIG_IPV6_MROUTE=y
++ CONFIG_IPV6_SIT=m
++ CONFIG_NETFILTER=y
+++CONFIG_NETFILTER_ADVANCED=y
+++CONFIG_NETFILTER_NETLINK_QUEUE=m
+++CONFIG_NETFILTER_NETLINK_LOG=m
+++CONFIG_IP_SET=m
+++CONFIG_IP_SET_BITMAP_IP=m
+++CONFIG_IP_SET_BITMAP_IPMAC=m
+++CONFIG_IP_SET_BITMAP_PORT=m
+++CONFIG_IP_SET_HASH_IP=m
+++CONFIG_IP_SET_HASH_IPMARK=m
+++CONFIG_IP_SET_HASH_IPPORT=m
+++CONFIG_IP_SET_HASH_IPPORTIP=m
+++CONFIG_IP_SET_HASH_IPPORTNET=m
+++CONFIG_IP_SET_HASH_IPMAC=m
+++CONFIG_IP_SET_HASH_MAC=m
+++CONFIG_IP_SET_HASH_NETPORTNET=m
+++CONFIG_IP_SET_HASH_NET=m
+++CONFIG_IP_SET_HASH_NETNET=m
+++CONFIG_IP_SET_HASH_NETPORT=m
+++CONFIG_IP_SET_HASH_NETIFACE=m
+++CONFIG_IP_SET_LIST_SET=m
+++CONFIG_NETFILTER_XT_MATCH_CPU=m
+++CONFIG_NETFILTER_XT_MATCH_DCCP=m
+++CONFIG_NETFILTER_XT_MATCH_DEVGROUP=m
+++CONFIG_NETFILTER_XT_MATCH_DSCP=m
+++CONFIG_NETFILTER_XT_MATCH_ECN=m
+++CONFIG_NETFILTER_XT_MATCH_ESP=m
+++CONFIG_NETFILTER_XT_MATCH_HASHLIMIT=m
+++CONFIG_NETFILTER_XT_MATCH_HELPER=m
+++CONFIG_NETFILTER_XT_MATCH_HL=m
+++CONFIG_NETFILTER_XT_MATCH_IPCOMP=m
+++CONFIG_NETFILTER_XT_MATCH_IPRANGE=m
+++CONFIG_NETFILTER_XT_MATCH_L2TP=m
+++CONFIG_NETFILTER_XT_MATCH_LENGTH=m
+++CONFIG_NETFILTER_XT_MATCH_LIMIT=m
+++CONFIG_NETFILTER_XT_MATCH_MAC=m
+++CONFIG_NETFILTER_XT_MATCH_MARK=m
+++CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m
+++CONFIG_NETFILTER_XT_MATCH_NFACCT=m
+++CONFIG_NETFILTER_XT_MATCH_OSF=m
+++CONFIG_NETFILTER_XT_MATCH_OWNER=m
+++CONFIG_NETFILTER_XT_MATCH_PKTTYPE=m
+++CONFIG_NETFILTER_XT_MATCH_QUOTA=m
+++CONFIG_NETFILTER_XT_MATCH_RATEEST=m
+++CONFIG_NETFILTER_XT_MATCH_REALM=m
+++CONFIG_NETFILTER_XT_MATCH_RECENT=m
+++CONFIG_NETFILTER_XT_MATCH_SCTP=m
+++CONFIG_NETFILTER_XT_MATCH_SOCKET=m
+++CONFIG_NETFILTER_XT_MATCH_STATE=m
+++CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+++CONFIG_NETFILTER_XT_MATCH_STRING=m
+++CONFIG_NETFILTER_XT_MATCH_TCPMSS=m
+++CONFIG_NETFILTER_XT_MATCH_TIME=m
+++CONFIG_NETFILTER_XT_MATCH_U32=m
+++CONFIG_NETFILTER_XT_MARK=m
+++CONFIG_NETFILTER_XT_CONNMARK=m
+++CONFIG_NETFILTER_XT_SET=m
++ CONFIG_NF_CONNTRACK=m
++ CONFIG_NF_CONNTRACK_EVENTS=y
++ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
++ CONFIG_NETFILTER_XT_TARGET_LOG=m
+++CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
++ CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=m
++ CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
++ CONFIG_IP_NF_IPTABLES=m
+diff --git a/meta-bsp/recipes-kernel/linux/files/0002-imx8-otbr-firewall.patch b/meta-bsp/recipes-kernel/linux/files/0002-imx8-otbr-firewall.patch
+new file mode 100644
+index 000000000..a44f6c401
+--- /dev/null
++++ b/meta-bsp/recipes-kernel/linux/files/0002-imx8-otbr-firewall.patch
+@@ -0,0 +1,62 @@
++From 0d1d8c1e374ba113576d0055911fa762faba67f7 Mon Sep 17 00:00:00 2001
++From: Guillaume Legoupil <guillaume.legoupil@nxp.com>
++Date: Wed, 19 Oct 2022 16:03:12 +0200
++Subject: imx8 otbr-firewall ready
++
++
++diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
++index 3764499859ea..820536499ab5 100644
++--- a/arch/arm64/configs/imx_v8_defconfig
+++++ b/arch/arm64/configs/imx_v8_defconfig
++@@ -101,12 +101,23 @@ CONFIG_PACKET=y
++ CONFIG_UNIX=y
++ CONFIG_INET=y
++ CONFIG_IP_MROUTE=y
+++CONFIG_SYN_COOKIES=y
++ CONFIG_IP_MULTICAST=y
++ CONFIG_IP_PNP=y
++ CONFIG_IP_PNP_DHCP=y
++ CONFIG_IP_PNP_BOOTP=y
+++CONFIG_IPV6_ROUTER_PREF=y
+++CONFIG_IPV6_ROUTE_INFO=y
+++CONFIG_IPV6_MULTIPLE_TABLES=y
+++CONFIG_IPV6_SUBTREES=y
++ CONFIG_IPV6_MROUTE=y
+++CONFIG_IPV6_MROUTE_MULTIPLE_TABLES=y
+++CONFIG_IPV6_PIMSM_V2=y
++ CONFIG_IPV6_SIT=m
+++CONFIG_IPV6_SIT_6RD=y
+++CONFIG_NF_CONNTRACK_ZONES=y
+++CONFIG_NF_CONNTRACK_TIMESTAMP=y
+++CONFIG_NF_CONNTRACK_LABELS=y
++ CONFIG_NETFILTER=y
++ CONFIG_NETFILTER_ADVANCED=y
++ CONFIG_NETFILTER_NETLINK_QUEUE=m
++@@ -166,6 +177,11 @@ CONFIG_NETFILTER_XT_CONNMARK=y
++ CONFIG_NETFILTER_XT_SET=y
++ CONFIG_NF_CONNTRACK=m
++ CONFIG_NF_CONNTRACK_EVENTS=y
+++CONFIG_NF_TABLES=m
+++CONFIG_NF_TABLES_INET=y
+++CONFIG_NF_TABLES_NETDEV=y
+++CONFIG_NFT_COUNTER=m
+++CONFIG_NFT_COMPAT=m
++ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
++ CONFIG_NETFILTER_XT_TARGET_LOG=m
++ CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
++@@ -181,6 +197,7 @@ CONFIG_IP6_NF_IPTABLES=m
++ CONFIG_IP6_NF_FILTER=m
++ CONFIG_IP6_NF_TARGET_REJECT=m
++ CONFIG_IP6_NF_MANGLE=m
+++CONFIG_IP6_NF_RAW=m
++ CONFIG_IP6_NF_NAT=m
++ CONFIG_IP6_NF_TARGET_MASQUERADE=m
++ CONFIG_BRIDGE=y
++@@ -196,6 +213,7 @@ CONFIG_NET_SCH_CBS=m
++ CONFIG_NET_SCH_ETF=m
++ CONFIG_NET_SCH_TAPRIO=m
++ CONFIG_NET_SCH_MQPRIO=m
+++CONFIG_NET_SCH_FQ_CODEL=m
++ CONFIG_NET_SCH_INGRESS=m
++ CONFIG_NET_CLS_BASIC=m
++ CONFIG_NET_CLS_TCINDEX=m
+diff --git a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
+index 99768fccf..af008d626 100644
+--- a/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
++++ b/meta-bsp/recipes-kernel/linux/linux-imx_5.15.bb
+@@ -95,3 +95,7 @@ do_kernel_configcheck[noexec] = "1"
+ 
+ KERNEL_VERSION_SANITY_SKIP="1"
+ COMPATIBLE_MACHINE = "(imx-nxp-bsp)"
++
++SRC_URI += "file://0001-imx8-otbr-agent-v2.patch"
++SRC_URI += "file://0002-imx8-otbr-firewall.patch"
++SRC_URI += "file://0001-Changes-on-GPIO-INT-for-IW612-SPI-OOB-v2.patch"
+-- 
+2.34.1
+
