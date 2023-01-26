@@ -33,9 +33,11 @@ def get_rcp_bus(d):
     for arg in (d.getVar('MACHINE') or '').split():
         if arg == "imx93evk":
             return '-DOT_POSIX_CONFIG_RCP_BUS=SPI'
-    for arg in (d.getVar('MATTER_OTBR_SPI') or '').split():
-        if arg == "true":
+    for arg in (d.getVar('OT_RCP_BUS') or '').split():
+        if arg == "SPI":
             return '-DOT_POSIX_CONFIG_RCP_BUS=SPI'
+        else:
+            return '-DOT_POSIX_CONFIG_RCP_BUS=UART'
     return ''
 
 inherit cmake
