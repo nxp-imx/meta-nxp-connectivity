@@ -18,9 +18,10 @@ SRCREV = "1813352247aa60fb8993773918f1e5b4af6f3b79"
 S = "${WORKDIR}/git"
 FILES:${PN} += "lib/systemd"
 FILES:${PN} += "usr/share"
+FILES:${PN} += "usr/lib"
 
 DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables "
-RDEPENDS:${PN} += " jsoncpp libavahi-client mdns radvd libnetfilter-queue ipset libnftnl nftables bash "
+RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash "
 
 
 do_configure:prepend () {
