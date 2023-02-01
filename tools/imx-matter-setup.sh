@@ -8,6 +8,7 @@ true | git apply ../meta-matter/tools/patches/0001-Apply-Matter-enhancement-chan
 if [ $? == 0 ]; then
     git am -3 ../meta-matter/tools/patches/0001-Apply-Matter-enhancement-change-for-linux-imx.patch
     git am -3 ../meta-matter/tools/patches/0002-modified-imx93-bsp-for-supporting-for-Matter-functio.patch
+    git am -3 ../meta-matter/tools/patches/0001-Add-matter-and-Trusty-enabled-build-target-for-imx8m.patch
 fi
 cd ../..
 
