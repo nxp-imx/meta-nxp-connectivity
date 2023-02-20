@@ -55,7 +55,7 @@ if [ "$TARGET_15_4_CHIP" = "IW612" ] && [ "$MACHINE" = "imx8mmevk" ]; then
 	echo "TARGET_15_4_CHIP is $TARGET_15_4_CHIP"
 	echo "Applying 0001-dtb-and-network-kernel-config-for-IW612.patch -> meta-bsp/recipes-kernel/linux"
 	cd sources/meta-imx/
-	true | git apply ../meta-matter/tools/patches/0001-dtb-and-network-kernel-config-for-IW612.patch --check
+	true | git apply --3way ../meta-matter/tools/patches/0001-dtb-and-network-kernel-config-for-IW612.patch --check
 
 	if [ $? == 0 ]; then
 		git am -3 ../meta-matter/tools/patches/0001-dtb-and-network-kernel-config-for-IW612.patch
@@ -63,13 +63,13 @@ if [ "$TARGET_15_4_CHIP" = "IW612" ] && [ "$MACHINE" = "imx8mmevk" ]; then
 	if [ "$reset_meta_matter" -eq 1 ]; then
         cd ../../sources/meta-matter/
         echo "Applying 0001-OT-commit-options-and-patches-for-IW612.patch -> recipes-openthread/openthread"
-        true | git apply tools/patches/0001-OT-commit-options-and-patches-for-IW612.patch --check
+        true | git apply --3way tools/patches/0001-OT-commit-options-and-patches-for-IW612.patch --check
 
         if [ $? == 0 ]; then
             git am -3 tools/patches/0001-OT-commit-options-and-patches-for-IW612.patch
         fi
         echo "Applying 0001-OTBR-commit-options-and-patches-for-IW612.patch -> recipes-otbr/otbr"
-        true | git apply tools/patches/0001-OTBR-commit-options-and-patches-for-IW612.patch --check
+        true | git apply --3way tools/patches/0001-OTBR-commit-options-and-patches-for-IW612.patch --check
 
         if [ $? == 0 ]; then
             git am -3 tools/patches/0001-OTBR-commit-options-and-patches-for-IW612.patch
@@ -78,7 +78,7 @@ if [ "$TARGET_15_4_CHIP" = "IW612" ] && [ "$MACHINE" = "imx8mmevk" ]; then
 	cd ../..
 else
 	cd sources/meta-imx/
-	true | git apply ../meta-matter/tools/patches/0001-Apply-Matter-enhancement-change-for-linux-imx.patch --check
+	true | git apply --3way ../meta-matter/tools/patches/0001-Apply-Matter-enhancement-change-for-linux-imx.patch --check
 
 	if [ $? == 0 ]; then
 		git am -3 ../meta-matter/tools/patches/0001-Apply-Matter-enhancement-change-for-linux-imx.patch
