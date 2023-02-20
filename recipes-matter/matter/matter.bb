@@ -5,13 +5,10 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRCBRANCH = "v1.0-branch-nxp_imx_2023_q1"
-SRC_URI = "gitsm://androidsource.ap.freescale.net/project/a/github/connectedhomeip;protocol=http;branch=${SRCBRANCH}"
+SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
 SRC_URI += "file://0001-Add-Network-Commissioning-cluster-setup-for-bridge-a.patch"
-#SRC_URI += "file://0001-MA-21007-integrate-libtrustymatter.patch"
-#SRC_URI += "file://0002-MA-21007-2-support-device-attestation-based-on-Trust.patch"
-#SRC_URI += "file://0003-MA-21007-3-support-P256KeyPair-based-on-Trusty-OS.patch"
 
-SRCREV = "5de26d55ab8ad87ce541ee401f1c47553d45000d"
+SRCREV = "f615a797b2fe52d5f3f8fe7dfee0469d671bad9b"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
