@@ -1,18 +1,21 @@
 # Introduction
 This repo contains the i.MX MPU project Matter related Yocto recipes. Below is a list of modules that will be built with the meta-matter repo integrated.
- - Matter (CHIP) : https://github.com/NXPmicro/matter.git
+ - Matter (CHIP) : https://github.com/nxp-imx/matter.git
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revision are based on [project Matter v1.0-branch](https://github.com/NXPmicro/matter.git).
+All the software components revision are based on [project Matter v1.0-branch](https://github.com/nxp-imx/matter.git).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem with this recipe repo:
  - chip-lighting-app: Matter lighting app demo
+ - chip-lighting-app-trusty: Matter lighting app with security enhance on i.MX8M Mini
  - chip-all-clusters-app: Matter all-clusters demo
  - thermostat-app: Matter thermostat demo
  - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
+ - nxp-thermostat-app-trusty: NXP customized thermostat application with security enhance on i.MX8M Mini
  - chip-bridge-app: Matter bridge demo
  - chip-tool: Matter Controller tools
+ - chip-tool-trusty: Matter Controller tools with security enhance on i.MX8M Mini
  - ot-daemon: OpenThread Daemon for OpenThread client
  - ot-client-ctl: OpenThread ctrl tool for OpenThread client
  - otbr-agent: OpenThread Border Router agent
@@ -31,7 +34,7 @@ To build the Yocto Project, some packages need to be installed. The list of pack
 To build the Yocto Project, some python dependency packages need to be installed.
 
     $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/master/scripts/constraints.txt
+    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/v1.0.0/scripts/constraints.txt
     $ pip3 install -r constraints.txt
     $ pip install dbus-python
 
@@ -53,7 +56,7 @@ Run the commands below to download this release:
 Then integrate the meta-matter recipe into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
-    $ git clone https://github.com/NXPmicro/meta-matter.git
+    $ git clone https://github.com/nxp-imx/meta-matter.git
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -65,7 +68,9 @@ Make sure your default Python of the Linux host is Python2.
 Change the current directory to the top directory of the Yocto source code and execute the command below.
 
     #For i.MX8M Mini EVK:
-    $ MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx8mm
+    $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx8mm
+    #For i.MX8M Mini EVK which use Firecrest (IW612) module (Note this operation will switch meta-imx and meta-matter repo to specific revision):
+    $ TARGET_15_4_CHIP=IW612 OT_RCP_BUS=SPI MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
     #For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx6ull
     #For i.MX93 EVK:
@@ -84,7 +89,7 @@ And ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimed
 The zst images are symbolic link files, so you should copy it to another fold ${MY_images} before unzip it.
 
     #For i.MX8M Mini EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.zst ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk.wic.zst ${MY_images}
     #For i.MX6ULL EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
     #For i.MX93 EVK:
@@ -190,7 +195,10 @@ __The OTBR does not support incremental compilation. If there is an error occur 
 
 After the OTBR boot, the __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX93 EVK__ must connect the OTBR to the target Wi-Fi AP network.
 
+    # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module
     $modprobe moal mod_para=nxp/wifi_mod_para.conf
+    # For i.MX93 EVK with IW612 module:
+    $modprobe sdxxx mod_para=nxp/wifi_mod_para.conf
     $wpa_passphrase ${SSID} ${PASSWORD} > imxrouter.conf
     $wpa_supplicant -d -B -i mlan0 -c ./imxrouter.conf
     $udhcpc -i mlan0
@@ -224,9 +232,9 @@ The Matter application has be installed into the Yocto image defaultly. If you w
 
     $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
     $ cd ${MY_Matter_Apps}
-    $ git clone https://github.com/NXPmicro/matter.git
+    $ git clone https://github.com/nxp-imx/matter.git
     $ cd matter
-    $ git checkout imx_matter_2022_q4
+    $ git checkout origin/v1.0-branch-nxp_imx_2023_q1
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
@@ -265,6 +273,13 @@ Assuming that the working directory is changed to the top level directory of thi
     #If the chip-bridge-app example is to be built
     $ ./scripts/examples/imxlinux_example.sh examples/bridge-app/linux/ out/bridge-app debug
 
+    #If the security enhanced with Trusty OS application to be built using build_examples.py, could simply add "-trusty" to te target. For example:
+    $ ./scripts/build/build_examples.py  --target imx-chip-tool-trusty build
+
+    #If the security enhanced with Trusty OS application to be built using imxlinux_example.sh, append "trusty" to the command. For example:
+    $ ./scripts/examples/imxlinux_example.sh examples/nxp-thermostat/linux out/nxp-thermostat-trusty trusty
+
+
 The apps are built in the subdirectories under out/, the subdirectory name is the same as the argument specified after the option --target when build the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 
 ___Make sure the subdirectories isn't exist before build the same name app.___
@@ -274,8 +289,59 @@ If an app needs to be built both for i.MX8M Mini EVK, i.MX6ULL EVK and i.MX93 EV
 
 After executing the above command, the chip-tool executable files will be found in ${MY_Matter_Apps}/out/imx8mm/imx-chip-tool/.
 
-A Matter official document about how to use chip-tool as Matter controller can be found in [here](https://github.com/project-chip/connectedhomeip/blob/TE8/rc3/examples/chip-tool/README.md).
+A Matter official document about how to use chip-tool as Matter controller can be found in [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
 
+# Security configuration for Matter
+
+Since the i.MX Matter 2023 Q1 release, the hardware backed security function is enabled to enhance the security of Matter on __i.MX8M Mini__. Now the attestation and P256Keypair are protected by ARM Trustzone and secure storage based on the i.MX Matter security enhancement solution on i.MX8M Mini using [Trusty OS](https://source.android.com/docs/security/features/trusty) TEE. The design is based on the CSA Matter Attestation of Security Requirements document.
+
+The i.MX Matter secure storage is based on eMMC RPMB. Initialising the secure storage and providing credentials is based on _fastboot_ you can get the _fastboot_ from [SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) and add the _fastboot_ to your _${PATH}_. In order to initialise the secure storage, please follow the instructions below.
+
+    #Connect the OTG port of the i.MX8M Mini to the host PC.
+    #Boot the i.MX8M Mini EVK board, during the U-Boot procedure, press any key on the console to input U-Boot commands.
+    u-boot=> fastboot 0
+
+    #On your host, use fastboot command to initialise the RPMB partition as secure storage. Note that this is the one time program partation and cannot be revoked.
+    $ fastboot oem set-rpmb-hardware-key
+
+    #Then provision the PAI, DAC, CD and DAC private key via _fastboot_ instructions on your host.
+    $ fastboot stage <path-to-PAI-CERT>
+    $ fastboot oem set-matter-pai-cert
+    $ fastboot stage <path-to-DAC-CERT>
+    $ fastboot oem set-matter-dac-cert
+    $ fastboot stage <path-to-CD-CERT>
+    $ fastboot oem set-matter-cd-cert
+    $ fastboot stage <path-to-DAC-PRIVATE_KEY>
+    $ fastboot oem set-matter-dac-private-key
+
+    #You will see the following output from the U-Boot console when it has been successfully provisioned:
+    u-boot=> fastboot 0
+    Starting download of 463 bytes downloading of 463 bytes finished
+    Set matter pai cert successfully!
+    Starting download of 491 bytes downloading of 491 bytes finished
+    Set matter dac cert successfully!
+    Starting download of 539 bytes downloading of 539 bytes finished
+    Set matter cd cert successfully!
+    Starting download of 32 bytes downloading of 32 bytes finished
+    Set matter dac private key successfully!
+
+For the test, you can find the test attestation binary in: _meta-matter/tools/test_attestation_
+
+The Trusty OS which contained the Trusted Application(TA) for i.MX Matter are maintained by NXP and open source. Following below instruction you will be able to fetch the Trusty OS codes and build the Trusty OS binary.
+
+    $ repo init -u https://github.com/nxp-imx/imx-manifest.git -b imx_matter_2023_q1 -m imx-trusty-matter-2023-q1.xml
+    $ repo sync -c
+
+    #Setup the build environment. This will only configure the current terminal.
+    $ source trusty/vendor/google/aosp/scripts/envsetup.sh
+
+    #Build the i.MX8M Mini Trusty OS binary:
+    $ ./trusty/vendor/google/aosp/scripts/build.py imx8mm
+    #And the target binary will be put on: build-root/build-imx8mm/lk.bin
+
+    #When boot to the i.MX8M Mini Linux shell, first time need to trigger the secure storage service.
+    $ systemctl enable storageproxyd
+    $ systemctl start storageproxyd
 
 # FAQ
 
