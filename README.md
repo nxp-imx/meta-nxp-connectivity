@@ -38,7 +38,7 @@ To build the Yocto Project, some python dependency packages need to be installed
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a repo manifest, the tool repo is used to download the source code.
-This document is tested with the i.MX Yocto 5.15.52_2.1.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK and i.MX6ULL EVK.
+This document is tested with the i.MX Yocto 5.15.71_2.2.0 release. The hardware tested in this documentation is the i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -48,7 +48,7 @@ Run the commands below to download this release:
     
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.52-2.1.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.71-2.2.0.xml
     $ repo sync
 Then integrate the meta-matter recipe into the Yocto code base
 
@@ -68,8 +68,10 @@ Change the current directory to the top directory of the Yocto source code and e
     $ MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx8mm
     #For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx6ull
+    #For i.MX93 EVK:
+    $ MACHINE=imx93evk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx93
 
-The system will create a directory bld-xwayland-imx8mm/ for i.MX8M Mini EVK or bld-xwayland-imx6ull/ for i.MX6ULL EVK and enter this directory automatically, execute the command below under these directory to generate the Yocto images.
+The system will create a directory bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK and enter this directory automatically, execute the command below under these directory to generate the Yocto images.
 
     $ bitbake imx-image-multimedia
 
@@ -77,14 +79,18 @@ After execution of previous commands, the Yocto images will be generated under $
 
 And ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
 
+And ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimedia-imx93evk.wic.zst for i.MX93 EVK.
+
 The zst images are symbolic link files, so you should copy it to another fold ${MY_images} before unzip it.
 
     #For i.MX8M Mini EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.zst ${MY_images}
     #For i.MX6ULL EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
+    #For i.MX93 EVK:
+    $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimedia-imx93evk.wic.zst ${MY_images}
 
-The zstd command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used to boot the image of an i.MX 8M Mini EVK or i.MX6ULL EVK.
+The zstd command should be used to unzip this file then the dd command should be used to program the output file to a microSD card by running the commands below. Then a microSD card can be used to boot the image of an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK.
 
 ___Be cautious when executing the dd command below, make sure the of represents the microSD card device!, /dev/sdc in the command below represents a microSD card connected to the host machine with a USB adapter, however the output device name may vary. Use the command "ls /dev/sd*" to verify the name of the SD card device.___
 
@@ -95,6 +101,9 @@ ___Be cautious when executing the dd command below, make sure the of represents 
     #For i.MX6ULL EVK:
     $ zstd -d imx-image-multimedia-imx6ullevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
+    #For i.MX93 EVK:
+    $ zstd -d imx-image-multimedia-imx93evk.wic.zst
+    $ sudo dd if=imx-image-multimedia-imx93evk.wic of=/dev/sdc bs=4M conv=fsync
 
 # How to build OpenThread Border Router with Yocto SDK
 There are 3 module for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web. The otbr-web need liboost static and jsoncpp modules which are not included into default built Yocto images.
@@ -105,6 +114,8 @@ To build these binaries, the Yocto SDK with meta-matter generated must be used. 
     $ cd ${MY_YOCTO}/bld-xwayland-imx8mm
     #For i.MX6ULL EVK:
     $ cd ${MY_YOCTO}/bld-xwayland-imx6ull
+    #For i.MX93 EVK:
+    $ cd ${MY_YOCTO}/bld-xwayland-imx93
 
     $bitbake imx-image-multimedia -c populate_sdk
 
@@ -115,9 +126,11 @@ Run the SDK installation script with root permission.
     $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-toolchain-5.15-kirkstone.sh
     #For i.MX6ULL EVK
     $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-5.15-kirkstone.sh
+    #For i.MX93 EVK
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-toolchain-5.15-kirkstone.sh
 
-The default target directory for SDK will be prompted during SDK installation, as shown below，enter a new target directory while the path \${/opt/fsl-imx-xwayland/} is required .
-___If you need build SDK both for i.MX8M Mini EVK and i.MX6ULL EVK on a host machine, it is necessary to distinguish the paths. As a reference, you can use /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm for i.MX8M Mini EVK SDK and /opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull for i.MX6ULL EVK.___
+The default target directory for SDK will be prompted during SDK installation, as shown below，enter a new target directory while the path \${/opt/fsl-imx-xwayland/} is required.
+___If you need build SDK both for i.MX8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK on a host machine, it is necessary to distinguish the paths. As a reference, you can use /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/5.15-kirkstone-imx93 for i.MX93 EVK.___
 
     NXP i.MX Release Distro SDK installer version 5.15-kirkstone
     ============================================================
@@ -126,9 +139,11 @@ ___If you need build SDK both for i.MX8M Mini EVK and i.MX6ULL EVK on a host mac
 After the Yocto SDK is installed on the host machine, an environment setup script is also generated, and there are prompt lines telling the user to source the script each time when using the SDK in a new shell, for example:
 
     #For i.MX8M Mini EVK
-    $source /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm/environment-setup-armv8a-poky-linux
     $For i.MX6ULL EVK
-    $source /opt/fsl-imx-wayland/5.15-kirkstone-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    $ . /opt/fsl-imx-wayland/5.15-kirkstone-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    #For i.MX93 EVK
+    $ . /opt/fsl-imx-wayland/5.15-kirkstone-imx93/environment-setup-armv8a-poky-linux
 
 After the SDK package installed in the build machine, import the Yocto build environment using the command:
 
@@ -136,6 +151,8 @@ After the SDK package installed in the build machine, import the Yocto build env
     $source ${iMX8MM_SDK_INSTALLED_PATH}/environment-setup-armv8a-poky-linux
     #For i.MX6ULL EVK
     $source ${iMX6ULL_SDK_INSTALLED_PATH}/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    #For i.MX93 EVK
+    $source ${iMX93_SDK_INSTALLED_PATH}/environment-setup-armv8a-poky-linux
 
 Fetch latest otbr source codes and execute the build:
 
@@ -145,7 +162,7 @@ Fetch latest otbr source codes and execute the build:
     $ cd ot-br-posix
     $ git checkout origin/main
     $ git submodule update --init
-    #For i.MX8M Mini EVK
+    #For i.MX8M Mini EVK and i.MX93 EVK
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
@@ -171,7 +188,7 @@ __The OTBR does not support incremental compilation. If there is an error occur 
 
 # How to setup OpenThread Border Router environment within the Yocto
 
-After the OTBR boot, the __i.MX8M Mini EVK__ or __i.MX6ULL EVK__ must connect the OTBR to the target Wi-Fi AP network.
+After the OTBR boot, the __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX93 EVK__ must connect the OTBR to the target Wi-Fi AP network.
 
     $modprobe moal mod_para=nxp/wifi_mod_para.conf
     $wpa_passphrase ${SSID} ${PASSWORD} > imxrouter.conf
@@ -188,6 +205,15 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
     $otbr-agent -I wpan0 -B mlan0 spinel+hdlc+uart:///dev/ttyACM0 &
     #If you are using K32W RCP
     $otbr-agent -I wpan0 -B mlan0 'spinel+hdlc+uart:///dev/ttyUSB0?uart-baudrate=1000000' &
+    $iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
+    $iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
+    $otbr-web &
+
+For i.MX93 EVK, you do not need plugin the RCP and just need set gpio and then setup the otbr.
+
+    $gpioset gpiochip6 0=1
+    $otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&
+    spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     $iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $otbr-web &
@@ -209,6 +235,8 @@ The Matter application has be installed into the Yocto image defaultly. If you w
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm
     #For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull
+    #For i.MX93 EVK  #/opt/fsl-imx-xwayland/5.15-kirkstone-imx93 is ${IMX93_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx93
 
 Building those apps with the Yocto SDK specified by the IMX_SDK_ROOT has been integrated into the tool build_examples.py. Use it to build the examples.
 
@@ -240,7 +268,7 @@ Assuming that the working directory is changed to the top level directory of thi
 The apps are built in the subdirectories under out/, the subdirectory name is the same as the argument specified after the option --target when build the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 
 ___Make sure the subdirectories isn't exist before build the same name app.___
-If an app needs to be built both for iMX8M Mini EVK and iMX6ULL EVK, you can use the option --out-prefix to specify a subdirectory, for example:
+If an app needs to be built both for i.MX8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK, you can use the option --out-prefix to specify a subdirectory, for example:
 
     $./scripts/build/build_examples.py  --target imx-chip-tool --out-prefix ./out/imx8mm build
 
