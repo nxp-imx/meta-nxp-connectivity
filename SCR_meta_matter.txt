@@ -1,15 +1,15 @@
 NXP Software Content Register
 
 Release - Matter Solutions
-2022-July
+2023-March
 
 --------------------------------------------
 NXP Provided Packages
 --------------------------------------------
 Package: meta-matter
 Outgoing License: MIT
-License File: COPYING
-Release Location: https://github.com/NXPmicro
+License File: LICENSE
+Release Location: https://github.com/nxp-imx
 Type of content: Yocto recipe files
 Description and comments: Yocto recipe files for Matter solutions. Subproject is connecthomeip and openthread
 Origin: NXP (MIT)
