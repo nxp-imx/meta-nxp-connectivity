@@ -68,13 +68,13 @@ Make sure your default Python of the Linux host is Python2.
 Change the current directory to the top directory of the Yocto source code and execute the command below.
 
     #For i.MX8M Mini EVK:
-    $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx8mm
+    $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
     #For i.MX8M Mini EVK which use Firecrest (IW612) module (Note this operation will switch meta-imx and meta-matter repo to specific revision):
     $ TARGET_15_4_CHIP=IW612 OT_RCP_BUS=SPI MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
     #For i.MX6ULL EVK:
-    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx6ull
+    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     #For i.MX93 EVK:
-    $ MACHINE=imx93evk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-iot-setup.sh bld-xwayland-imx93
+    $ MACHINE=imx93evk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
 
 The system will create a directory bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK and enter this directory automatically, execute the command below under these directory to generate the Yocto images.
 
