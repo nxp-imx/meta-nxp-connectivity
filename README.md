@@ -31,7 +31,7 @@ To build the Yocto Project, some packages need to be installed. The list of pack
 To build the Yocto Project, some python dependency packages need to be installed.
 
     $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/master/scripts/constraints.txt
+    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/master/scripts/setup/constraints.txt
     $ pip3 install -r constraints.txt
     $ pip install dbus-python
 
