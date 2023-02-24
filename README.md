@@ -232,7 +232,7 @@ The Matter application has be installed into the Yocto image defaultly. If you w
 
     $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
     $ cd ${MY_Matter_Apps}
-    $ git clone https://github.com/nxp-imx/matter.git
+    $ git clone https://github.com/NXP/matter.git
     $ cd matter
     $ git checkout origin/v1.0-branch-nxp_imx_2023_q1
     $ git submodule update --init
