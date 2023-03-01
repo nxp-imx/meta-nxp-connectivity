@@ -84,7 +84,7 @@ This will create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini 
     $ bitbake imx-image-multimedia
 
 After execution of previous commands, the Yocto images will be generated:
-- ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/imx-image-multimedia-imx8mmevk.wic.zst for i.MX8M Mini EVK.
+- ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk.wic.zst for i.MX8M Mini EVK.
 - ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
 - ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimedia-imx93evk.wic.zst for i.MX93 EVK.
 
