@@ -1,10 +1,10 @@
 # Introduction
 This repository contains the i.MX MPU project Matter related Yocto recipes. The following modules will be built with this meta-matter layer:
- - Matter (CHIP) : https://github.com/nxp-imx/matter.git
+ - Matter (CHIP) : https://github.com/nxp/matter.git
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter v1.0-branch](https://github.com/nxp-imx/matter.git).
+All the software components revisions are based on [project Matter v1.0-branch](https://github.com/nxp/matter.git).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
