@@ -1,7 +1,7 @@
 From 2b98584bf0fbe164fc6812c34ef948874336e68e Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Wed, 23 Nov 2022 12:47:28 +0000
-Subject: [PATCH 4/4] Add service otbr_fwcfg to config the firewall policy
+Subject: [PATCH 4/5] Add service otbr_fwcfg to config the firewall policy
 
 To pass the certification 1.3, need config the firewall.
 

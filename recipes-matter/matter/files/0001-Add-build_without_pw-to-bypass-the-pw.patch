@@ -1,0 +1,57 @@
+From 282460e3c2b98e44ed419feafd3a248600c48719 Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Wed, 1 Mar 2023 12:25:05 +0000
+Subject: [PATCH] Add build_without_pw to bypass the pw
+
+Without activite there pigweed_environment.gni won't be generated. But
+the build need pw in some config, add a config to bypass for some
+non-pw dependency environment.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ build/config/compiler/BUILD.gn | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index dedb1ae26a..d6ca3787d7 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -27,6 +27,7 @@ declare_args() {
+   # Enable -Werror. This can be disabled if using a different compiler
+   # with unfixed or unsupported wanings.
+   treat_warnings_as_errors = true
++  build_without_pw = false
+ }
+ 
+ if (current_cpu == "arm" || current_cpu == "arm64") {
+@@ -176,10 +177,12 @@ config("optimize_default") {
+       configs = [ ":optimize_zero" ]
+     }
+   } else {
+-    if (optimize_for_size) {
+-      configs = [ "$dir_pw_build:optimize_size" ]
+-    } else {
+-      configs = [ "$dir_pw_build:optimize_speed" ]
++    if (!build_without_pw) {
++      if (optimize_for_size) {
++        configs = [ "$dir_pw_build:optimize_size" ]
++      } else {
++        configs = [ "$dir_pw_build:optimize_speed" ]
++      }
+     }
+ 
+     if (current_os != "mac") {
+@@ -320,7 +323,9 @@ config("std_default") {
+ }
+ 
+ config("cosmetic_default") {
+-  configs = [ "$dir_pw_build:colorize_output" ]
++  if (!build_without_pw) {
++    configs = [ "$dir_pw_build:colorize_output" ]
++  }
+ }
+ 
+ config("runtime_default") {
+-- 
+2.25.1
+

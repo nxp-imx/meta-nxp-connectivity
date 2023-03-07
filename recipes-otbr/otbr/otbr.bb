@@ -12,6 +12,7 @@ SRC_URI += "file://0001-correct-otbr-reference-scripts-install-folder.patch"
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
 SRC_URI += "file://0003-Install-pskc-for-otbr-agent-credentials-generation.patch"
 SRC_URI += "file://0004-Add-service-otbr_fwcfg-to-config-the-firewall-policy.patch"
+SRC_URI += "file://0005-web-bump-to-latest-Simple-Web-Server-version-1667.patch"
 
 SRCREV = "1813352247aa60fb8993773918f1e5b4af6f3b79"
 
@@ -31,7 +32,7 @@ do_configure:prepend () {
 
 def get_rcp_bus(d):
     for arg in (d.getVar('MACHINE') or '').split():
-        if arg == "imx93evk":
+        if "imx93" in arg:
             return '-DOT_POSIX_CONFIG_RCP_BUS=SPI'
     for arg in (d.getVar('OT_RCP_BUS') or '').split():
         if arg == "SPI":

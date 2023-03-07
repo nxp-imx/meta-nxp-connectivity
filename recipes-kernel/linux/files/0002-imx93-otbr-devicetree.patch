@@ -1,0 +1,79 @@
+From c5765561b75dd4a7fb98f67c47c7fbd8c2ea2817 Mon Sep 17 00:00:00 2001
+From: "Haoran.Wang" <elven.wang@nxp.com>
+Date: Mon, 6 Mar 2023 15:31:35 +0800
+Subject: [PATCH 2/2] imx93 otbr devicetree
+
+Change-Id: I335b6661441229d01d6551269a549e43e0cba8d5
+Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile        |  3 +-
+ .../freescale/imx93-11x11-evk-iw612-otbr.dts  | 43 +++++++++++++++++++
+ 2 files changed, 45 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 3a5e9c99a43b..13bcfde52f55 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -251,7 +251,8 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-11x11-evk.dtb \
+ 			  imx93-11x11-evk-mqs.dtb imx93-11x11-evk-aud-hat.dtb \
+ 			  imx93-11x11-evk-rm67199.dtb imx93-11x11-evk-boe-wxga-lvds-panel.dtb \
+ 			  imx93-11x11-evk-flexspi-m2.dtb \
+-			  imx93-11x11-evk-mt9m114.dtb
++			  imx93-11x11-evk-mt9m114.dtb \
++			  imx93-11x11-evk-iw612-otbr.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx93-9x9-qsb.dtb \
+ 			  imx93-9x9-qsb-can1.dtb \
+ 			  imx93-9x9-qsb-flexspi-m2.dtb \
+diff --git a/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
+new file mode 100644
+index 000000000000..e53c4aa590a7
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
+@@ -0,0 +1,43 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright 2022 NXP
++ */
++
++#include "imx93-11x11-evk.dts"
++
++&lpi2c1 {
++    pinctrl-assert-gpios = <&pcal6524 13 GPIO_ACTIVE_HIGH>;
++    pcal6408: gpio@20 {
++        compatible = "nxp,pcal9554b";
++        reg = <0x20>;
++        gpio-controller;
++        #gpio-cells = <2>;
++        status = "okay";
++    };
++};
++&lpspi3 {
++    fsl,spi-num-chipselects = <1>;
++    pinctrl-names = "default", "sleep";
++    pinctrl-0 = <&pinctrl_lpspi3>;
++    pinctrl-1 = <&pinctrl_lpspi3>;
++    cs-gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
++    pinctrl-assert-gpios = <&adp5585gpio 4 GPIO_ACTIVE_LOW>;
++    status = "okay";
++
++    spidev0: spi@0 {
++        reg = <0>;
++        compatible = "lwn,bk4";
++        spi-max-frequency = <1000000>;
++    };
++};
++
++&iomuxc {
++    pinctrl_lpspi3: lpspi3grp {
++        fsl,pins = <
++            MX93_PAD_GPIO_IO08__GPIO2_IO08      0x3fe
++            MX93_PAD_GPIO_IO09__LPSPI3_SIN      0x3fe
++            MX93_PAD_GPIO_IO10__LPSPI3_SOUT     0x3fe
++            MX93_PAD_GPIO_IO11__LPSPI3_SCK      0x3fe
++        >;
++    };
++};
+-- 
+2.36.0
+

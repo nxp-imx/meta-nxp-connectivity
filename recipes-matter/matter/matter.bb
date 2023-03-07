@@ -4,14 +4,16 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.0-branch-nxp_imx_2023_q1"
+SRCBRANCH = "master"
 SRC_URI = "gitsm://github.com/NXPmicro/matter.git;protocol=https;branch=${SRCBRANCH}"
-SRC_URI += "file://0001-Add-Network-Commissioning-cluster-setup-for-bridge-a.patch"
+SRC_URI += "file://0001-Add-build_without_pw-to-bypass-the-pw.patch"
 
-SRCREV = "f615a797b2fe52d5f3f8fe7dfee0469d671bad9b"
+PATCHTOOL = "git"
+
+SRCREV = "b89e83be43dde7a79d90823f4bc1279eb53f76de"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
+DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native "
 RDEPENDS_${PN} += " libavahi-client "
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
@@ -46,16 +48,10 @@ TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 
 S = "${WORKDIR}/git"
 
-do_configure() {
-    cd ${S}/
-    if ${DEPLOY_TRUSTY}; then
-        git submodule update --init
-        ./scripts/checkout_submodules.py
-    fi
-    cd ${S}/examples/lighting-app/linux
+common_configure() {
 	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
+    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -66,111 +62,39 @@ do_configure() {
         target_cc="${CC}"
         target_cxx="${CXX}"
         target_ar="${AR}"'
+}
+
+do_configure() {
+#    bbwarn "sendrolon do_install_zap"
+#    ln -sfr ${S}/bin/zap-cli ${RECIPE_SYSROOT_NATIVE}/usr/bin/
+    cd ${S}/
+#    if ${DEPLOY_TRUSTY}; then
+#        git submodule update --init
+#        ./scripts/checkout_submodules.py
+#    fi
+    cd ${S}/examples/lighting-app/linux
+    common_configure
 
 	cd ${S}/examples/all-clusters-app/linux
-	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-                       ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
 	cd ${S}/examples/thermostat/linux
-	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-                       ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
-	cd ${S}/examples/nxp-thermostat/linux
-	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-                       ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+#	cd ${S}/examples/nxp-thermostat/linux
+#   common_configure
 
     cd ${S}/examples/chip-tool
-    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-        ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
     cd ${S}/examples/ota-provider-app/linux
-    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-        ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
     cd ${S}/examples/ota-requestor-app/linux
-    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-        ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
     cd ${S}/examples/bridge-app/linux
-    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}"
-        import("//build_overrides/build.gni")
-        target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
-        ]
-        custom_toolchain="${build_root}/toolchain/custom"
-        target_cc="${CC}"
-        target_cxx="${CXX}"
-        target_ar="${AR}"'
+    common_configure
 
     if ${DEPLOY_TRUSTY}; then
         cd ${S}/examples/lighting-app/linux
@@ -230,8 +154,8 @@ do_compile() {
 	cd ${S}/examples/thermostat/linux
     ninja -C out/aarch64
 
-	cd ${S}/examples/nxp-thermostat/linux
-    ninja -C out/aarch64
+#	cd ${S}/examples/nxp-thermostat/linux
+#   ninja -C out/aarch64
 
 	cd ${S}/examples/chip-tool
     ninja -C out/aarch64
@@ -262,7 +186,7 @@ do_install() {
 	install ${S}/examples/lighting-app/linux/out/aarch64/chip-lighting-app ${D}${bindir}
 	install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
 	install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
-	install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
+#	install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
 	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
 	install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
 	install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
@@ -274,5 +198,12 @@ do_install() {
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
 }
+
+do_install_zap() {
+    bbwarn "sendrolon do_install_zap"
+    ln -sfr ${S}/bin/zap-cli ${RECIPE_SYSROOT_NATIVE}/usr/bin/
+}
+
+addtask install_zap after do_prepare_recipe_sysroot
 
 INSANE_SKIP_${PN} = "ldflags"
