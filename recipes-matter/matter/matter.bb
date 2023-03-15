@@ -12,7 +12,7 @@ SRCREV = "f615a797b2fe52d5f3f8fe7dfee0469d671bad9b"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native "
-RDEPENDS_${PN} += " libavahi-client "
+RDEPENDS_${PN} += " libavahi-client jsoncpp otbr matter openthread ${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'storageproxyd', '', d)} "
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
