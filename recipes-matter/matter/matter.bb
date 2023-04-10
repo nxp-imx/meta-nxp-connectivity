@@ -145,6 +145,7 @@ do_configure() {
 }
 
 do_compile() {
+    chmod 755 ${STAGING_BINDIR_NATIVE}/zap-cli
     cd ${S}/examples/lighting-app/linux
     ninja -C out/aarch64
 

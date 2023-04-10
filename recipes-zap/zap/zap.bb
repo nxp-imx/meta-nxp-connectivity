@@ -40,5 +40,11 @@ do_deploy() {
     chmod 755 ${D}${bindir}/zap-cli
 }
 
+do_populate_sdk:append() {
+    chmod 755 ${D}${bindir}/zap-cli
+}
+
 addtask deploy after do_install do_populate_sysroot
+addtask deploy before do_cleansstate
+addtask deploy before do_clean
 
