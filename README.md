@@ -1,10 +1,30 @@
+# Contents
+
+[**Introduction**](#Introduction)
+
+[**i.MX MPU Matter platform**](#imx-mpu-platform)
+
+[**How to build the Yocto image with integrated OpenThread Border Router**](#How-to-build-the-Yocto-image)
+
+[**How to build OpenThread Border Router with Yocto SDK**](#How-to-build-OTBR)
+
+[**How to setup OpenThread Border Router environment within the Yocto**](#How-to-setup-OTBR)
+
+[**How to build Matter application**](#How-to-build-Matter-application)
+
+[**Security configuration for Matter**](#Security-configuration-for-Matter)
+
+[**FAQ**](#FAQ)
+
+<a name="Introduction"></a>
+
 # Introduction
 This repository contains the i.MX MPU project Matter related Yocto recipes. The following modules will be built with this meta-matter layer:
  - Matter (CHIP) : https://github.com/nxp-imx/matter.git
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter v1.0-branch](https://github.com/nxp-imx/matter.git).
+All the software components revisions are based on [project Matter SVE_23_03/rc2 tag](https://github.com/nxp-imx/matter.git).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -22,9 +42,15 @@ The Following Matter related binaries will be installed into the Yocto image roo
  - ot-ctl: OpenThread Border Router ctrl tool
  - otbr-web: OpenThread Border Router web management daemon
 
-# How to build the Yocto image with integrated OpenThread Border Router
+<a name="imx-mpu-platform"></a>
 
-Prerequisites
+# i.MX MPU Matter platform
+
+We currently support 3 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M Mini EVK, and the i.MX6ULL EVK. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+
+<a name="How-to-build-the-Yocto-image"></a>
+
+# How to build the Yocto image with integrated OpenThread Border Router
 
 The following packages are required to build the Yocto Project:
 
@@ -36,7 +62,7 @@ The following packages are required to build the Yocto Project:
 The following python packages need to be installed:
 
     $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/v1.0.0/scripts/constraints.txt
+    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/SVE_23_03/rc2/scripts/setup/constraints.txt
     $ pip3 install -r constraints.txt
     $ pip install dbus-python
 
@@ -48,17 +74,17 @@ Make sure your default Python of the Linux host is Python2:
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 5.15.71_2.2.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
+This document is tested with the i.MX Yocto 6.1.1_1.0.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
     $ curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
     $ chmod a+x ~/bin/repo
     $ export PATH=${PATH}:~/bin
-    
+
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-kirkstone -m imx-5.15.71-2.2.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-langdale -m imx-6.1.1-1.0.0.xml
     $ repo sync
 
 Then integrate the meta-matter recipes into the Yocto code base
@@ -117,6 +143,8 @@ ___Be cautious when executing the dd command below, making sure that the output 
     $ zstd -d imx-image-multimedia-imx93evk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx93evk.wic of=/dev/sdc bs=4M conv=fsync
 
+<a name="How-to-build-OTBR"></a>
+
 # How to build OpenThread Border Router with the Yocto SDK
 
 There are 3 modules for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web. The otbr-web module requires liboost static and jsoncpp packages, which are not included in the default Yocto images.
@@ -138,34 +166,33 @@ This SDK can be generated with below commands:
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
     # For i.MX8M Mini EVK:
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-toolchain-5.15-kirkstone.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-toolchain-6.1-langdale.sh
 
     # For i.MX6ULL EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-5.15-kirkstone.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.1-langdale.sh
 
     # For i.MX93 EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-toolchain-5.15-kirkstone.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-toolchain-6.1-langdale.sh
 
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK); for exmaple, you can use /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/5.15-kirkstone-imx93 for i.MX93 EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK); for exmaple, you can use /opt/fsl-imx-xwayland/6.1-langdale-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-langdale-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/6.1-langdale-imx93 for i.MX93 EVK.___
 
-    NXP i.MX Release Distro SDK installer version 5.15-kirkstone
+    NXP i.MX Release Distro SDK installer version 6.1-langdale
     ============================================================
-    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/5.15-kirkstone):
+    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.1-langdale):
 
 After the Yocto SDK is installed on the host machine, an SDK environment setup script is also generated.
 User needs to import Yocto build environment, by sourcing this script each time the SDK is used in a new shell; for example:
 
     # For i.MX8M Mini EVK
-    $ . /opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-xwayland/6.1-langdale-imx8mm/environment-setup-armv8a-poky-linux
 
     $ For i.MX6ULL EVK
-    $ . /opt/fsl-imx-wayland/5.15-kirkstone-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    $ . /opt/fsl-imx-wayland/6.1-langdale-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
     # For i.MX93 EVK
-    $ . /opt/fsl-imx-wayland/5.15-kirkstone-imx93/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-wayland/6.1-langdale-imx93/environment-setup-armv8a-poky-linux
 
-Compiling OTBR
 Fetch the latest otbr source code and execute the build:
 
     $ mkdir ${MY_OTBR}  # this directory will be the top directory of the OTBR source code
@@ -175,7 +202,7 @@ Fetch the latest otbr source code and execute the build:
     $ git checkout origin/main
     $ git submodule update --init
 
-    # For i.MX8M Mini EVK and i.MX93 EVK
+    # For i.MX8M Mini EVK
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
@@ -185,9 +212,15 @@ Fetch the latest otbr source code and execute the build:
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
-     -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
+      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
 
-The otbr-agent is built in \${MY_OTBR}/build/otbr/src/agent/otbr-agent. 
+    # For i.MX93 EVK
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+      -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
+      -DOT_POSIX_CONFIG_RCP_BUS=SPI -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+
+The otbr-agent is built in \${MY_OTBR}/build/otbr/src/agent/otbr-agent.
 The otbr-web is built in \${MY_OTBR}/build/otbr/src/web/otbr-web.
 The ot-ctl is built in \${MY_OTBR}/build/otbr/third_party/openthread/repo/src/posix/ot-ctl.
 
@@ -198,16 +231,14 @@ __The OTBR does not support incremental compilation. If an error occurs during c
     $ cd ${MY_OTBR}
     $ rm -rf build/
 
+<a name="How-to-setup-OTBR"></a>
+
 # How to setup OpenThread Border Router on the target
 
 Use below commands to connect the OTBR to the Wi-Fi access point:
 
-    # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module
+    # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module, and for i.MX93 EVK with IW612 module:
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
-
-    # For i.MX93 EVK with IW612 module:
-    $ modprobe sdxxx mod_para=nxp/wifi_mod_para.conf
-
     $ wpa_passphrase ${SSID} ${PASSWORD} > imxrouter.conf
     $ wpa_supplicant -d -B -i mlan0 -c ./imxrouter.conf
     $ udhcpc -i mlan0
@@ -240,6 +271,10 @@ We just need set a GPIO and then setup the otbr.
     $ iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $ otbr-web &
 
+A document explaining how to use Matter with OTBR on the i.MX MPU platform can be found in the [NXP Matter binaries guide](docs/guides/nxp_mpu_matter_binaries.md).
+
+<a name="How-to-build-Matter-application"></a>
+
 # How to build Matter application
 
 The Matter application has been installed into the Yocto image by default. If you want build it separately, run the below commands to download the Matter application source code and switch to v1.0 branch:
@@ -253,14 +288,14 @@ The Matter application has been installed into the Yocto image by default. If yo
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx8mm
+    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.1-langdale-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx8mm
 
-    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx6ull
+    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.1-langdale-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx6ull
 
-    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/5.15-kirkstone-imx93 is ${IMX93_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/5.15-kirkstone-imx93
+    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.1-langdale-imx93 is ${IMX93_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx93
 
 User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the build_examples.py script. Please refer to below examples.
 
@@ -305,6 +340,10 @@ If an application needs to be built for several boards (both i.MX8M Mini EVK, i.
 After executing the above command, the chip-tool executable files will be found in ${MY_Matter_Apps}/out/imx8mm/imx-chip-tool/.
 
 An official Matter document explaining how to use chip-tool as a Matter controller can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
+
+A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter binaries guide](docs/guides/nxp_mpu_matter_binaries.md).
+
+<a name="Security-configuration-for-Matter"></a>
 
 # Security configuration for Matter
 
@@ -357,6 +396,8 @@ The Trusty OS, which contains the Trusted Application (TA) for i.MX Matter, is m
     # Enable the secure storage service on first boot on i.MX8M Mini Linux shell
     $ systemctl enable storageproxyd
     $ systemctl start storageproxyd
+
+<a name="FAQ"></a>
 
 # FAQ
 
