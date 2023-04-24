@@ -1,0 +1,54 @@
+From b5c621e21f5ee32f84b611f1380fc7a980ae816d Mon Sep 17 00:00:00 2001
+From: Ji Luo <ji.luo@nxp.com>
+Date: Wed, 19 Apr 2023 16:36:04 +0800
+Subject: [PATCH 2/2] Enable Trusty for imx8mm
+
+Change-Id: Ie84e3e40e497707ebd432472e50b1a9e043cad48
+Signed-off-by: Ji Luo <ji.luo@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/imx8mm-evk.dts | 18 ++++++++++++++++++
+ arch/arm64/configs/imx_v8_defconfig          |  2 ++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
+index bd7705d6d7a5..8b29c72ce3a0 100755
+--- a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
+@@ -22,6 +22,24 @@ usdhc1_pwrseq: usdhc1_pwrseq {
+ 		pinctrl-0 = <&pinctrl_usdhc1_gpio>;
+ 		reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
+ 	};
++
++	trusty {
++		compatible = "android,trusty-smc-v1";
++		ranges;
++		#address-cells = <2>;
++		#size-cells = <2>;
++		trusty-irq {
++			compatible = "android,trusty-irq-v1";
++			interrupt-ranges = < 0 15 0>;
++			ipi-range = <8 15 8>;
++		};
++		trusty-virtio {
++			compatible = "android,trusty-virtio-v1";
++		};
++		trusty-log {
++			compatible = "android,trusty-log-v1";
++		};
++	};
+ };
+ 
+ &flexspi {
+diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
+index e308e253508e..42797be56b1b 100644
+--- a/arch/arm64/configs/imx_v8_defconfig
++++ b/arch/arm64/configs/imx_v8_defconfig
+@@ -1364,3 +1364,5 @@ CONFIG_CORESIGHT_STM=m
+ CONFIG_CORESIGHT_CPU_DEBUG=m
+ CONFIG_CORESIGHT_CTI=m
+ CONFIG_MEMTEST=y
++CONFIG_TRUSTY=y
++CONFIG_TRUSTY_CRASH_IS_PANIC=y
+-- 
+2.25.1
+
