@@ -8,14 +8,18 @@ SRCBRANCH = "master"
 IMX_MATTER_SRC ?= "gitsm://github.com/NXPmicro/matter.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 SRC_URI += "file://0001-Add-build_without_pw-to-bypass-the-pw.patch"
+SRC_URI += "file://0001-Implement-matter-controller-webui-demo-chip-tool-web.patch"
 
 PATCHTOOL = "git"
 
 SRCREV = "5a21d17fd2bb0a48f4a356937f4741f6c9dc7975"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native "
+DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native boost "
 RDEPENDS_${PN} += " libavahi-client "
+FILES:${PN} += "usr/share"
+
+INSANE_SKIP:${PN} += "dev-so debug-deps strip"
 
 #DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
@@ -57,7 +61,6 @@ common_configure() {
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
                         "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-                        "-O3"
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
@@ -95,6 +98,21 @@ do_configure() {
 
     cd ${S}/examples/bridge-app/linux
     common_configure
+
+    # Build chip-tool-web
+    cd ${S}/examples/chip-tool
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64-web --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" enable_rtti=true enable_exceptions=true chip_with_web=1 build_without_pw=true
+        import("//build_overrides/build.gni")
+        target_cflags=[
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+        ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
 
 #    if ${DEPLOY_TRUSTY}; then
 #        cd ${S}/examples/lighting-app/linux
@@ -170,6 +188,10 @@ do_compile() {
     cd ${S}/examples/bridge-app/linux
     ninja -C out/aarch64
 
+    # Build chip-tool-web
+    cd ${S}/examples/chip-tool
+    ninja -C out/aarch64-web
+
 #    if ${DEPLOY_TRUSTY}; then
 #        cd ${S}/examples/lighting-app/linux
 #        ninja -C out/aarch64-trusty
@@ -192,6 +214,12 @@ do_install() {
 	install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
 	install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
 	install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
+
+    # Install chip-tool-web
+	install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
+    install -d -m 755 ${D}/usr/share/chip-tool-web/
+    cp -r ${S}/examples/chip-tool/webui/frontend ${D}/usr/share/chip-tool-web/
+
 
 #    if ${DEPLOY_TRUSTY}; then
 #        install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
