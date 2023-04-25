@@ -104,7 +104,7 @@ Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         sleep 1
         gpioset gpiochip6 0=1
 
-        otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/$ gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&
+        otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&
         spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &   #These two lines are one command
 
         sleep 2
