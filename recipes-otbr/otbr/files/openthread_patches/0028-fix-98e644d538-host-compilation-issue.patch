@@ -1,0 +1,16 @@
+diff --git a/src/posix/Makefile-posix b/src/posix/Makefile-posix
+index 24c7a83fd..aa6dab0c4 100644
+--- a/src/posix/Makefile-posix
++++ b/src/posix/Makefile-posix
+@@ -94,7 +94,10 @@ configure_OPTIONS                   = \
+ # Platform specific switches
+ 
+ ifeq ($(DAEMON),1)
+-configure_OPTIONS              += --enable-posix-daemon
++configure_OPTIONS              += \
++    --enable-posix-daemon         \
++    LIBS=-lstdc++                 \
++    $(NULL)
+ endif
+ 
+ ifneq ($(DEBUG),1)

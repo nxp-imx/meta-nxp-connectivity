@@ -1,0 +1,38 @@
+From 19efb71dcc53442e19986531cefda1a08af216fe Mon Sep 17 00:00:00 2001
+From: nxf87843 <jean-yves.salaun@nxp.com>
+Date: Thu, 5 Jan 2023 14:55:28 +0100
+Subject: [PATCH 1/1] add OT_TCP option parsing
+
+Signed-off-by: nxf87843 <jean-yves.salaun@nxp.com>
+---
+ examples/common-switches.mk | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/examples/common-switches.mk b/examples/common-switches.mk
+index ac05ccd6c..f136e9e66 100644
+--- a/examples/common-switches.mk
++++ b/examples/common-switches.mk
+@@ -78,6 +78,7 @@ NETDATA_PUBLISHER         ?= 0
+ OTNS                      ?= 0
+ PING_SENDER               ?= 1
+ PLATFORM_UDP              ?= 0
++OT_TCP                    ?= 0
+ REFERENCE_DEVICE          ?= 0
+ SERVICE                   ?= 0
+ SETTINGS_RAM              ?= 0
+@@ -304,6 +305,12 @@ ifeq ($(PLATFORM_UDP),1)
+ COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_PLATFORM_UDP_ENABLE=1
+ endif
+ 
++ifeq ($(OT_TCP),1)
++COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_TCP_ENABLE=1
++else
++COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_TCP_ENABLE=0
++endif
++
+ # Enable features only required for reference device during certification.
+ ifeq ($(REFERENCE_DEVICE),1)
+ COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE=1
+-- 
+2.34.1
+

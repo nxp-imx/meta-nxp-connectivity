@@ -1,0 +1,22 @@
+diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
+index 752dd44c1..f9aeb2616 100644
+--- a/src/posix/platform/spi_interface.cpp
++++ b/src/posix/platform/spi_interface.cpp
+@@ -666,6 +666,17 @@ void SpiInterface::UpdateFdSet(fd_set &aReadFdSet, fd_set &aWriteFdSet, int &aMa
+             // The interrupt pin was not asserted, so we wait for the interrupt pin to be asserted by adding it to the
+             // read set.
+             FD_SET(mIntGpioValueFd, &aReadFdSet);
++
++            if (CheckInterrupt())
++            {
++                // Interrupt pin was not asserted before FD_SET
++                // but it is after.
++                // set the timeout to zero else the select will not detect the falling edge
++                // and will wait until the end of the timeout
++                timeout.tv_sec  = 0;
++                timeout.tv_usec = 0;
++                otLogDebgPlat("UpdateFdSet(): Interrupt after FD_SET.");
++            }
+         }
+     }
+     else if (timercmp(&pollingTimeout, &timeout, <))
