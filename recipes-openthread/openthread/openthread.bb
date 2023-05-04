@@ -24,10 +24,9 @@ def get_rcp_bus(d):
     return ''
 
 inherit cmake
-EXTRA_OECMAKE += "${@get_rcp_bus(d)}"
 
 do_install() {
-	install -d -m 755 ${D}${bindir}
+    install -d -m 755 ${D}${bindir}
     install ${WORKDIR}/build/src/posix/ot-daemon ${D}${bindir}
     install ${WORKDIR}/build/src/posix/ot-ctl ${D}${bindir}/ot-client-ctl
 }
@@ -38,4 +37,4 @@ do_install() {
 
 OT_SRC_REV_OPTS_PATCHES_INCLUDE="${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk", 'ot_src_rev_opts_patches_standard.inc', 'ot_src_rev_opts_patches_certification.inc', d)}"
 include ${OT_SRC_REV_OPTS_PATCHES_INCLUDE}
-
+EXTRA_OECMAKE += "${@get_rcp_bus(d)}"
