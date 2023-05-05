@@ -4,15 +4,14 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "master"
-IMX_MATTER_SRC ?= "gitsm://github.com/NXPmicro/matter.git;protocol=https"
+SRCBRANCH = "imx_matter_2023_q2"
+#IMX_MATTER_SRC ?= "gitsm://github.com/NXPmicro/matter.git;protocol=https"
+IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
-SRC_URI += "file://0001-Add-build_without_pw-to-bypass-the-pw.patch"
-SRC_URI += "file://0001-Implement-matter-controller-webui-demo-chip-tool-web.patch"
 
 PATCHTOOL = "git"
 
-SRCREV = "5a21d17fd2bb0a48f4a356937f4741f6c9dc7975"
+SRCREV = "a09e1960f59c710fa2af90b780bb8d68e1230b4d"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native boost "
@@ -21,7 +20,7 @@ FILES:${PN} += "usr/share"
 
 INSANE_SKIP:${PN} += "dev-so debug-deps strip"
 
-#DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
+DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
 def get_target_cpu(d):
     for arg in (d.getVar('TUNE_FEATURES') or '').split():
@@ -68,13 +67,28 @@ common_configure() {
         target_ar="${AR}"'
 }
 
+trusty_configure() {
+	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1
+        import("//build_overrides/build.gni")
+        target_cflags=[
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+                       ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
+}
+
 do_configure() {
 #    ln -sfr ${S}/bin/zap-cli ${RECIPE_SYSROOT_NATIVE}/usr/bin/
     cd ${S}/
-#    if ${DEPLOY_TRUSTY}; then
-#        git submodule update --init
-#        ./scripts/checkout_submodules.py
-#    fi
+    if ${DEPLOY_TRUSTY}; then
+        git submodule update --init
+        ./scripts/checkout_submodules.py
+    fi
     cd ${S}/examples/lighting-app/linux
     common_configure
 
@@ -114,52 +128,16 @@ do_configure() {
         target_cxx="${CXX}"
         target_ar="${AR}"'
 
-#    if ${DEPLOY_TRUSTY}; then
-#        cd ${S}/examples/lighting-app/linux
-#        PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-#        PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-#        gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" chip_with_trusty_os=1
-#            import("//build_overrides/build.gni")
-#            target_cflags=[
-#                            "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-#                            "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-#                            "-O3"
-#            ]
-#            custom_toolchain="${build_root}/toolchain/custom"
-#            target_cc="${CC}"
-#            target_cxx="${CXX}"
-#            target_ar="${AR}"'
-#
-#        cd ${S}/examples/chip-tool
-#        PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-#        PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-#        gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" chip_with_trusty_os=1
-#            import("//build_overrides/build.gni")
-#            target_cflags=[
-#                            "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-#                            "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-#                            "-O3"
-#            ]
-#            custom_toolchain="${build_root}/toolchain/custom"
-#            target_cc="${CC}"
-#            target_cxx="${CXX}"
-#            target_ar="${AR}"'
-#
+    if ${DEPLOY_TRUSTY}; then
+        cd ${S}/examples/lighting-app/linux
+        trusty_configure
+
+        cd ${S}/examples/chip-tool
+        trusty_configure
+
 #        cd ${S}/examples/nxp-thermostat/linux
-#        PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-#        PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-#        gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" chip_with_trusty_os=1
-#            import("//build_overrides/build.gni")
-#            target_cflags=[
-#                            "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-#                            "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
-#                            "-O3"
-#            ]
-#            custom_toolchain="${build_root}/toolchain/custom"
-#            target_cc="${CC}"
-#            target_cxx="${CXX}"
-#            target_ar="${AR}"'
-#    fi
+#        trusty_configure
+    fi
 }
 
 do_compile() {
@@ -192,16 +170,16 @@ do_compile() {
     cd ${S}/examples/chip-tool
     ninja -C out/aarch64-web
 
-#    if ${DEPLOY_TRUSTY}; then
-#        cd ${S}/examples/lighting-app/linux
-#        ninja -C out/aarch64-trusty
-#
+    if ${DEPLOY_TRUSTY}; then
+        cd ${S}/examples/lighting-app/linux
+        ninja -C out/aarch64-trusty
+
 #        cd ${S}/examples/nxp-thermostat/linux
 #        ninja -C out/aarch64-trusty
-#
-#        cd ${S}/examples/chip-tool
-#        ninja -C out/aarch64-trusty
-#    fi
+
+        cd ${S}/examples/chip-tool
+        ninja -C out/aarch64-trusty
+    fi
 }
 
 do_install() {
@@ -221,11 +199,11 @@ do_install() {
     cp -r ${S}/examples/chip-tool/webui/frontend ${D}/usr/share/chip-tool-web/
 
 
-#    if ${DEPLOY_TRUSTY}; then
-#        install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
+    if ${DEPLOY_TRUSTY}; then
+        install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
 #        install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
-#        install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
-#    fi
+        install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
+    fi
 }
 
 do_install_zap() {
