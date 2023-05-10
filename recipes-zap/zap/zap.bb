@@ -6,8 +6,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 PACKAGES = "${PN}"
 
-SRC_URI = "https://github.com/project-chip/zap/releases/download/v2023.04.21-nightly/zap-linux.zip;unpack=yes"
-SRC_URI[sha256sum] = "6268bf5f093ef080246e3aa8adf395ae94e9ac9049e5263c24bd761a28b20b29"
+SRC_URI = "https://github.com/project-chip/zap/releases/download/v2023.04.27-nightly/zap-linux.zip;unpack=yes"
+SRC_URI[sha256sum] = "0b49a515f0f000cdd0beb7c78a8245ce97070097ac1896c1e2d6e1c533d9d213"
 
 S = "${WORKDIR}"
 

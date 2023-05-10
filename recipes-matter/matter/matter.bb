@@ -4,14 +4,14 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "imx_matter_2023_q2"
+SRCBRANCH = "v1.1-branch-nxp_imx_2023_q2"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXPmicro/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 
 PATCHTOOL = "git"
 
-SRCREV = "a09e1960f59c710fa2af90b780bb8d68e1230b4d"
+SRCREV = "6093f3897fb1944ee9035008803093a09c32bfd8"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native boost "
@@ -53,7 +53,7 @@ TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 S = "${WORKDIR}/git"
 
 common_configure() {
-	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
     gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true
         import("//build_overrides/build.gni")
@@ -68,7 +68,7 @@ common_configure() {
 }
 
 trusty_configure() {
-	PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
     gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1
         import("//build_overrides/build.gni")
@@ -92,14 +92,14 @@ do_configure() {
     cd ${S}/examples/lighting-app/linux
     common_configure
 
-	cd ${S}/examples/all-clusters-app/linux
+    cd ${S}/examples/all-clusters-app/linux
     common_configure
 
-	cd ${S}/examples/thermostat/linux
+    cd ${S}/examples/thermostat/linux
     common_configure
 
-#	cd ${S}/examples/nxp-thermostat/linux
-#   common_configure
+    cd ${S}/examples/nxp-thermostat/linux
+    common_configure
 
     cd ${S}/examples/chip-tool
     common_configure
@@ -135,8 +135,8 @@ do_configure() {
         cd ${S}/examples/chip-tool
         trusty_configure
 
-#        cd ${S}/examples/nxp-thermostat/linux
-#        trusty_configure
+        cd ${S}/examples/nxp-thermostat/linux
+        trusty_configure
     fi
 }
 
@@ -145,16 +145,16 @@ do_compile() {
     cd ${S}/examples/lighting-app/linux
     ninja -C out/aarch64
 
-	cd ${S}/examples/all-clusters-app/linux
+    cd ${S}/examples/all-clusters-app/linux
     ninja -C out/aarch64
 
-	cd ${S}/examples/thermostat/linux
+    cd ${S}/examples/thermostat/linux
     ninja -C out/aarch64
 
-#	cd ${S}/examples/nxp-thermostat/linux
-#   ninja -C out/aarch64
+    cd ${S}/examples/nxp-thermostat/linux
+    ninja -C out/aarch64
 
-	cd ${S}/examples/chip-tool
+    cd ${S}/examples/chip-tool
     ninja -C out/aarch64
 
     cd ${S}/examples/ota-provider-app/linux
@@ -174,8 +174,8 @@ do_compile() {
         cd ${S}/examples/lighting-app/linux
         ninja -C out/aarch64-trusty
 
-#        cd ${S}/examples/nxp-thermostat/linux
-#        ninja -C out/aarch64-trusty
+        cd ${S}/examples/nxp-thermostat/linux
+        ninja -C out/aarch64-trusty
 
         cd ${S}/examples/chip-tool
         ninja -C out/aarch64-trusty
@@ -183,25 +183,25 @@ do_compile() {
 }
 
 do_install() {
-	install -d -m 755 ${D}${bindir}
-	install ${S}/examples/lighting-app/linux/out/aarch64/chip-lighting-app ${D}${bindir}
-	install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
-	install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
-#	install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
-	install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
-	install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
-	install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
-	install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
+    install -d -m 755 ${D}${bindir}
+    install ${S}/examples/lighting-app/linux/out/aarch64/chip-lighting-app ${D}${bindir}
+    install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
+    install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
+    install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
+    install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
+    install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
+    install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
+    install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
 
     # Install chip-tool-web
-	install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
+    install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
     install -d -m 755 ${D}/usr/share/chip-tool-web/
     cp -r ${S}/examples/chip-tool/webui/frontend ${D}/usr/share/chip-tool-web/
 
 
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
-#        install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
+        install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
 }
