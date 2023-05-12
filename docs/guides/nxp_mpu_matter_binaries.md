@@ -10,6 +10,8 @@ This document describes how to use the Matter binaries on the i.MX MPU platforms
 
  [**Running other Matter binaries on the i.MX MPU platform**](#other-matter-binaries)
 
+ [**FAQ**](#note-of-using-matter-binaries)
+
 <a name="hardware-requirements"></a>
 
 ## Hardware requirements
@@ -249,7 +251,7 @@ The commissioning process consists of the following main stages:
 - Run the example application on the end device
 - Commision and control the end devices on the controller device
 
-#### Set up BT and connecte to a wifi AP on controller device
+#### Set up BT and connect to a wifi AP on controller device
 
 step1. Sync with current time.
 
@@ -414,6 +416,41 @@ Final, commission and control the end device on the controller device.
     # commission the end devices
     $ chip-tool pairing onnetwork 8888 20202021
 
-    # controll commands same as ble-wifi commissioning method
+    # control commands same as ble-wifi commissioning method
 
 To run applications with trusty on the i.MX8M Mini EVK by onnetwork commissioning way, you should use to the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.
+<a name="note-of-using-matter-binaries"></a>
+
+## FAQ
+
+### Why chip-tool failed to control cluster after reboot?
+
+Why does chip-tool fail to control the cluster after a reboot? This is because the default storage location of chip-tool on the Yocto operating system is in the `/tmp` directory, which is a temporary file system (tempfs) that is reset during power cycles. This can result in the loss of pairing information between the controller and the cluster, which includes applications such as chip-lighting-app, nxp-thermostat-app, chip-bridge-app, and more. To preserve this pairing information, it is critical to store the information in a persistent location. The recommended solution is to set the `TMPDIR` environment variable to a persistent location, such as `/etc`, before using chip-tool. This simple step can help ensure that the pairing information is stored in a directory that persists after a reboot, allowing you to avoid having to re-pair your devices after a reboot. Here are the detailed steps to set the `TMPDIR` environment variable in `/etc`:
+
+Step 1. Export the `TMPDIR` environment variable to a persistent location on the controller device before using the chip-tool. This will preserve the pairing information with the cluster after a reboot. For example, `/etc` is one of the option locations to store these configuration files:
+
+    $ export TMPDIR=/etc/
+
+Step 2. Run the cluster application on end device
+
+    # open the cluster application on the end device
+    $ nxp-thermostat-app
+
+Step 3. Use the controller to pair and control the desired application on the cluster end device using any pairing mode (onnetwork/ble-wifi). For example, run the following command to pair with and control the NXP thermostat app:
+
+    # pairing the cluster on the controller device
+    $ chip-tool pairing onnetwork 8888 20202021
+    # control the cluster on the controller device
+    $ chip-tool thermostat read local-temperature 8888 1
+
+Note that the cluster application and pairing type can be selected to suit your needs.
+
+Step 4. Then reboot the controller device while keeping the cluster device powered on.
+
+Step 5. After rebooting the controller device, re-export the `TMPDIR` environment variable to the same location used in step 1:
+
+    $ export TMPDIR=/etc/
+
+Step 6. Use the chip-tool command again on the controller device to control the cluster device without having to repeat the pairing process.
+
+    $ chip-tool thermostat read local-temperature 8888 1

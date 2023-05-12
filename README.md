@@ -319,16 +319,16 @@ Assuming that the working directory is changed to the top level directory of thi
     $ ./scripts/build/build_examples.py  --target imx-ota-provider-app build
 
     # Build the nxp-thermostat-app for certification device reference
-    $ ./scripts/examples/imxlinux_example.sh examples/nxp-thermostat/linux/ out/nxp-thermostat debug
+    $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux/ -o out/nxp-thermostat -d
 
     # Build the chip-bridge-app example with below command
-    $ ./scripts/examples/imxlinux_example.sh examples/bridge-app/linux/ out/bridge-app debug
+    $ ./scripts/examples/imxlinux_example.sh -s examples/bridge-app/linux/ -o out/bridge-app -d
 
     # Build the security enhanced with Trusty OS application using build_examples.py, by adding "-trusty" to te target. For example:
     $ ./scripts/build/build_examples.py  --target imx-chip-tool-trusty build
 
     # Build the security enhanced with Trusty OS application using imxlinux_example.sh, by adding "trusty" to the command. For example:
-    $ ./scripts/examples/imxlinux_example.sh examples/nxp-thermostat/linux out/nxp-thermostat-trusty trusty
+    $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux -o out/nxp-thermostat-trusty -t
 
 The applications are built in out/ subdirectories; the subdirectory name is specified with --target option, when building the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 

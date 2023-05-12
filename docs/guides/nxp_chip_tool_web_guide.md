@@ -32,7 +32,7 @@ Before using the chip-tool-web, you must compile it from source on Linux (armv71
 The steps to compile the chip-tool-web are the same as [How to build Matter application](https://github.com/nxp-imx/meta-matter/blob/master/README.md#how-to-build-matter-application), the only difference is the compilation command:
 ```
 # Build the chip-tool-web example with the following command
-$ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh examples/chip-tool/ out/chip-tool-web debug
+$ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web -d
 ```
 
 After compilation, you will find two binaries, chip-tool and chip-tool-web, in the ${matter}/out/chip-tool-web/ folder. However, please note that the chip-tool binary in this folder may not work as expected. Therefore, it is recommended not to use the chip-tool binary located in the out/chip-tool-web directory.
