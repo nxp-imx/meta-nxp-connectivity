@@ -271,7 +271,7 @@ We just need set a GPIO and then setup the otbr.
     $ iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $ otbr-web &
 
-A document explaining how to use Matter with OTBR on the i.MX MPU platform can be found in the [NXP Matter binaries guide](docs/guides/nxp_mpu_matter_binaries.md).
+A document explaining how to use Matter with OTBR on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md).
 
 <a name="How-to-build-Matter-application"></a>
 
@@ -330,6 +330,9 @@ Assuming that the working directory is changed to the top level directory of thi
     # Build the security enhanced with Trusty OS application using imxlinux_example.sh, by adding "trusty" to the command. For example:
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux -o out/nxp-thermostat-trusty -t
 
+    # Build the chip-tool-web application using imxlinux_example.sh, by adding "NXP_CHIPTOOL_WITH_WEB=1" to the command. For example:
+    $ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web -d
+
 The applications are built in out/ subdirectories; the subdirectory name is specified with --target option, when building the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 
 ___Make sure the subdirectories do not exist before building an application with the same name.___
@@ -341,7 +344,7 @@ After executing the above command, the chip-tool executable files will be found 
 
 An official Matter document explaining how to use chip-tool as a Matter controller can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
 
-A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter binaries guide](docs/guides/nxp_mpu_matter_binaries.md).
+A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md) and a document explaining how to use chip-tool-web application can be found in the [NXP chip-tool-web guide](docs/guides/nxp_chip_tool_web_guide.md).
 
 <a name="Security-configuration-for-Matter"></a>
 

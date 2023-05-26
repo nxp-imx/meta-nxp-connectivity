@@ -95,7 +95,7 @@ It should be noted that while chip-tool-web provides a graphical user interface 
 
 An official Matter document explaining how to use chip-tool as a Matter controller, can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
 
-For more information on how to use Matter applications on i.MX MPU platforms, see the [NXP Matter binaries guide](./nxp_mpu_matter_binaries.md).
+For more information on how to use Matter applications on i.MX MPU platforms, see the [NXP Matter demos guide](./nxp_mpu_matter_demos.md).
 
 ### Using Interactive mode
 
@@ -174,7 +174,7 @@ In this command:
 > **Note:** When entering the _<operational_dataset>_,  there is no need to add the `hex:` prefix, as this is already added by default in the chip-tool-web backend.
 >
 
-To obtain the Thread network credentials, you can either form the OpenThread network manually by following the instructions provided in the [Configure OpenThread Network](./nxp_mpu_matter_binaries.md#configure-openthread-network), or via otbr-web.
+To obtain the Thread network credentials, you can either form the OpenThread network manually by following the instructions provided in the [Configure OpenThread Network](./nxp_mpu_matter_demos.md#configure-openthread-network), or via otbr-web.
 
 Once the network has been formed, you can retrieve the Thread network credentials by clicking the `GET-DATASET` button in chip-tool-web instead of manually typing the `ot-ctl dataset active -x` command.
 
@@ -257,7 +257,7 @@ Running `rm -rf /tmp/chip_*` will remove these files. This will allow the chip-t
 
 - The timeout for all buttons in the chip-tool-web that execute commands is set to 60 seconds. During the command execution process, the interface will display the command execution waiting effect. Please wait patiently for the command to finish executing and return a result of `success` or `failed`.
 
-- In general, commands related to `Pairing` may take longer to execute, while commands related to `OnOff` functionality will execute faster. If a pairing command takes a long time to execute and returns with `failed`, please check that the device configuration follows the [documentation](./nxp_mpu_matter_binaries.md). Also, try pairing again after running `rm -rf /tmp/chip_*`.
+- In general, commands related to `Pairing` may take longer to execute, while commands related to `OnOff` functionality will execute faster. If a pairing command takes a long time to execute and returns with `failed`, please check that the device configuration follows the [documentation](./nxp_mpu_matter_demos.md). Also, try pairing again after running `rm -rf /tmp/chip_*`.
 
 - The chip-tool-web supports commissioning multiple devices at the same time. However, in the current version, only one device can be connected at a time in each pairing mode. Therefore, the current version of chip-tool-web can pair and control three devices at the same time. Note that you should not run `rm -rf /tmp/chip_*` while commissioning multiple devices at once, as this will erase the useful information of the successfully paired devices.
 

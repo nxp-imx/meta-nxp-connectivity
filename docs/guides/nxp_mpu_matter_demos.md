@@ -1,16 +1,16 @@
-# Running Matter Binaries on i.MX MPU platforms
+# Running Matter demos on i.MX MPU platforms
 
-This document describes how to use the Matter binaries on the i.MX MPU platforms. It shows how to run Matter binaries with OTBR on the i.MX MPU platform and how to commission with the K32W DK6 lighting application, then it shows how to run i.MX Matter binaries for ble-wifi and onnetwork commissioning.
+This document describes how to use the Matter demos on the i.MX MPU platforms. It shows how to run Matter demos with OTBR on the i.MX MPU platform and how to commission with the K32W DK6 lighting application, then it shows how to run i.MX Matter demos for ble-wifi and onnetwork commissioning.
 
  [**Hardware requirements**](#hardware-requirements)
 
  [**Software requirements**](#software-requirements)
 
- [**Running Matter binaries with OTBR on the i.MX MPU platform**](#matter-binaries-with-otbr)
+ [**Running Matter demos with OTBR on the i.MX MPU platform**](#matter-demos-with-otbr)
 
- [**Running other Matter binaries on the i.MX MPU platform**](#other-matter-binaries)
+ [**Running other Matter demos on the i.MX MPU platform**](#other-matter-demos)
 
- [**FAQ**](#note-of-using-matter-binaries)
+ [**FAQ**](#note-of-using-matter-demos)
 
 <a name="hardware-requirements"></a>
 
@@ -40,20 +40,20 @@ This document describes how to use the Matter binaries on the i.MX MPU platforms
 
 ## Software requirements
 
-- You can refer to the [Yocto images and binaries build guide](../../README.md) to build Yocto images and binaries for i.MX Matter devices.
+- You can refer to the [Yocto images and demos build guide](../../README.md) to build Yocto images and demos for i.MX Matter devices.
 - You can refer to [K32W lighting example application guide](https://github.com/project-chip/connectedhomeip/tree/master/examples/lighting-app/nxp/k32w/k32w0/README.md) to build the K32W DK6 firmware and lighting-app firmware and set up the K32W lighting example application.
 
-<a name="matter-binaries-with-otbr"></a>
+<a name="matter-demos-with-otbr"></a>
 
-## Running Matter binaries with OTBR on the i.MX MPU platform
+## Running Matter demos with OTBR on the i.MX MPU platform
 
 For devices that support the Thread protocol, this guide uses the NXP K32W running lighting application as an example. The i.MX MPU platform can perform Matter networking with end devices using OTBR. Matter with OTBR on i.MX devices network topology diagram as shown below.
 
- <img src="../images/imx93-otbr.png" width = "500"/>
+ <img src="../images/matter_demos/imx93-otbr.png" width = "500"/>
 
 Figure Matter with OTBR network topology diagram for i.MX93 EVK
 
- <img src="../images/imx8mm_imx6ull-otbr.png" width = "500"/>
+ <img src="../images/matter_demos/imx8mm_imx6ull-otbr.png" width = "500"/>
 
 Figure Matter with OTBR network topology diagram for i.MX8M Mini EVK or i.MX6ULL EVK
 
@@ -228,9 +228,9 @@ If there is a message **“Device commissioning completed with success”** in t
 
 Since chip-tool-trusty can run on the i.MX8M Mini EVK platform, the chip-tool in the above commands can replace chip-tool-trusty. **Note that before running chip-tool-trusty, you should use to the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.**
 
-<a name="other-matter-binaries"></a>
+<a name="other-matter-demos"></a>
 
-## Running other Matter binaries on i.MX MPU platform
+## Running other Matter demos on i.MX MPU platform
 
 For example applications running on the i.MX MPU platform, you can test the applications using two commissioning methods. These two commissioning methods require the i.MX platform running the chip tool as the controller device and another i.MX platform as the end device.
 
@@ -238,7 +238,7 @@ For example applications running on the i.MX MPU platform, you can test the appl
 
 The network topology diagram by using ble-wifi commissioning is shown below.
 
- <img src="../images/ble-wifi.png" width = "500"/>
+ <img src="../images/matter_demos/ble-wifi.png" width = "500"/>
 
 Figure i.MX network topology diagram for ble-wifi commissioning
 
@@ -353,7 +353,7 @@ After setting up the network on both side platforms, run the example application
     # to run nxp-thermostat-app
     $ nxp-thermostat-app --wifi --ble-device 0
 
-    # to run nxp-thermostat-app
+    # to run chip-bridge-app
     $ chip-bridge-app --wifi --ble-device 0
 
 #### Finally, commission and control the end devices on the controller device.
@@ -385,7 +385,7 @@ Currently, applications with trusty are supported on the i.MX8M Mini EVK, such a
 
 To test onnetwork, two devices must connecte to the same Wi-Fi AP or connect to the same local area network. Taking the case of connecting to the same Wi-Fi AP as an example, the network topology diagram is shown below.
 
-<img src="../images/onnetwork.png" width = "500"/>
+<img src="../images/matter_demos/onnetwork.png" width = "500"/>
 
 Figure i.MX Network Topology Diagram for Onnetwork Commissioning
 
@@ -408,7 +408,7 @@ Then, run example applications on another i.MX device that acts as the end devic
     # to run nxp-thermostat-app
     $ nxp-thermostat-app
 
-    # to run nxp-thermostat-app
+    # to run chip-bridge-app
     $ chip-bridge-app
 
 Final, commission and control the end device on the controller device.
@@ -419,7 +419,7 @@ Final, commission and control the end device on the controller device.
     # control commands same as ble-wifi commissioning method
 
 To run applications with trusty on the i.MX8M Mini EVK by onnetwork commissioning way, you should use to the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.
-<a name="note-of-using-matter-binaries"></a>
+<a name="note-of-using-matter-demos"></a>
 
 ## FAQ
 
