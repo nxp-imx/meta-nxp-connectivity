@@ -212,7 +212,7 @@ Step3. Press the USERINTERFACE button to start the BLE Advertising, which is man
 Commissioning command as below.
 
     # ble-thread pairing
-    $ chip-tool pairing ble-thread 8888  hex:0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8 20202021 3840
+    $ chip-tool pairing ble-thread 8888 hex:0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8 20202021 3840
 
 The parameter after "ble-thread" is node-id (here it is 8888, it can be any positive integer starting from 1) that should be set uniquely for each Matter device that joined the network, the last but one parameter is pin code (here it is fixed to 20202021), the last parameter is discriminator (here it is fixed to 3840).
 
@@ -329,7 +329,6 @@ For i.MX8M Mini EVK:
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
         sleep 5
-        udhcpc -i mlan0
         /usr/libexec/bluetooth/bluetoothd &
         hciattach /dev/ttymxc0 any 115200 flow
         sleep 1
@@ -383,7 +382,7 @@ Currently, applications with trusty are supported on the i.MX8M Mini EVK, such a
 
 ###  Run example applications with onnetwork commissioning method
 
-To test onnetwork, two devices must connecte to the same Wi-Fi AP or connect to the same local area network. Taking the case of connecting to the same Wi-Fi AP as an example, the network topology diagram is shown below.
+To test onnetwork, two devices must connect to the same Wi-Fi AP or connect to the same local area network. Taking the case of connecting to the same Wi-Fi AP as an example, the network topology diagram is shown below.
 
 <img src="../images/matter_demos/onnetwork.png" width = "500"/>
 

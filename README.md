@@ -239,8 +239,8 @@ Use below commands to connect the OTBR to the Wi-Fi access point:
 
     # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module, and for i.MX93 EVK with IW612 module:
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
-    $ wpa_passphrase ${SSID} ${PASSWORD} > imxrouter.conf
-    $ wpa_supplicant -d -B -i mlan0 -c ./imxrouter.conf
+    $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
+    $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
     $ udhcpc -i mlan0
     $ service otbr_fwcfg start  #if no systemd installed, please use /usr/bin/otbr_fwcfg.sh instead
 
@@ -283,7 +283,7 @@ The Matter application has been installed into the Yocto image by default. If yo
     $ cd ${MY_Matter_Apps}
     $ git clone https://github.com/NXP/matter.git
     $ cd matter
-    $ git checkout origin/v1.0-branch-nxp_imx_2023_q1
+    $ git checkout origin/v1.1-branch-nxp_imx_2023_q2
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
