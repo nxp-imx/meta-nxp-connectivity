@@ -11,7 +11,7 @@ SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 
 PATCHTOOL = "git"
 
-SRCREV = "6093f3897fb1944ee9035008803093a09c32bfd8"
+SRCREV = "703510238f09a9b9a1204302cd78a15e9c084ab4"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native boost "
