@@ -8,13 +8,14 @@ SRCBRANCH = "v1.1-branch-nxp_imx_2023_q2"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXPmicro/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
+MATTER_PY_PATH ?= "/usr/bin/python3"
 
 PATCHTOOL = "git"
 
 SRCREV = "703510238f09a9b9a1204302cd78a15e9c084ab4"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi python3-native dbus-glib-native pkgconfig-native zap-native boost "
+DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
 RDEPENDS_${PN} += " libavahi-client "
 FILES:${PN} += "usr/share"
 
@@ -55,7 +56,7 @@ S = "${WORKDIR}/git"
 common_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true
+    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -70,7 +71,7 @@ common_configure() {
 trusty_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64-trusty --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1
+    gn gen out/aarch64-trusty --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -83,7 +84,6 @@ trusty_configure() {
 }
 
 do_configure() {
-#    ln -sfr ${S}/bin/zap-cli ${RECIPE_SYSROOT_NATIVE}/usr/bin/
     cd ${S}/
     if ${DEPLOY_TRUSTY}; then
         git submodule update --init
@@ -117,7 +117,7 @@ do_configure() {
     cd ${S}/examples/chip-tool
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64-web --script-executable="/usr/bin/python3" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" enable_rtti=true enable_exceptions=true chip_with_web=1 build_without_pw=true
+    gn gen out/aarch64-web --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" enable_rtti=true enable_exceptions=true chip_with_web=1 build_without_pw=true
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
