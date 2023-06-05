@@ -12,7 +12,7 @@ MATTER_PY_PATH ?= "/usr/bin/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "703510238f09a9b9a1204302cd78a15e9c084ab4"
+SRCREV = "17fb6b645a42aaaa8cca01125cece1c7c0eb8214"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
