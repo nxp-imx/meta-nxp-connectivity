@@ -62,14 +62,12 @@ The following packages are required to build the Yocto Project:
 The following python packages need to be installed:
 
     $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ wget https://raw.githubusercontent.com/project-chip/connectedhomeip/SVE_23_03/rc2/scripts/setup/constraints.txt
-    $ pip3 install -r constraints.txt
     $ pip install dbus-python
 
-Make sure your default Python of the Linux host is Python2:
+Make sure that your default Python3 version is at least 3.8.0:
 
-    $ python --version
-      Python 2.7.18
+    $ python3 --version
+      Python 3.8.0
 
 Then, Yocto build environment must be setup.
 
@@ -105,7 +103,9 @@ Change the current directory to the top directory of the Yocto source code and e
     # For i.MX93 EVK:
     $ MACHINE=imx93evk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
 
-This will create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK), and enter this directory automatically. Please execute the command below to generate the Yocto images:
+This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
+
+This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK), and enter this directory automatically. Please execute the command below to generate the Yocto images:
 
     $ bitbake imx-image-multimedia
 
