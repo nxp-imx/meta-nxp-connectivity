@@ -101,7 +101,7 @@ Change the current directory to the top directory of the Yocto source code and e
     # For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     # For i.MX93 EVK:
-    $ MACHINE=imx93evk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
+    $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
 
 This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
 
