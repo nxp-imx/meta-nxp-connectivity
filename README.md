@@ -207,7 +207,9 @@ Fetch the latest otbr source code and execute the build:
     $ cd ${MY_OTBR}
     $ git clone https://github.com/openthread/ot-br-posix
     $ cd ot-br-posix
-    $ git checkout origin/main
+    $ git checkout thread-reference-20221027
+    $ git cherry-pick 528c152a35036ed0effe61e80cf25a978c458bfa
+    $ git cherry-pick e4a428fa1d666942f6bc634911cc66ab47f81207
     $ git submodule update --init
 
     # For i.MX8M Mini EVK
