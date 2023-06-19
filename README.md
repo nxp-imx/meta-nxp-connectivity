@@ -24,7 +24,7 @@ This repository contains the i.MX MPU project Matter related Yocto recipes. The 
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter SVE_23_03/rc2 tag](https://github.com/nxp/matter.git).
+All the software components revisions are based on [project Matter v1.1.0.1 tag](https://github.com/project-chip/connectedhomeip).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -89,6 +89,7 @@ Then integrate the meta-matter recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
     $ git clone https://github.com/nxp-imx/meta-matter.git
+    $ git checkout imx_matter_2023_q2
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
