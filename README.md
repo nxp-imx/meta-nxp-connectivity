@@ -103,6 +103,13 @@ Change the current directory to the top directory of the Yocto source code and e
     # For i.MX93 EVK:
     $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
 
+If you are using [IW612](https://www.nxp.com/products/wireless/wi-fi-plus-bluetooth-plus-802-15-4/2-4-5-ghz-dual-band-1x1-wi-fi-6-802-11ax-plus-bluetooth-5-2-plus-802-15-4-tri-radio-solution:IW612) highly integrated Wi-Fi 6,BT/BLE 5.2,802.15.4 tri-radio single-chip which has [Matter 1.0](https://csa-iot.org/csa_product/nxp-i-mx8m-mpu-iw612-tri-radio) and [Thread Group Openthread-1.3 and Border Router-1.3"](https://www.threadgroup.org/What-is-Thread/Thread-Benefits#certifiedproducts) certified, please execute the command below:
+
+    #For i.MX8M Mini EVK with IW612 RD board:
+    $ MACHINE=imx8mmevk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
+    #For i.MX93 EVK:
+    $ MACHINE=imx93evk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
+
 This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
 
 This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK), and enter this directory automatically. Please execute the command below to generate the Yocto images:
@@ -110,9 +117,9 @@ This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M 
     $ bitbake imx-image-multimedia
 
 After execution of previous commands, the Yocto images will be generated:
-- ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk.wic.zst for i.MX8M Mini EVK.
+- ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst for i.MX8M Mini EVK.
 - ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
-- ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimedia-imx93evk.wic.zst for i.MX93 EVK.
+- ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst for i.MX93 EVK.
 
 The zst images are symbolic link files, so you should copy them to a dedicated folder ${MY_images} before unziping them.
 
