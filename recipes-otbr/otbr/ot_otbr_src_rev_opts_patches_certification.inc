@@ -125,7 +125,7 @@ do_openthread_repo_reset_and_patch() {
     PATCHES_FILES_LIST=$(ls ${WORKDIR}/tmp_patches)
     for i in ${PATCHES_FILES_LIST}; do
         true | git apply ${WORKDIR}/tmp_patches/${i} --check
-        if [ $? == 0 ]; then
+        if [ $? -eq 0 ]; then
             echo "----> Applying ${i}"
             git apply ${WORKDIR}/tmp_patches/${i}
         fi
