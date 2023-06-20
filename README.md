@@ -396,14 +396,14 @@ Test attestation binary can be found in: _meta-matter/tools/test_attestation_
 
 The Trusty OS, which contains the Trusted Application (TA) for i.MX Matter, is maintained by NXP and released as open source. Please follow below instructions to fetch the Trusty OS source code and build it:
 
-    $ repo init -u https://github.com/nxp-imx/imx-manifest.git -b imx_matter_2023_q1 -m imx-trusty-matter-2023-q1.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest.git -b imx-trusty-matter -m imx_trusty_matter_2023_q2.xml
     $ repo sync -c
 
     # Setup the build environment. This will only configure the current terminal.
     $ source trusty/vendor/google/aosp/scripts/envsetup.sh
 
     # Build the i.MX8M Mini Trusty OS binary:
-    $ ./trusty/vendor/google/aosp/scripts/build.py imx8mm
+    $ ./trusty/vendor/google/aosp/scripts/build.py imx8mm --dynamic_param BUILD_MATTER=true
     # The target binary will be put on: build-root/build-imx8mm/lk.bin
 
     # Enable the secure storage service on first boot on i.MX8M Mini Linux shell
