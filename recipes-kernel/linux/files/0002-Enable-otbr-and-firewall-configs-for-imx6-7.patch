@@ -1,7 +1,7 @@
-From f61b0cecdd996ff1a23c6877d9b4c2544182bdda Mon Sep 17 00:00:00 2001
+From cbda1b34d73ce01661978e3146bd8daab0ad0ecc Mon Sep 17 00:00:00 2001
 From: "Haoran.Wang" <elven.wang@nxp.com>
 Date: Tue, 7 Mar 2023 06:27:13 +0800
-Subject: [PATCH] Enable otbr and firewall configs for imx6/7
+Subject: [PATCH 2/3] Enable otbr and firewall configs for imx6/7
 
 Change-Id: I4d84eba72e90a3944a9fc5e313060274a03a834f
 Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
@@ -10,7 +10,7 @@ Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
  1 file changed, 135 insertions(+), 13 deletions(-)
 
 diff --git a/arch/arm/configs/imx_v7_defconfig b/arch/arm/configs/imx_v7_defconfig
-index 6de304968919..29331428d476 100644
+index 1eeec9ff544f..cea9f17122ec 100644
 --- a/arch/arm/configs/imx_v7_defconfig
 +++ b/arch/arm/configs/imx_v7_defconfig
 @@ -67,9 +67,138 @@ CONFIG_INET=y
@@ -152,7 +152,7 @@ index 6de304968919..29331428d476 100644
  CONFIG_CAN=y
  CONFIG_BT=y
  CONFIG_BT_RFCOMM=y
-@@ -523,10 +652,14 @@ CONFIG_NLS_ASCII=y
+@@ -526,10 +655,14 @@ CONFIG_NLS_ASCII=y
  CONFIG_NLS_ISO8859_1=y
  CONFIG_NLS_ISO8859_15=m
  CONFIG_NLS_UTF8=y
@@ -167,7 +167,7 @@ index 6de304968919..29331428d476 100644
  CONFIG_CRYPTO_BLOWFISH=m
  CONFIG_CRYPTO_CAMELLIA=m
  CONFIG_CRYPTO_CAST5=m
-@@ -536,6 +669,7 @@ CONFIG_CRYPTO_FCRYPT=m
+@@ -539,6 +672,7 @@ CONFIG_CRYPTO_FCRYPT=m
  CONFIG_CRYPTO_KHAZAD=m
  CONFIG_CRYPTO_SEED=m
  CONFIG_CRYPTO_SERPENT=m
@@ -175,7 +175,7 @@ index 6de304968919..29331428d476 100644
  CONFIG_CRYPTO_TEA=m
  CONFIG_CRYPTO_TWOFISH=m
  CONFIG_CRYPTO_ARC4=m
-@@ -548,9 +682,9 @@ CONFIG_CRYPTO_ECHAINIV=m
+@@ -551,9 +685,9 @@ CONFIG_CRYPTO_ECHAINIV=m
  CONFIG_CRYPTO_TLS=m
  CONFIG_CRYPTO_BLAKE2B=m
  CONFIG_CRYPTO_MD4=m
@@ -186,7 +186,7 @@ index 6de304968919..29331428d476 100644
  CONFIG_CRYPTO_STREEBOG=m
  CONFIG_CRYPTO_VMAC=m
  CONFIG_CRYPTO_WP512=m
-@@ -568,7 +702,6 @@ CONFIG_CRYPTO_DEV_SAHARA=y
+@@ -571,7 +705,6 @@ CONFIG_CRYPTO_DEV_SAHARA=y
  CONFIG_CRYPTO_DEV_MXS_DCP=y
  CONFIG_CRC_T10DIF=y
  CONFIG_CRC7=m
@@ -194,7 +194,7 @@ index 6de304968919..29331428d476 100644
  CONFIG_DMA_CMA=y
  CONFIG_FONTS=y
  CONFIG_FONT_8x8=y
-@@ -581,14 +714,3 @@ CONFIG_DEBUG_FS=y
+@@ -584,14 +717,3 @@ CONFIG_DEBUG_FS=y
  # CONFIG_SCHED_DEBUG is not set
  # CONFIG_DEBUG_PREEMPT is not set
  # CONFIG_FTRACE is not set
@@ -210,5 +210,5 @@ index 6de304968919..29331428d476 100644
 -CONFIG_CRYPTO_ARIA=m
 -CONFIG_CRYPTO_POLYVAL_ARM64_CE=m
 -- 
-2.36.0
+2.34.1
 
