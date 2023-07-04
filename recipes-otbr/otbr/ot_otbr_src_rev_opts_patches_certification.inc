@@ -120,7 +120,7 @@ do_openthread_repo_reset_and_patch() {
         exit
     fi
 
-    mkdir ${WORKDIR}/tmp_patches
+    mkdir -p ${WORKDIR}/tmp_patches
     cp ${OPENTHREAD_FOR_OTBR_PATCHES_PATH}/openthread_patches/* ${WORKDIR}/tmp_patches
     PATCHES_FILES_LIST=$(ls ${WORKDIR}/tmp_patches)
     for i in ${PATCHES_FILES_LIST}; do
