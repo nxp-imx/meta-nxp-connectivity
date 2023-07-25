@@ -11,8 +11,8 @@ FILES:${PN} += "lib/systemd"
 FILES:${PN} += "usr/share"
 FILES:${PN} += "usr/lib"
 
-DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables "
-RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash "
+DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables protobuf-c protobuf protoc-native "
+RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash protobuf protobuf-c "
 
 def get_rcp_bus(d):
     for arg in (d.getVar('MACHINE') or '').split():
