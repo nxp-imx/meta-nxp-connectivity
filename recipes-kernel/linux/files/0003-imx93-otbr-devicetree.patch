@@ -1,21 +1,21 @@
-From bf8b47a89d32b91f42991bd1b69519ec6798a5cb Mon Sep 17 00:00:00 2001
+From 0d055800fd4de75faa8eff3e2ebb338368be5714 Mon Sep 17 00:00:00 2001
 From: "Haoran.Wang" <elven.wang@nxp.com>
 Date: Mon, 6 Mar 2023 15:31:35 +0800
-Subject: [PATCH 3/3] imx93 otbr devicetree
+Subject: [PATCH] imx93 otbr devicetree
 
 Change-Id: I335b6661441229d01d6551269a549e43e0cba8d5
 Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
 ---
  arch/arm64/boot/dts/freescale/Makefile        |  3 +-
- .../freescale/imx93-11x11-evk-iw612-otbr.dts  | 43 +++++++++++++++++++
- 2 files changed, 45 insertions(+), 1 deletion(-)
+ .../freescale/imx93-11x11-evk-iw612-otbr.dts  | 51 +++++++++++++++++++
+ 2 files changed, 53 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
 
 diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
-index 4b49044bff20..7e948f00a2e3 100644
+index 7b1a129e6b9f..c73f71c1a3e4 100644
 --- a/arch/arm64/boot/dts/freescale/Makefile
 +++ b/arch/arm64/boot/dts/freescale/Makefile
-@@ -365,7 +365,8 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-11x11-evk.dtb \
+@@ -367,7 +367,8 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-11x11-evk.dtb \
  			  imx93-11x11-evk-flexspi-m2.dtb \
  			  imx93-11x11-evk-mt9m114.dtb \
  			  imx93-11x11-evk-ld.dtb \
@@ -27,10 +27,10 @@ index 4b49044bff20..7e948f00a2e3 100644
  			  imx93-9x9-qsb-flexspi-m2.dtb \
 diff --git a/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
 new file mode 100644
-index 000000000000..e53c4aa590a7
+index 000000000000..820eef3e18c2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/imx93-11x11-evk-iw612-otbr.dts
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,51 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright 2022 NXP
@@ -38,8 +38,15 @@ index 000000000000..e53c4aa590a7
 +
 +#include "imx93-11x11-evk.dts"
 +
++&flexcan2 {
++	status = "disabled";
++};
++
++&lpuart7 {
++	status = "disabled";
++};
++
 +&lpi2c1 {
-+    pinctrl-assert-gpios = <&pcal6524 13 GPIO_ACTIVE_HIGH>;
 +    pcal6408: gpio@20 {
 +        compatible = "nxp,pcal9554b";
 +        reg = <0x20>;
@@ -55,6 +62,7 @@ index 000000000000..e53c4aa590a7
 +    pinctrl-1 = <&pinctrl_lpspi3>;
 +    cs-gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
 +    pinctrl-assert-gpios = <&adp5585gpio 4 GPIO_ACTIVE_LOW>;
++    pinctrl-assert-gpios = <&pcal6408 0 GPIO_ACTIVE_HIGH>;
 +    status = "okay";
 +
 +    spidev0: spi@0 {
