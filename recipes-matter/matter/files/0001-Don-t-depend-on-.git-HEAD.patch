@@ -1,0 +1,27 @@
+From effa37636d88e4abfd2681109d2445c4242e899f Mon Sep 17 00:00:00 2001
+From: Ji Luo <ji.luo@nxp.com>
+Date: Thu, 31 Aug 2023 11:21:55 +0800
+Subject: [PATCH] Don't depend on .git/HEAD
+
+Change-Id: I7afcd9657f320e9291149d4d1bbca8bb2f9796f4
+Signed-off-by: Ji Luo <ji.luo@nxp.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 229718a..472d3c4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -199,7 +199,7 @@ install_tests: install tests
+ 	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+ 	cp $(TEST_COMMON_TV_PATH)/$(TEST_BLOB_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+ 
+-install_version: .git/HEAD .git/index
++install_version: .git
+ 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
+ 	echo "#define SE_VERSION_H" >> ${SE_VER_FILE}
+ 	echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}
+-- 
+2.25.1
+
