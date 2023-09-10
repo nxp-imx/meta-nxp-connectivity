@@ -10,6 +10,7 @@ SRCREV = "8d12b242dbf2398e8df20aa4ee6d387a41abb537"
 do_configure:prepend () {
     export REFERENCE_DEVICE=1
     export OTBRWEB_PREBUILT_FRONTEND=1
+    chmod 755 ${STAGING_DIR_NATIVE}/usr/bin/protoc
 }
 
 addtask do_nxp_patch after do_unpack before do_patch
