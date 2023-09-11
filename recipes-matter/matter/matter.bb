@@ -12,7 +12,7 @@ MATTER_PY_PATH ?= "/usr/bin/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "c917a020f44ec0eb3dddcb999ad91c80dc03a92b"
+SRCREV = "d9e62438de6d0c6f94d4700cc7da3e44bff6eee8"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
@@ -218,8 +218,7 @@ addtask do_nxp_patch after do_unpack before do_patch
 do_nxp_patch () {
     if [ ${MACHINE} = "imx93evk-matter" ]; then
         cd "${S}/third_party/imx-secure-enclave/repo/"
-        git am -3 "${THISDIR}/files/0001-Don-t-depend-on-.git-HEAD.patch"
-        make PLAT=ele
+        git am -3 "${THISDIR}/files/0001-MATTER-1352-2-Add-se_version.h.patch"
     fi
 }
 
