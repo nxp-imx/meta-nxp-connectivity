@@ -1,8 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk", 'file://0001-Add-Matter-and-OTBR-configs.patch', '', d)}"
-SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk", 'file://0001-Enable-otbr-and-firewall-configs-for-imx6-7.patch', '', d)}"
-SRC_URI += "${@bb.utils.contains('MACHINE', "imx93evk-matter", 'file://0002-imx93-otbr-devicetree.patch', '', d)}"
+SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk imx8ulpevk", 'file://0001-Add-Matter-and-OTBR-configs.patch', '', d)}"
+SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk imx8ulpevk", 'file://0002-Enable-otbr-and-firewall-configs-for-imx6-7.patch', '', d)}"
+SRC_URI += "${@bb.utils.contains('MACHINE', "imx93evk-matter", 'file://0003-imx93-otbr-devicetree.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter", 'file://0001-Add-trusty-drivers.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains('MACHINE', "imx8mmevk-matter", 'file://0002-Enable-Trusty-for-imx8mm.patch', '', d)}"
 

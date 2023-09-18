@@ -4,14 +4,15 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.1-branch-nxp_imx_2023_q2"
-IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
+SRCBRANCH = "v1.1-branch-nxp_imx_2023_q3"
+#IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
+IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 MATTER_PY_PATH ?= "/usr/bin/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "3d49f03b180ce617bb8050c1d8384ab714a21b53"
+SRCREV = "d9e62438de6d0c6f94d4700cc7da3e44bff6eee8"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
@@ -50,12 +51,14 @@ TARGET_CPU = "${@get_target_cpu(d)}"
 TARGET_ARM_ARCH = "${@get_arm_arch(d)}"
 TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 
+USE_ELE = "${@bb.utils.contains('MACHINE', 'imx93evk-matter', 1, 0, d)}"
+
 S = "${WORKDIR}/git"
 
 common_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true
+    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_imx_ele=${USE_ELE}
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -210,5 +213,13 @@ do_install_zap() {
 }
 
 addtask install_zap after do_prepare_recipe_sysroot
+
+addtask do_nxp_patch after do_unpack before do_patch
+do_nxp_patch () {
+    if [ ${MACHINE} = "imx93evk-matter" ]; then
+        cd "${S}/third_party/imx-secure-enclave/repo/"
+        git am -3 "${THISDIR}/files/0001-MATTER-1352-2-Add-se_version.h.patch"
+    fi
+}
 
 INSANE_SKIP_${PN} = "ldflags"

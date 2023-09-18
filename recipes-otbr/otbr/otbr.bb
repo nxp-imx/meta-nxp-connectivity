@@ -11,8 +11,8 @@ FILES:${PN} += "lib/systemd"
 FILES:${PN} += "usr/share"
 FILES:${PN} += "usr/lib"
 
-DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables "
-RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash "
+DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables protobuf-c protobuf protoc-native "
+RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash protobuf protobuf-c "
 
 def get_rcp_bus(d):
     for arg in (d.getVar('MACHINE') or '').split():
@@ -26,6 +26,6 @@ def get_rcp_bus(d):
     return ''
 
 inherit cmake
-OT_OTBR_SRC_REV_OPTS_PATCHES_INCLUDE="${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk",  'ot_otbr_src_rev_opts_patches_standard.inc', 'ot_otbr_src_rev_opts_patches_certification.inc', d)}"
+OT_OTBR_SRC_REV_OPTS_PATCHES_INCLUDE="${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx93evk-matter imx6ullevk imx8ulpevk",  'ot_otbr_src_rev_opts_patches_standard.inc', 'ot_otbr_src_rev_opts_patches_certification.inc', d)}"
 include ${OT_OTBR_SRC_REV_OPTS_PATCHES_INCLUDE}
 EXTRA_OECMAKE += "${@get_rcp_bus(d)}"

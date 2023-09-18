@@ -87,12 +87,7 @@ Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
         sleep 5
         udhcpc -i mlan0
-        hciattach /dev/ttyLP4 any 115200 flow
-        sleep 1
-        hciconfig hci0 up
-        hcitool -i hci0 cmd 0x3f 0x0009 0xc0 0xc6 0x2d 0x00
-        killall hciattach
-        hciattach /dev/ttyLP4 any -s 3000000 3000000 flow
+        modprobe btnxpuart
         hciconfig hci0 up
         sleep 1
         echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
@@ -104,9 +99,8 @@ Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         ipset create -exist otbr-ingress-allow-dst hash:net family inet6
         ipset create -exist otbr-ingress-allow-dst-swap hash:net family inet6
         sleep 1
-        gpioset gpiochip6 0=1
 
-        otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&
+        otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&
         spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &   #These two lines are one command
 
         sleep 2
@@ -123,8 +117,7 @@ Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
         sleep 5
         udhcpc -i mlan0
-        /usr/libexec/bluetooth/bluetoothd &
-        hciattach /dev/ttymxc0 any 115200 flow
+        modprobe btnxpuart
         hciconfig hci0 up
         echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
         echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -149,31 +142,30 @@ For i.MX6ULL, it is mandatory to change fdt_file to setup WiFi and BT. You must 
     => print fdt_file
     fdt_file=undefined
     => fatls mmc 1
-        36171   imx6ull-14x14-evk-btwifi-sdio3_0.dtb
-        36035   imx6ull-14x14-evk-btwifi.dtb
-        35839   imx6ull-14x14-evk-emmc.dtb
-        36249   imx6ull-14x14-evk-gpmi-weim.dtb
-        35747   imx6ull-14x14-evk.dtb
-        354120   tee.bin
-        354184   uTee-6ullevk
-        9656568   zImage
+        46172   imx6ull-14x14-evk-btwifi.dtb
+        45444   imx6ull-14x14-evk-emmc.dtb
+        45998   imx6ull-14x14-evk-gpmi-weim.dtb
+        47157   imx6ull-14x14-evk-reve-btwifi.dtb
+        46429   imx6ull-14x14-evk-reve-emmc.dtb
+        46983   imx6ull-14x14-evk-reve-gpmi-weim.dtb
+        46369   imx6ull-14x14-evk-reve.dtb
+        45384   imx6ull-14x14-evk.dtb
+       400072   tee.bin
+       400136   uTee-6ullevk
+      9187488   zImage
 
-    8 file(s), 0 dir(s)
 
-    => setenv fdt_file imx6ull-14x14-evk-btwifi-sdio3_0.dtb
+    11 file(s), 0 dir(s)
+
+    => fdt_file=imx6ull-14x14-evk-btwifi.dtb
     => saveenv
     Saving Environment to MMC... Writing to MMC(1)... OK
 
     #make sure fdt_file have been changed
     => print fdt_file
-    fdt_file=imx6ull-14x14-evk-btwifi-sdio3_0.dtb
+    fdt_file=imx6ull-14x14-evk-btwifi.dtb
 
-The i.MX6ULL OTBR setup commands are similar to the i.MX8M Mini commands, the only difference is the hciattanch command.
-
-    # for i.MX8M Mini
-    $ hciattach /dev/ttymxc0 any 115200 flow
-    # for i.MX6ULL
-    $ hciattach /dev/ttymxc1 any 115200 flow
+The i.MX6ULL OTBR setup commands are same with the i.MX8M Mini commands.
 
 *Note: If "$ ifconfig wpan0" can find the wpan0 as shown below, the otbr-agent was successfully set up.*
 
@@ -263,42 +255,16 @@ step2. Save Wi-Fi SSID and Password to a file.
 
 step3. Setup BT and connectd to a WiFi AP.
 
-For i.MX93 EVK:
+For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
 
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
         wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
         sleep 5
         udhcpc -i mlan0
-        hciattach /dev/ttyLP4 any 115200 flow
-        sleep 1
-        hciconfig hci0 up
-        hcitool -i hci0 cmd 0x3f 0x0009 0xc0 0xc6 0x2d 0x00
-        killall hciattach
-        hciattach /dev/ttyLP4 any -s 3000000 3000000 flow
-        sleep 1
+        modprobe btnxpuart
         hciconfig hci0 up
         、、、
-
-For i.MX8M Mini EVK:
-
-        、、、
-        modprobe moal mod_para=nxp/wifi_mod_para.conf
-        wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
-        sleep 5
-        udhcpc -i mlan0
-        /usr/libexec/bluetooth/bluetoothd &
-        hciattach /dev/ttymxc0 any 115200 flow
-        sleep 1
-        hciconfig hci0 up
-        、、、
-
-For the i.MX6ULL EVK, the setup commands are similar to the i.MX8M Mini commands. The only difference is the hciattanch command.
-
-    # for i.MX8M Mini EVK
-    $ hciattach /dev/ttymxc0 any 115200 flow
-    # for i.MX6ULL EVK
-    $ hciattach /dev/ttymxc1 any 115200 flow
 
 #### Load the Wi-Fi/BT firmware and set up BT on the end device
 
@@ -308,40 +274,22 @@ step1. Sync with current time.
 
 step2. Load the Wi-Fi/BT firmware and set up BT.
 
-For i.MX93 EVK:
-
-        、、、
-        modprobe moal mod_para=nxp/wifi_mod_para.conf
-        hciattach /dev/ttyLP4 any 115200 flow
-        sleep 1
-        hciconfig hci0 up
-        hcitool -i hci0 cmd 0x3f 0x0009 0xc0 0xc6 0x2d 0x00
-        killall hciattach
-        hciattach /dev/ttyLP4 any -s 3000000 3000000 flow
-        sleep 1
-        hciconfig hci0 up
-        resolvconf -d mlan0.udhcpc
-        ifconfig mlan0 192.168.1.1
-        、、、
-
-For i.MX8M Mini EVK:
+For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
 
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
         sleep 5
-        /usr/libexec/bluetooth/bluetoothd &
-        hciattach /dev/ttymxc0 any 115200 flow
-        sleep 1
+        modprobe btnxpuart
         hciconfig hci0 up
         resolvconf -d mlan0.udhcpc
         ifconfig mlan0 192.168.1.1
         、、、
 
-**For i.MX6ULL EVK, replace command "hciattach /dev/ttymxc0 any 115200 flow" with "hciattach /dev/ttymxc1 any 115200 flow" in i.MX8M Mini EVK commands.**
-
 #### Run the example application on the end device
 
 After setting up the network on both side platforms, run the example application on the end device.
+
+___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX93 EVK since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, etc. on i.MX93 EVK, you need to run "$ service nvm_daemon start" to enable ELE (only need to run once after each power-up), and then run example applications.___
 
     # to run chip-lighting-app
     $ chip-lighting-app --wifi --ble-device 0
@@ -364,8 +312,30 @@ After setting up the network on both side platforms, run the example application
     $ chip-tool onoff toggle 8888 1
     $ chip-tool onoff read on-off 8888 1
 
-    # read the local temperature form nxp-thermostat-app
+    # read the local temperature from nxp-thermostat-app.
     $ chip-tool thermostat read local-temperature 8888 1
+    # read the abs-max-heat-setpoint-limit form nxp-thermostat-app.
+    $ chip-tool thermostat read abs-max-heat-setpoint-limit 8888 1
+    # read the abs-min-heat-setpoint-limit form nxp-thermostat-app.
+    $ chip-tool thermostat read abs-min-heat-setpoint-limit 8888 1
+    # read the max-heat-setpoint-limit form nxp-thermostat-app.
+    $ chip-tool thermostat read max-heat-setpoint-limit 8888 1
+    # read the min-heat-setpoint-limit form nxp-thermostat-app.
+    $ chip-tool thermostat read min-heat-setpoint-limit 8888 1
+    # set max-heat-setpoint-limit=2800(28℃)，which should satisfy the equation "min-heat-setpoint-limit <= max-heat-setpoint-limit <= abs-max-heat-setpoint-limit".
+    $ chip-tool thermostat write max-heat-setpoint-limit 2800 8888 1
+    # set occupied-heating-setpoint=1800(18℃)，which should satisfy the equation "min-heat-setpoint-limit <= occupied-heating-setpoint <= max-heat-setpoint-limit".
+    $ chip-tool thermostat write occupied-heating-setpoint 1800 8888 1
+    # check if occupied-heating-setpoint is set to 1800.
+    $ chip-tool thermostat read occupied-heating-setpoint 8888 1
+    # set occupied-heating-setpoint += 20, which cannot be set bigger than the value of max-heat-setpoint-limit.
+    $ chip-tool thermostat setpoint-raise-lower 0 20 8888 1
+    # check if occupied-heating-setpoint equal to 2000.
+    $ chip-tool thermostat read occupied-heating-setpoint 8888 1
+    # set occupied-heating-setpoint -= 10, which cannot be set lower than the value of min-heat-setpoint-limit.
+    $ chip-tool thermostat setpoint-raise-lower 0 -10 8888 1
+    # check if occupied-heating-setpoint equal to 1900.
+    $ chip-tool thermostat read occupied-heating-setpoint 8888 1
 
     # to test chip-bridge-app
     $ chip-tool actions read setup-url 8888 1          # read setup-url

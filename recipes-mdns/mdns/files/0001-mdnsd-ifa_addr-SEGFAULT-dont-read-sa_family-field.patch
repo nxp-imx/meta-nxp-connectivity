@@ -1,0 +1,113 @@
+From 3315439ca9faf8d34fdf570ec3ba4f7d349a9c1b Mon Sep 17 00:00:00 2001
+From: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+Date: Thu, 24 Aug 2023 08:58:24 +0200
+Subject: [PATCH 1/1] mdnsd ifa_addr SEGFAULT: dont read sa_family field
+
+Signed-off-by: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+---
+ mDNSPosix/mDNSPosix.c | 79 +++++++++++++++++++++++--------------------
+ 1 file changed, 43 insertions(+), 36 deletions(-)
+
+diff --git a/mDNSPosix/mDNSPosix.c b/mDNSPosix/mDNSPosix.c
+index cab5121..b90fb44 100644
+--- a/mDNSPosix/mDNSPosix.c
++++ b/mDNSPosix/mDNSPosix.c
+@@ -1894,53 +1894,60 @@ mDNSlocal void InterfaceChangeCallback(int fd, void *context)
+         if (found)
+ 	    continue;
+ 
+-        if ((ifa_loop4 == NULL) &&
+-            ((*ifi)->ifa_addr->sa_family == AF_INET) &&
+-            ((*ifi)->ifa_flags & IFF_UP) &&
+-            ((*ifi)->ifa_flags & IFF_LOOPBACK))
++
++        if (!((*ifi)->ifa_addr == NULL))
+         {
+-            ifa_loop4 = *ifi;
+-            continue;
++            if ((ifa_loop4 == NULL) &&
++                ((*ifi)->ifa_addr->sa_family == AF_INET) &&
++                ((*ifi)->ifa_flags & IFF_UP) &&
++                ((*ifi)->ifa_flags & IFF_LOOPBACK))
++            {
++                ifa_loop4 = *ifi;
++                continue;
++            }
+         }
+ 
+-        if (     (((*ifi)->ifa_addr->sa_family == AF_INET)
+-#if HAVE_IPV6
+-                  || ((*ifi)->ifa_addr->sa_family == AF_INET6)
+-#endif
+-                  ) && ((*ifi)->ifa_flags & IFF_UP)
+-                    && !((*ifi)->ifa_flags & IFF_POINTOPOINT)
+-                    && !((*ifi)->ifa_flags & IFF_LOOPBACK))
++        if (!((*ifi)->ifa_addr == NULL))
+         {
+-            struct ifaddrs *i = *ifi;
++            if (     (((*ifi)->ifa_addr->sa_family == AF_INET)
++    #if HAVE_IPV6
++                      || ((*ifi)->ifa_addr->sa_family == AF_INET6)
++    #endif
++                      ) && ((*ifi)->ifa_flags & IFF_UP)
++                        && !((*ifi)->ifa_flags & IFF_POINTOPOINT)
++                        && !((*ifi)->ifa_flags & IFF_LOOPBACK))
++            {
++                struct ifaddrs *i = *ifi;
+ 
+-#define ethernet_addr_len 6
+-            uint8_t hwaddr[ethernet_addr_len];
+-            int hwaddr_len = 0;
++    #define ethernet_addr_len 6
++                uint8_t hwaddr[ethernet_addr_len];
++                int hwaddr_len = 0;
+ 
+-#if defined(TARGET_OS_LINUX) && TARGET_OS_LINUX
+-            struct ifreq ifr;
+-            int sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
+-            if (sockfd >= 0)
+-            {
+-                /* Add hardware address */
+-                memcpy(ifr.ifr_name, i->ifa_name, IFNAMSIZ);
+-                if (ioctl(sockfd, SIOCGIFHWADDR, &ifr) != -1)
++    #if defined(TARGET_OS_LINUX) && TARGET_OS_LINUX
++                struct ifreq ifr;
++                int sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
++                if (sockfd >= 0)
+                 {
+-                    if (ifr.ifr_hwaddr.sa_family == ARPHRD_ETHER)
++                    /* Add hardware address */
++                    memcpy(ifr.ifr_name, i->ifa_name, IFNAMSIZ);
++                    if (ioctl(sockfd, SIOCGIFHWADDR, &ifr) != -1)
+                     {
+-                        memcpy(hwaddr, ifr.ifr_hwaddr.sa_data, ethernet_addr_len);
+-                        hwaddr_len = ethernet_addr_len;
++                        if (ifr.ifr_hwaddr.sa_family == ARPHRD_ETHER)
++                        {
++                            memcpy(hwaddr, ifr.ifr_hwaddr.sa_data, ethernet_addr_len);
++                            hwaddr_len = ethernet_addr_len;
++                        }
+                     }
++                    close(sockfd);
+                 }
+-                close(sockfd);
+-            }
+-            else
+-            {
+-                memset(hwaddr, 0, sizeof(hwaddr));
++                else
++                {
++                    memset(hwaddr, 0, sizeof(hwaddr));
++                }
++    #endif // TARGET_OS_LINUX
++                SetupOneInterface(m, i->ifa_addr, i->ifa_netmask,
++                                  hwaddr, hwaddr_len, i->ifa_name, if_nametoindex(i->ifa_name), i->ifa_flags);
+             }
+-#endif // TARGET_OS_LINUX
+-            SetupOneInterface(m, i->ifa_addr, i->ifa_netmask,
+-                              hwaddr, hwaddr_len, i->ifa_name, if_nametoindex(i->ifa_name), i->ifa_flags);
+         }
+     }
+ 
+-- 
+2.34.1

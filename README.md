@@ -72,7 +72,7 @@ Make sure that your default Python3 version is at least 3.8.0:
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.1.1_1.0.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
+This document is tested with the i.MX Yocto 6.1.36-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -82,14 +82,14 @@ Run the commands below to download this release:
 
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-langdale -m imx-6.1.1-1.0.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-mickledore -m imx-6.1.36-2.1.0.xml
     $ repo sync
 
 Then integrate the meta-matter recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
     $ git clone https://github.com/nxp-imx/meta-matter.git
-    $ git checkout imx_matter_2023_q2
+    $ git checkout imx_matter_2023_q3
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -103,13 +103,6 @@ Change the current directory to the top directory of the Yocto source code and e
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     # For i.MX93 EVK:
     $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
-
-If you are using [IW612](https://www.nxp.com/products/wireless/wi-fi-plus-bluetooth-plus-802-15-4/2-4-5-ghz-dual-band-1x1-wi-fi-6-802-11ax-plus-bluetooth-5-2-plus-802-15-4-tri-radio-solution:IW612) highly integrated Wi-Fi 6,BT/BLE 5.2,802.15.4 tri-radio single-chip which has [Matter 1.0](https://csa-iot.org/csa_product/nxp-i-mx8m-mpu-iw612-tri-radio) and [Thread Group Openthread-1.3 and Border Router-1.3"](https://www.threadgroup.org/What-is-Thread/Thread-Benefits#certifiedproducts) certified, please execute the command below:
-
-    #For i.MX8M Mini EVK with IW612 RD board:
-    $ MACHINE=imx8mmevk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
-    #For i.MX93 EVK:
-    $ MACHINE=imx93evk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
 
 This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
 
@@ -131,7 +124,7 @@ The zst images are symbolic link files, so you should copy them to a dedicated f
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
 
     # For i.MX93 EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk/imx-image-multimedia-imx93evk.wic.zst ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst ${MY_images}
 
 Please use zstd command unzip this .zst archive, and then dd command to program the output file to a microSD card. This microSD card will be used to boot the image on an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK.
 
@@ -140,16 +133,16 @@ ___Be cautious when executing the dd command below, making sure that the output 
     $ cd ${MY_images}
 
     # For i.MX8M Mini EVK:
-    $ zstd -d imx-image-multimedia-imx8mmevk.wic.zst
-    $ sudo dd if=imx-image-multimedia-imx8mmevk.wic of=/dev/sdc bs=4M conv=fsync
+    $ zstd -d imx-image-multimedia-imx8mmevk-matter.wic.zst
+    $ sudo dd if=imx-image-multimedia-imx8mmevk-matter.wic of=/dev/sdc bs=4M conv=fsync
 
     # For i.MX6ULL EVK:
     $ zstd -d imx-image-multimedia-imx6ullevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
 
     # For i.MX93 EVK:
-    $ zstd -d imx-image-multimedia-imx93evk.wic.zst
-    $ sudo dd if=imx-image-multimedia-imx93evk.wic of=/dev/sdc bs=4M conv=fsync
+    $ zstd -d imx-image-multimedia-imx93evk-matter.wic.zst
+    $ sudo dd if=imx-image-multimedia-imx93evk-matter.wic of=/dev/sdc bs=4M conv=fsync
 
 <a name="How-to-build-OTBR"></a>
 
@@ -174,32 +167,32 @@ This SDK can be generated with below commands:
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
     # For i.MX8M Mini EVK:
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-toolchain-6.1-langdale.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-matter-toolchain-6.1-mickledore.sh
 
     # For i.MX6ULL EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.1-langdale.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.1-mickledore.sh
 
     # For i.MX93 EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-toolchain-6.1-langdale.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-matter-toolchain-6.1-mickledore.sh
 
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK); for exmaple, you can use /opt/fsl-imx-xwayland/6.1-langdale-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-langdale-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/6.1-langdale-imx93 for i.MX93 EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/6.1-mickledore-imx93 for i.MX93 EVK.___
 
-    NXP i.MX Release Distro SDK installer version 6.1-langdale
+    NXP i.MX Release Distro SDK installer version 6.1-mickledore
     ============================================================
-    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.1-langdale):
+    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.1-mickledore):
 
 After the Yocto SDK is installed on the host machine, an SDK environment setup script is also generated.
 User needs to import Yocto build environment, by sourcing this script each time the SDK is used in a new shell; for example:
 
     # For i.MX8M Mini EVK
-    $ . /opt/fsl-imx-xwayland/6.1-langdale-imx8mm/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm/environment-setup-armv8a-poky-linux
 
     $ For i.MX6ULL EVK
-    $ . /opt/fsl-imx-wayland/6.1-langdale-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
     # For i.MX93 EVK
-    $ . /opt/fsl-imx-wayland/6.1-langdale-imx93/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx93/environment-setup-armv8a-poky-linux
 
 Fetch the latest otbr source code and execute the build:
 
@@ -207,9 +200,7 @@ Fetch the latest otbr source code and execute the build:
     $ cd ${MY_OTBR}
     $ git clone https://github.com/openthread/ot-br-posix
     $ cd ot-br-posix
-    $ git checkout thread-reference-20221027
-    $ git cherry-pick 528c152a35036ed0effe61e80cf25a978c458bfa
-    $ git cherry-pick e4a428fa1d666942f6bc634911cc66ab47f81207
+    $ git checkout -b 8d12b242dbf2398e8df20aa4ee6d387a41abb537
     $ git submodule update --init
 
     # For i.MX8M Mini EVK
@@ -272,10 +263,8 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
     $ otbr-web &
 
 For __i.MX93 EVK__, we will use IW612 as Thread device:
-We just need set a GPIO and then setup the otbr.
 
-    $ gpioset gpiochip6 0=1
-    $ otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip6&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&
+    $ otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&
     spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     $ iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $ iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
@@ -293,19 +282,19 @@ The Matter application has been installed into the Yocto image by default. If yo
     $ cd ${MY_Matter_Apps}
     $ git clone https://github.com/NXP/matter.git
     $ cd matter
-    $ git checkout origin/v1.1-branch-nxp_imx_2023_q2
+    $ git checkout origin/v1.1-branch-nxp_imx_2023_q3
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.1-langdale-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx8mm
+    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx8mm
 
-    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.1-langdale-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx6ull
+    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.1-mickledore-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx6ull
 
-    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.1-langdale-imx93 is ${IMX93_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-langdale-imx93
+    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx93 is ${IMX93_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx93
 
 User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the build_examples.py script. Please refer to below examples.
 
@@ -410,44 +399,22 @@ The Trusty OS, which contains the Trusted Application (TA) for i.MX Matter, is m
     $ systemctl enable storageproxyd
     $ systemctl start storageproxyd
 
+Since the i.MX Matter 2023 Q3 release, the built-in security subsystem [ELE (EdgeLock Secure Enclave)](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) is integrated to enhance the security of Matter on __i.MX93__. To enable ELE, please start the nvm_daemon service on the i.MX93 Linux shell after each power-up.
+
+    $ service nvm_daemon start
+
 <a name="FAQ"></a>
 
 # FAQ
 
-Q1 : Why do the npm EAI_AGAIN error occur in the bitbake process and how to solve it?
-
-     | npm ERR! code EAI_AGAIN
-     | npm ERR! errno EAI_AGAIN
-     | npm ERR! request to https://registry.npmjs.org/angular failed, reason:reason: getaddrinfo EAI_AGAIN registry.cnpmjs.org registry.cnpmjs.org:80
-
-A : This npm EAI_AGAIN error occurs when otbr is compiled more than once. The otbr intermediate compilation files should be cleared before executing the bitbake command again.
-
-     $ bitbake -c cleanall otbr
-     $ bitbake imx-image-multimedia
-
-Q2 : why "zstd -d imx-image-multimedia-imx8mmevk.wic.zst" command cannot be executed in the folder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
+Q1 : why "zstd -d imx-image-multimedia-imx8mmevk.wic.zst" command cannot be executed in the folder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/ ?
 
 A : Because imx-image-multimedia-imx8mmevk.wic.zst is a link file; please zstd the link target file or copy imx-image-multimedia-imx8mmevk.wic.zst to another folder, then uncompress it using zstd.
 
     $ ls -al
     imx-image-multimedia-imx8mmevk.wic.zst -> imx-image-multimedia-imx8mmevk-20220721181418.rootfs.wic.zst
 
-Q3 : How to solve the issue bellow?
-
-    FAILED: src/web/web-service/frontend/CMakeFiles/otbr-web-frontend /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend/CMakeFiles/otbr-web-frontend
-    cd /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/build/otbr/src/web/web-service/frontend && cp /home/ssd-3/matter/yocto/bld-xwayland/ot-br-posix/src/web/web-service/frontend/package.json . && npm install
-    ERROR: npm is known not to run on Node.js v10.19.0
-    You'll need to upgrade to a newer Node.js version in order to use this
-    version of npm. You can find the latest version at https://nodejs.org/
-
-A : Update the node to the latest version.
-
-    $ curl  https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-    $ source ~/.profiles       or     source ~/.bashrc        #You can choose one of them as prompted by the previous command
-    $ nvm install 18
-    $ node --version  # make sure that it was successfully installed.
-
-Q4 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
+Q2 : What if the Yocto SDK Python3 is exported into the shell environment and makes the Matter bootstrap/active process fail?
 
 A : Open a new shell, then remove the Yocto SDK environment and initialise the applications build enviroment.
 
