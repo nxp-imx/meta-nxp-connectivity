@@ -126,7 +126,9 @@ The zst images are symbolic link files, so you should copy them to a dedicated f
     # For i.MX93 EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst ${MY_images}
 
-Please use zstd command unzip this .zst archive, and then dd command to program the output file to a microSD card. This microSD card will be used to boot the image on an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK.
+You can use the zstd and dd commands or use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images to a microSD card. This microSD card will be used to boot the image on an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK.
+
+For use with the zstd and dd command method, please use the zstd command to unzip this .zst archive, and then use the dd command to program the output file to a microSD card.
 
 ___Be cautious when executing the dd command below, making sure that the output ("of" parameter) represents the microSD card device! /dev/sdc in the below command represents a microSD card connected to the host machine with a USB adapter; however the output device name may vary. Please use "ls /dev/sd*" command to verify the name of the SD card device.___
 
@@ -143,6 +145,24 @@ ___Be cautious when executing the dd command below, making sure that the output 
     # For i.MX93 EVK:
     $ zstd -d imx-image-multimedia-imx93evk-matter.wic.zst
     $ sudo dd if=imx-image-multimedia-imx93evk-matter.wic of=/dev/sdc bs=4M conv=fsync
+
+For use with the uuu method, please install [uuu](https://github.com/nxp-imx/mfgtools/releases/tag/uuu_1.5.21) on your host and make sure it is at least version 1.5.109.
+
+    $ uuu -version
+    uuu (Universal Update Utility) for nxp imx chips -- libuuu_1.5.109-0-g6c3190c
+
+___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, please put the board into MicroSD boot mode to boot the image from the MicroSD card.___
+
+    $ cd ${MY_images}
+
+    # For i.MX8M Mini EVK:
+    $ sudo uuu -b sd_all imx-image-multimedia-imx8mmevk-matter.wic.zst
+
+    # For i.MX6ULL EVK:
+    $ sudo uuu -b sd_all imx-image-multimedia-imx6ullevk.wic.zst
+
+    # For i.MX93 EVK:
+    $ sudo uuu -b sd_all imx-image-multimedia-imx93evk-matter.wic.zst
 
 <a name="How-to-build-OTBR"></a>
 
