@@ -5,14 +5,13 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRCBRANCH = "v1.1-branch-nxp_imx_2023_q3"
-#IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
-IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
+IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 MATTER_PY_PATH ?= "/usr/bin/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "d9e62438de6d0c6f94d4700cc7da3e44bff6eee8"
+SRCREV = "b82a8cf5291164d6d1aaaabe5af8f1e6c7e1b369"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
