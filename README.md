@@ -24,7 +24,7 @@ This repository contains the i.MX MPU project Matter related Yocto recipes. The 
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter v1.1.0.1 tag](https://github.com/project-chip/connectedhomeip).
+All the software components revisions are based on [project Matter v1.1-branch](https://github.com/project-chip/connectedhomeip/tree/v1.1-branch).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -34,8 +34,9 @@ The Following Matter related binaries will be installed into the Yocto image roo
  - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
  - nxp-thermostat-app-trusty: NXP customized thermostat application with enhanced security on i.MX8M Mini
  - chip-bridge-app: Matter bridge demo
- - chip-tool: Matter Controller tools
- - chip-tool-trusty: Matter Controller tools with enhanced security for i.MX8M Mini
+ - chip-tool: Matter Controller tool
+ - chip-tool-trusty: Matter Controller tool with enhanced security for i.MX8M Mini
+ - chip-tool-web: Matter Web Controller tool
  - ot-daemon: OpenThread Daemon for OpenThread client
  - ot-client-ctl: OpenThread ctrl tool for OpenThread client
  - otbr-agent: OpenThread Border Router agent
@@ -46,7 +47,7 @@ The Following Matter related binaries will be installed into the Yocto image roo
 
 # i.MX MPU Matter platform
 
-We currently support 3 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M Mini EVK, and the i.MX6ULL EVK. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+We currently support 4 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M Mini EVK, the i.MX6ULL EVK and the i.MX8ULP EVK. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 <a name="How-to-build-the-Yocto-image"></a>
 
@@ -72,7 +73,7 @@ Make sure that your default Python3 version is at least 3.8.0:
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.1.36-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK.
+This document is tested with the i.MX Yocto 6.1.36-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -103,10 +104,12 @@ Change the current directory to the top directory of the Yocto source code and e
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     # For i.MX93 EVK:
     $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
+    # For i.MX8ULP EVK:
+    $ MACHINE=imx8ulpevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8ulp
 
 This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
 
-This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK or bld-xwayland-imx93/ for i.MX93 EVK), and enter this directory automatically. Please execute the command below to generate the Yocto images:
+This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M Mini EVK, bld-xwayland-imx6ull/ for i.MX6ULL EVK, bld-xwayland-imx93/ for i.MX93 EVK or bld-xwayland-imx8ulp/ for i.MX8ULP EVK), and enter this directory automatically. Please execute the command below to generate the Yocto images:
 
     $ bitbake imx-image-multimedia
 
@@ -114,11 +117,12 @@ After execution of previous commands, the Yocto images will be generated:
 - ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst for i.MX8M Mini EVK.
 - ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
 - ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst for i.MX93 EVK.
+- ${MY_YOCTO}/bld-xwayland-imx8ulp/tmp/deploy/images/imx8ulpevk/imx-image-multimedia-imx8ulpevk.wic.zst for i.MX8ULP EVK.
 
 The zst images are symbolic link files, so you should copy them to a dedicated folder ${MY_images} before unziping them.
 
     # For i.MX8M Mini EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk.wic.zst ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst ${MY_images}
 
     # For i.MX6ULL EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
@@ -126,7 +130,10 @@ The zst images are symbolic link files, so you should copy them to a dedicated f
     # For i.MX93 EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst ${MY_images}
 
-You can use the zstd and dd commands or use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images to a microSD card. This microSD card will be used to boot the image on an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK.
+    # For i.MX8ULP EVK:
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8ulp/tmp/deploy/images/imx8ulpevk/imx-image-multimedia-imx8ulpevk.wic.zst ${MY_images}
+
+You can use the zstd and dd commands to flash the images to a microSD card for i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images to a microSD card or EMMC for all 4 boards. The microSD card will be used to boot the image on an i.MX 8M Mini EVK, i.MX6ULL EVK or i.MX93 EVK, and the EMMC will be used to boot the image on an i.MX8ULP EVK.
 
 For use with the zstd and dd command method, please use the zstd command to unzip this .zst archive, and then use the dd command to program the output file to a microSD card.
 
@@ -151,7 +158,7 @@ For use with the uuu method, please install [uuu](https://github.com/nxp-imx/mfg
     $ uuu -version
     uuu (Universal Update Utility) for nxp imx chips -- libuuu_1.5.109-0-g6c3190c
 
-___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, please put the board into MicroSD boot mode to boot the image from the MicroSD card.___
+___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, please put i.MX8M Mini EVK, i.MX6ULL EVK. i.MX93 EVK into MicroSD boot mode to boot the image from the MicroSD card. And please put i.MX8ULP EVK into EMMC boot mode to boot the image from the EMMC.___
 
     $ cd ${MY_images}
 
@@ -163,6 +170,9 @@ ___Before flashing the image, follow the prompts on the board to put the board i
 
     # For i.MX93 EVK:
     $ sudo uuu -b sd_all imx-image-multimedia-imx93evk-matter.wic.zst
+
+    # For i.MX8ULP EVK:
+    $ sudo uuu -b emmc_all imx-image-multimedia-imx8ulpevk.wic.zst
 
 <a name="How-to-build-OTBR"></a>
 
@@ -182,6 +192,9 @@ This SDK can be generated with below commands:
     # For i.MX93 EVK:
     $ cd ${MY_YOCTO}/bld-xwayland-imx93
 
+    # For i.MX8ULP EVK:
+    $ cd ${MY_YOCTO}/bld-xwayland-imx8ulp
+
     $ bitbake imx-image-multimedia -c populate_sdk
 
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
@@ -195,8 +208,11 @@ Then, install the Yocto SDK, by running the SDK installation script with root pe
     # For i.MX93 EVK
     $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-matter-toolchain-6.1-mickledore.sh
 
+    # For i.MX8ULP EVK
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8ulpevk-toolchain-6.1-mickledore.sh
+
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK and /opt/fsl-imx-xwayland/6.1-mickledore-imx93 for i.MX93 EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK, /opt/fsl-imx-xwayland/6.1-mickledore-imx93 for i.MX93 EVK and /opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp for i.MX8ULP EVK.___
 
     NXP i.MX Release Distro SDK installer version 6.1-mickledore
     ============================================================
@@ -214,6 +230,9 @@ User needs to import Yocto build environment, by sourcing this script each time 
     # For i.MX93 EVK
     $ . /opt/fsl-imx-wayland/6.1-mickledore-imx93/environment-setup-armv8a-poky-linux
 
+    # For i.MX8ULP EVK
+    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx8ulp/environment-setup-armv8a-poky-linux
+
 Fetch the latest otbr source code and execute the build:
 
     $ mkdir ${MY_OTBR}  # this directory will be the top directory of the OTBR source code
@@ -223,20 +242,20 @@ Fetch the latest otbr source code and execute the build:
     $ git checkout -b 8d12b242dbf2398e8df20aa4ee6d387a41abb537
     $ git submodule update --init
 
-    # For i.MX8M Mini EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    # For i.MX8M Mini EVK and i.MX8ULP EVK
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
       -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
 
     # For i.MX6ULL EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
       -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
 
     # For i.MX93 EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
       -DOT_POSIX_CONFIG_RCP_BUS=SPI -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
@@ -267,8 +286,8 @@ Use below commands to connect the OTBR to the Wi-Fi access point:
 
 Then configure the Thread device:
 
-On __i.MX8M Mini EVK__ or __i.MX6ULL EVK__, we will use a dedicated Thread device (NXP K32W or any third part RCP):
-Plugin the Thread module into the USB OTG port of __i.MX8M Mini EVK__ or __i.MX6ULL EVK__. A USB device should be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
+On __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX8ULP EVK__, we will use a dedicated Thread device (NXP K32W or any third part RCP):
+Plugin the Thread module into the USB OTG port of __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX8ULP EVK__. A USB device should be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
 Once the USB device is detected, start te OTBR related services.
 
 When using the RCP module, programmed with OpenThread Spinel firmware image, execute the following commands:
@@ -315,6 +334,9 @@ The Matter application has been installed into the Yocto image by default. If yo
 
     # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx93 is ${IMX93_SDK_INSTALLED_PATH}
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx93
+
+    # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp
 
 User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the build_examples.py script. Please refer to below examples.
 
