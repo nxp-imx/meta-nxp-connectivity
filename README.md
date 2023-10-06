@@ -58,12 +58,7 @@ The following packages are required to build the Yocto Project:
     $ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \
     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
     xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv
-
-The following python packages need to be installed:
-
-    $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ pip install dbus-python
+    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4
 
 Make sure that your default Python3 version is at least 3.8.0:
 
