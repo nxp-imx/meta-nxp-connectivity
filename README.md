@@ -60,7 +60,7 @@ The following packages are required to build the Yocto Project:
     xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
     pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4
 
-Make sure that your default Python3 version is at least 3.8.0:
+Make sure that your default Python3 version is 3.8:
 
     $ python3 --version
       Python 3.8.0
