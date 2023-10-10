@@ -93,7 +93,7 @@ Change the current directory to the top directory of the Yocto source code and e
 
     # For i.MX8M Mini EVK:
     $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
-    # For i.MX8M Mini EVK which use Firecrest (IW612) module (Note this operation will switch meta-imx and meta-matter repo to specific revision):
+    # For i.MX8M Mini EVK which use IW612 chipset (Note this operation will switch meta-imx and meta-matter repo to specific revision):
     $ TARGET_15_4_CHIP=IW612 OT_RCP_BUS=SPI MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
     # For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
