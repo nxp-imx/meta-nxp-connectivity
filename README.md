@@ -58,14 +58,9 @@ The following packages are required to build the Yocto Project:
     $ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \
     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
     xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv
+    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4
 
-The following python packages need to be installed:
-
-    $ pip3 install testresources build mypy==0.910 types-setuptools pylint==2.9.3
-    $ pip install dbus-python
-
-Make sure that your default Python3 version is at least 3.8.0:
+Make sure that your default Python3 version is 3.8:
 
     $ python3 --version
       Python 3.8.0
@@ -98,7 +93,7 @@ Change the current directory to the top directory of the Yocto source code and e
 
     # For i.MX8M Mini EVK:
     $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
-    # For i.MX8M Mini EVK which use Firecrest (IW612) module (Note this operation will switch meta-imx and meta-matter repo to specific revision):
+    # For i.MX8M Mini EVK which use IW612 chipset (Note this operation will switch meta-imx and meta-matter repo to specific revision):
     $ TARGET_15_4_CHIP=IW612 OT_RCP_BUS=SPI MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
     # For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
