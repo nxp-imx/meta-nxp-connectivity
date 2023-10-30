@@ -1,4 +1,4 @@
-From 6fb8399f005874f4db9e82293e47911e9d853f66 Mon Sep 17 00:00:00 2001
+From ee324ed6968217debb24801aa02f132e99222e0c Mon Sep 17 00:00:00 2001
 From: "Haoran.Wang" <elven.wang@nxp.com>
 Date: Fri, 2 Dec 2022 10:19:02 +0800
 Subject: [PATCH] imx93evk: boot from imx93-11x11-evk-iw612-otbr.dtb for matter
@@ -9,13 +9,13 @@ Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configs/imx93_11x11_evk_defconfig b/configs/imx93_11x11_evk_defconfig
-index b4d6041c7d..3e288a9fb0 100644
+index ece2fcf1a5..3828a2c497 100644
 --- a/configs/imx93_11x11_evk_defconfig
 +++ b/configs/imx93_11x11_evk_defconfig
-@@ -29,7 +29,7 @@ CONFIG_REMAKE_ELF=y
- CONFIG_SYS_MONITOR_LEN=524288
+@@ -31,7 +31,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_SYSTEM_SETUP=y
  CONFIG_DISTRO_DEFAULTS=y
- CONFIG_BOOTCOMMAND="run distro_bootcmd;run bsp_bootcmd"
+ CONFIG_BOOTCOMMAND="run sr_ir_v2_cmd;run distro_bootcmd;run bsp_bootcmd"
 -CONFIG_DEFAULT_FDT_FILE="imx93-11x11-evk.dtb"
 +CONFIG_DEFAULT_FDT_FILE="imx93-11x11-evk-iw612-otbr.dtb"
  CONFIG_ARCH_MISC_INIT=y
