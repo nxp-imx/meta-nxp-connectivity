@@ -1,0 +1,46 @@
+From 45b9b5b1179c618b64eb3c05ff2feaafcf83efe3 Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Mon, 30 Oct 2023 10:06:11 +0800
+Subject: [PATCH 2/3] MATTER-1573-2 Add gplay_matter service
+
+Add systemd service for gplay_matter. To start it, use:
+$systemctl start gplay_matter
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+Change-Id: Ibbab8b791f1177a1792f6e7c982548aa529769e6
+---
+ tools/gplay2/gplay_matter.service | 8 ++++++++
+ tools/gplay2/meson.build          | 5 +++++
+ 2 files changed, 13 insertions(+)
+ create mode 100644 tools/gplay2/gplay_matter.service
+
+diff --git a/tools/gplay2/gplay_matter.service b/tools/gplay2/gplay_matter.service
+new file mode 100644
+index 0000000..072dddc
+--- /dev/null
++++ b/tools/gplay2/gplay_matter.service
+@@ -0,0 +1,8 @@
++[Unit]
++Description=Gplay Matter Music Player
++
++[Service]
++ExecStart=/bin/bash -c "/usr/bin/gplay_matter-1.0 --repeat /home/root/media/*.mp3"
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/tools/gplay2/meson.build b/tools/gplay2/meson.build
+index 47f0aee..8603189 100644
+--- a/tools/gplay2/meson.build
++++ b/tools/gplay2/meson.build
+@@ -14,3 +14,8 @@ executable('gplay_matter-' + api_version,
+   install: true,
+   dependencies : [gst_dep, gstplay_dep, gstfsl_dep],
+ )
++gplay_matter_file = files('gplay_matter.service')
++
++install_data(gplay_matter_file, 
++   install_dir: join_paths(get_option('prefix'), get_option('sysconfdir'), 'systemd/system')
++)
+-- 
+2.34.1
+

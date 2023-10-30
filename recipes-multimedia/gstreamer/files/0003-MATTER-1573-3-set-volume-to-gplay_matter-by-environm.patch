@@ -1,0 +1,64 @@
+From 8e51c905306f0a47535bd60e53c2783994ab89d0 Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Mon, 30 Oct 2023 15:51:05 +0800
+Subject: [PATCH 3/3] MATTER-1573-3 set volume to gplay_matter by environment
+ variables
+
+In the gplay_matter service, add ENV_GPLAY_VOLUME=0.2 to make the
+default volume smaller due Matter speaker API didn't ready to tuning the
+volume.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+Change-Id: I2b2ba22d366161da6b546befe56512555578f612
+---
+ tools/gplay2/gplay2.c             | 12 ++++++++++++
+ tools/gplay2/gplay_matter.service |  2 +-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
+index 81a8dd0..756b349 100755
+--- a/tools/gplay2/gplay2.c
++++ b/tools/gplay2/gplay2.c
+@@ -1877,6 +1877,16 @@ main (int argc, char *argv[])
+         &sPlay);
+   }
+   //gst_play_play (play);
++#ifdef MATTER_MEDIA
++  char* env_value = getenv("ENV_GPLAY_VOLUME");
++  if (env_value == NULL) {
++    gst_play_set_volume (play, 1.0);
++  } else {
++    float gplay_volume = atof(env_value);
++    gst_play_set_volume (play, gplay_volume);
++  }
++  gst_play_pause_sync (sPlay.play, options.timeout);
++#endif
+   gst_play_play_sync (play, options.timeout);
+ 
+   /* for auto test script */
+@@ -1897,7 +1907,9 @@ main (int argc, char *argv[])
+     gst_play_pause (play);
+     gst_play_set_mute (play, ismute);
+   }
++#ifndef MATTER_MEDIA
+   gst_play_set_volume (play, 1.0);
++#endif
+ 
+   /* for auto test script */
+ //  g_print ("FSL_PLAYENGINE_UI_MSG_EXIT\n");
+diff --git a/tools/gplay2/gplay_matter.service b/tools/gplay2/gplay_matter.service
+index 072dddc..6409d28 100644
+--- a/tools/gplay2/gplay_matter.service
++++ b/tools/gplay2/gplay_matter.service
+@@ -2,7 +2,7 @@
+ Description=Gplay Matter Music Player
+ 
+ [Service]
+-ExecStart=/bin/bash -c "/usr/bin/gplay_matter-1.0 --repeat /home/root/media/*.mp3"
++ExecStart=/bin/bash -c "ENV_GPLAY_VOLUME=0.2 /usr/bin/gplay_matter-1.0 --repeat /home/root/media/*.mp3"
+ 
+ [Install]
+ WantedBy=multi-user.target
+-- 
+2.34.1
+

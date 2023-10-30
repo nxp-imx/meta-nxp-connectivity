@@ -1,0 +1,299 @@
+From bfe71d0998ccd10064056f718fdf94feb24df076 Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Tue, 24 Oct 2023 20:09:16 +0800
+Subject: [PATCH 1/3] MATTER-1573 Modify gplay2 to support Matter media
+
+Supported below functions mapping from gplay to Matter.
++--------------------------+----------------------------------------+-------------------+------------------+
+| matter function          | gplay function                         | string name       | chip-tool        |
++--------------------------+----------------------------------------+-------------------+------------------+
+| HandleFastForward        | Setting play rate 2                    | c 2               | fast-forward     |
+| HandleNext               | Play next file                         | >                 | next             |
+| HandlePause              | "Pause when playing, play when paused" | a                 | pause            |
+| HandlePlay               | Play                                   | p                 | play             |
+| HandlePrevious           | Play previous file                     | <                 | previous         |
+| HandleRewind             | Setting play rate -2                   | c -2              | rewind           |
+| HandleSeek               | Seek                                   | e 0 t20 (seconds) | seek             |
+| HandleSkipBackward       | seek - delta time                      | e 0 t20           | skip-backward    |
+| HandleSkipForward        | seek + delta time                      | e 0 t20           | skip-forward     |
+| HandleStartOver          | Stop then Play                         | s p               | start-over       |
+| HandleStop               | Stop                                   | s                 | stop             |
+| HandleGetDuration        | Duration                               | q u               | duration         |
+| HandleGetSampledPosition | Position                               | q p               | sampled-position |
+| HandleGetCurrentState    | CurrentState                           | q s               | current-state    |
+| HandleGetPlaybackSpeed   | PlaybackSpeed                          | q c               | playback-speed   |
+| HandleGetStartTime       | 0                                      | 0                 | start-time       |
+| HandleGetSeekRangeStart  | 0                                      | 0                 | seek-range-start |
+| HandleGetSeekRangeEnd    | duration                               | q u               | seek-range-end   |
++--------------------------+----------------------------------------+-------------------+------------------+
+
+Add a new meson build target named gplay_matter-1.0 which contained the Matter specific
+changes. It will apply CFLAGS -DMATTER_MEDIA to enable the codes for Matter.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+Change-Id: I13e7c148a1d647269cc5da6001195f84c4005be1
+---
+ tools/gplay2/gplay2.c    | 95 ++++++++++++++++++++++++++++++++++++++++
+ tools/gplay2/meson.build |  7 +++
+ 2 files changed, 102 insertions(+)
+
+diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
+index 74b1de6..81a8dd0 100755
+--- a/tools/gplay2/gplay2.c
++++ b/tools/gplay2/gplay2.c
+@@ -39,6 +39,13 @@
+ 
+ #include <gst/play/play.h>
+ 
++#ifdef MATTER_MEDIA
++#include <stdio.h>
++#include <fcntl.h>
++#include <sys/stat.h>
++#include <inttypes.h>
++#endif
++
+ #include "playlist.h"
+ 
+ #include <fcntl.h>
+@@ -107,6 +114,19 @@ static volatile gboolean gDisable_display = FALSE;
+ static volatile gboolean gexit_main = FALSE;
+ GMainLoop *gloop = NULL;
+ 
++#ifdef MATTER_MEDIA
++char * media_fifo = "/tmp/fifo_nxp_media";
++char * media_fifo_ack = "/tmp/fifo_nxp_media_ack";
++
++void
++ack_matter(const gchar * ack)
++{
++  int fd = open(media_fifo_ack, O_WRONLY);
++  write(fd, ack, strlen(ack)+1);
++  close(fd);
++}
++#endif
++
+ /* return a new allocate string, need be freed after use */
+ static gchar *
+ filename2uri (const gchar * fn)
+@@ -1009,6 +1029,12 @@ wait_for_seek_done (GstPlayData * sPlay, gint time_out)
+ void
+ input_thread_fun (gpointer data)
+ {
++#ifdef MATTER_MEDIA
++  int fd;
++  char strbuf[80];
++  mkfifo(media_fifo, 0666);
++  mkfifo(media_fifo_ack, 0666);
++#endif
+   gchar sCommand[256];
+   gchar *uri = NULL;
+   GstPlayData *sPlay = (GstPlayData *) data;
+@@ -1019,12 +1045,22 @@ input_thread_fun (gpointer data)
+   while (gexit_input_thread == FALSE) {
+     sCommand[0] = ' ';
+     errno = 0;
++#ifdef MATTER_MEDIA
++    fd = open(media_fifo, O_RDONLY);
++    read(fd, sCommand, sizeof(sCommand));
++    close(fd);
++    ack_matter("ack");
++    if (strlen(sCommand) != 0) {
++        g_print("get Matter command(%d): %s\n", strlen(sCommand),sCommand);
++    }
++#else
+     if (scanf ("%256s", sCommand) != 1) {
+       // need to seek in case read to EOF
+       fseek (stdin, 0, SEEK_CUR);
+       usleep (100000);
+       continue;
+     }
++#endif
+ 
+     switch (sCommand[0]) {
+       case 'h':                // display the operation Help.
+@@ -1073,6 +1109,9 @@ input_thread_fun (gpointer data)
+         gboolean accurate_seek = FALSE; //
+         gint input_mode = -1;
+         gboolean seekable = FALSE;
++#ifdef MATTER_MEDIA
++        gchar *command = sCommand+2;
++#endif
+ 
+         GstPlayMediaInfo *media_info = gst_play_get_media_info (play);
+ 
+@@ -1094,10 +1133,16 @@ input_thread_fun (gpointer data)
+         duration_sec = duration_ns / 1000000000;
+ 
+         g_print ("Select seek mode[Fast seek:0,Accurate seek:1]:");
++
++#ifdef MATTER_MEDIA
++        input_mode = *command - '0';
++        command += 2;
++#else
+         if (scanf ("%d", &input_mode) != 1) {
+           gDisable_display = FALSE;
+           break;
+         }
++#endif
+ 
+         if (input_mode != 0 && input_mode != 1) {
+           g_print ("Invalid seek mode!\n");
+@@ -1109,6 +1154,12 @@ input_thread_fun (gpointer data)
+ 
+         g_print ("%s seek to percentage[0:100] or second [t?]:",
+             accurate_seek ? "Accurate" : "Normal");
++#ifdef MATTER_MEDIA
++        if (*command == 't') {
++          seek_point_sec = atoi (command+1);
++        } else {
++          seek_portion = atoi (command+1);
++#else
+         if (scanf ("%256s", sCommand) != 1) {
+           gDisable_display = FALSE;
+           break;
+@@ -1117,6 +1168,7 @@ input_thread_fun (gpointer data)
+           seek_point_sec = atoi (&sCommand[1]);
+         } else {
+           seek_portion = atoi (sCommand);
++#endif
+ 
+           if (seek_portion > 100) {
+             g_print ("Invalid seek point!\n");
+@@ -1199,10 +1251,15 @@ input_thread_fun (gpointer data)
+         }
+         g_print ("Set playing speed[-8,-4,-2,0.125,0.25,0.5,1,2,4,8]:");
+         gDisable_display = TRUE;
++#ifdef MATTER_MEDIA
++        playback_rate  = atof(sCommand+2);
++#else
++        sscanf("%f", sCommand+2, &playback_rate);
+         if (scanf ("%lf", &playback_rate) != 1) {
+           gDisable_display = FALSE;
+           break;
+         }
++#endif
+         gDisable_display = FALSE;
+         gst_play_set_rate (play, playback_rate);
+         wait_for_seek_done (sPlay, options->timeout);
+@@ -1461,6 +1518,9 @@ input_thread_fun (gpointer data)
+         g_print
+             ("Input query type[v:has video?, e:seekable?, s:state, p:position, u:duration, z:size, t:rotation, c:play rate]:\n");
+ 
++#ifdef MATTER_MEDIA
++        switch (sCommand[2]) {
++#else
+         gDisable_display = TRUE;
+         if (scanf ("%256s", sCommand) != 1) {
+           gDisable_display = FALSE;
+@@ -1469,6 +1529,7 @@ input_thread_fun (gpointer data)
+         gDisable_display = FALSE;
+ 
+         switch (sCommand[0]) {
++#endif
+           case 'v':
+           {
+             gint video_num = 0;
+@@ -1511,23 +1572,38 @@ input_thread_fun (gpointer data)
+                 if (playback_rate == 1.0) {
+                   g_print ("Current State : Playing\n");
+                 }
++#ifdef MATTER_MEDIA
++                ack_matter("Playing");
++#endif
+               }
+                 break;
+ 
+               case GST_PLAY_STATE_PAUSED:
+                 g_print ("Current State : Paused\n");
++#ifdef MATTER_MEDIA
++                ack_matter("Paused");
++#endif
+                 break;
+ 
+               case GST_PLAY_STATE_BUFFERING:
+                 g_print ("Current State : Buffering\n");
++#ifdef MATTER_MEDIA
++                ack_matter("Buffering");
++#endif
+                 break;
+ 
+               case GST_PLAY_STATE_STOPPED:
+                 g_print ("Current State : Stopped\n");
++#ifdef MATTER_MEDIA
++                ack_matter("Stopped");
++#endif
+                 break;
+ 
+               default:
+                 g_print ("Current State : Unknown\n");
++#ifdef MATTER_MEDIA
++                ack_matter("Unknown");
++#endif
+                 break;
+             }
+           }
+@@ -1538,6 +1614,11 @@ input_thread_fun (gpointer data)
+             gint64 pos = 0;
+             pos = gst_play_get_position (play);
+             g_print ("Current playing position : %lld\n", pos);
++#ifdef MATTER_MEDIA
++            memset(strbuf, 0, sizeof(strbuf));
++            snprintf(strbuf, sizeof(strbuf), "%" PRIu64, pos);
++            ack_matter(strbuf);
++#endif
+           }
+             break;
+ 
+@@ -1546,6 +1627,11 @@ input_thread_fun (gpointer data)
+             gint64 duration = 0;
+             duration = gst_play_get_duration (play);
+             g_print ("Duration : %lld\n", duration);
++#ifdef MATTER_MEDIA
++            memset(strbuf, 0, sizeof(strbuf));
++            snprintf(strbuf, sizeof(strbuf), "%" PRIu64, duration);
++            ack_matter(strbuf);
++#endif
+           }
+             break;
+ 
+@@ -1577,6 +1663,11 @@ input_thread_fun (gpointer data)
+             gdouble playback_rate = 0.0;
+             playback_rate = gst_play_get_rate (play);
+             g_print ("Current play rate : %1.1f\n", playback_rate);
++#ifdef MATTER_MEDIA
++            memset(strbuf, 0, sizeof(strbuf));
++            snprintf(strbuf, sizeof(strbuf), "%1.2f" , playback_rate);
++            ack_matter(strbuf);
++#endif
+           }
+             break;
+ 
+@@ -1592,6 +1683,10 @@ input_thread_fun (gpointer data)
+     fflush (stdout);
+     fflush (stdin);
+   }
++#ifdef MATTER_MEDIA
++  unlink(media_fifo);
++  unlink(media_fifo_ack);
++#endif
+   gexit_main = TRUE;
+   g_print ("Exit input thread\n");
+   return;
+diff --git a/tools/gplay2/meson.build b/tools/gplay2/meson.build
+index 9883a6c..47f0aee 100644
+--- a/tools/gplay2/meson.build
++++ b/tools/gplay2/meson.build
+@@ -7,3 +7,10 @@ executable('gplay-' + api_version,
+   install: true,
+   dependencies : [gst_dep, gstplay_dep, gstfsl_dep],
+ )
++
++executable('gplay_matter-' + api_version,
++  src_file,
++  c_args : ['-DMATTER_MEDIA'],
++  install: true,
++  dependencies : [gst_dep, gstplay_dep, gstfsl_dep],
++)
+-- 
+2.34.1
+
