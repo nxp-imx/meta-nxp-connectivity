@@ -58,7 +58,7 @@ S = "${WORKDIR}/git"
 common_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_imx_ele=${USE_ELE}
+    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_imx_ele=${USE_ELE} enable_exceptions=true
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -73,7 +73,7 @@ common_configure() {
 trusty_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64-trusty --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1
+    gn gen out/aarch64-trusty --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_trusty_os=1 enable_exceptions=true
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -101,6 +101,9 @@ do_configure() {
     common_configure
 
     cd ${S}/examples/nxp-thermostat/linux
+    common_configure
+
+    cd ${S}/examples/nxp-media-app/linux
     common_configure
 
     cd ${S}/examples/chip-tool
@@ -139,6 +142,9 @@ do_configure() {
 
         cd ${S}/examples/nxp-thermostat/linux
         trusty_configure
+
+        cd ${S}/examples/nxp-media-app/linux
+        trusty_configure
     fi
 }
 
@@ -154,6 +160,9 @@ do_compile() {
     ninja -C out/aarch64
 
     cd ${S}/examples/nxp-thermostat/linux
+    ninja -C out/aarch64
+
+    cd ${S}/examples/nxp-media-app/linux
     ninja -C out/aarch64
 
     cd ${S}/examples/chip-tool
@@ -179,6 +188,9 @@ do_compile() {
         cd ${S}/examples/nxp-thermostat/linux
         ninja -C out/aarch64-trusty
 
+        cd ${S}/examples/nxp-media-app/linux
+        ninja -C out/aarch64-trusty
+
         cd ${S}/examples/chip-tool
         ninja -C out/aarch64-trusty
     fi
@@ -190,6 +202,7 @@ do_install() {
     install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
     install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
     install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
+    install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
     install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
     install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
@@ -204,6 +217,7 @@ do_install() {
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
         install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
+        install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
 }
