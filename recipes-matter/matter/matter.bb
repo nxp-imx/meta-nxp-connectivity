@@ -8,7 +8,7 @@ SRCBRANCH = "v1.2-branch-nxp_imx_2023_q4"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
-MATTER_PY_PATH ?= "/usr/bin/python3"
+MATTER_PY_PATH ?= "${TOPDIR}/matter_venv/bin/python"
 
 PATCHTOOL = "git"
 
