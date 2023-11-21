@@ -3,7 +3,7 @@ DESCRIPTION = "This recipe builds the Zigbee Coordinator for Linux."
 LICENSE = "CLOSED"
 PN = "zbcoord"
 
-SRC_URI = "file://zb_coord_linux_mr3_rc1_1.tar.gz"
+SRC_URI = "file://zb_coord_linux_mr3_rc3_2.tar.gz"
 
 S = "${WORKDIR}"
 
