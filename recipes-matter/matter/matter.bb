@@ -118,6 +118,9 @@ do_configure() {
     cd ${S}/examples/bridge-app/linux
     common_configure
 
+    cd ${S}/examples/bridge-app/nxp/linux-imx
+    common_configure
+
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
@@ -177,6 +180,9 @@ do_compile() {
     cd ${S}/examples/bridge-app/linux
     ninja -C out/aarch64
 
+    cd ${S}/examples/bridge-app/nxp/linux-imx
+    ninja -C out/aarch64
+
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
     ninja -C out/aarch64-web
@@ -207,6 +213,7 @@ do_install() {
     install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
     install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
+    install ${S}/examples/bridge-app/nxp/linux-imx/out/aarch64/imx-chip-bridge-app ${D}${bindir}
 
     # Install chip-tool-web
     install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
