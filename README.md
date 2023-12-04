@@ -24,7 +24,7 @@ This repository contains the i.MX MPU project Matter related Yocto recipes. The 
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter v1.1-branch](https://github.com/project-chip/connectedhomeip/tree/v1.1-branch).
+All the software components revisions are based on [project Matter v1.2.0.0 tag](https://github.com/project-chip/connectedhomeip/tree/v1.2.0.0).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -34,6 +34,7 @@ The Following Matter related binaries will be installed into the Yocto image roo
  - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
  - nxp-thermostat-app-trusty: NXP customized thermostat application with enhanced security on i.MX8M Mini
  - chip-bridge-app: Matter bridge demo
+ - nxp-media-app: NXP customized media application
  - chip-tool: Matter Controller tool
  - chip-tool-trusty: Matter Controller tool with enhanced security for i.MX8M Mini
  - chip-tool-web: Matter Web Controller tool
@@ -58,7 +59,9 @@ The following packages are required to build the Yocto Project:
     $ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \
     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
     xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4
+    pylint3 xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4 \
+    git gcc g++ pkg-config libssl-dev libglib2.0-dev libavahi-client-dev ninja-build \
+    python3-venv python3-dev unzip libgirepository1.0-dev libcairo2-dev libreadline-dev
 
 Make sure that your default Python3 version is 3.8:
 
@@ -68,7 +71,7 @@ Make sure that your default Python3 version is 3.8:
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.1.36-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
+This document is tested with the i.MX Yocto 6.1.55-2.2.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -78,14 +81,14 @@ Run the commands below to download this release:
 
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-mickledore -m imx-6.1.36-2.1.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-mickledore -m imx-6.1.55-2.2.0.xml
     $ repo sync
 
 Then integrate the meta-matter recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
     $ git clone https://github.com/nxp-imx/meta-matter.git
-    $ git checkout imx_matter_2023_q3
+    $ git checkout imx_matter_2023_q4
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -272,7 +275,7 @@ __The OTBR does not support incremental compilation. If an error occurs during c
 
 Use below commands to connect the OTBR to the Wi-Fi access point:
 
-    # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module, and for i.MX93 EVK with IW612 module:
+    # For i.MX8M Mini EVK and i.MX6ULL EVK with 88W8987 WiFi module, and for i.MX93 EVK with IW612 chipset:
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
     $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
@@ -316,7 +319,7 @@ The Matter application has been installed into the Yocto image by default. If yo
     $ cd ${MY_Matter_Apps}
     $ git clone https://github.com/NXP/matter.git
     $ cd matter
-    $ git checkout origin/v1.1-branch-nxp_imx_2023_q3
+    $ git checkout origin/v1.2-branch-nxp_imx_2023_q4
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
@@ -359,6 +362,9 @@ Assuming that the working directory is changed to the top level directory of thi
 
     # Build the chip-bridge-app example with below command
     $ ./scripts/examples/imxlinux_example.sh -s examples/bridge-app/linux/ -o out/bridge-app -d
+
+    # Build the nxp-media-app example with below command
+    $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-media-app/linux/ -o out/nxp-media -d
 
     # Build the security enhanced with Trusty OS application using build_examples.py, by adding "-trusty" to te target. For example:
     $ ./scripts/build/build_examples.py  --target imx-chip-tool-trusty build
@@ -459,3 +465,8 @@ A : Open a new shell, then remove the Yocto SDK environment and initialise the a
     $ rm -rf .environment
     $ source scripts/activate.sh
 
+Q3 : How to download official PAA files from CSA?
+
+A : Connect the i.MX Matter device to a network that can access CSA resources, and then execute the following command. This will store the PAA files in the "/etc/dcl_paas" dirctory.
+
+    $ dcldownloader

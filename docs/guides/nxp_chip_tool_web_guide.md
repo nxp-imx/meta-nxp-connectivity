@@ -9,6 +9,12 @@ With the chip-tool-web, you can easily configure, manage and monitor Matter devi
 -   [Source files](#source)
 -   [Building and running the chip-tool-web](#building)
 -   [Using chip-tool-web to commission a Matter device](#using)
+-   [Controlling a Matter device OnOff cluster](#onoff)
+-   [Opening the commissioning window for the commissioned Matter device](#multiadmin)
+-   [Subscribing a Matter device OnOff cluster](#subscribe)
+-   [Getting status for a commmissioned Matter device](#getstatus)
+-   [Binding for light and switch Matter device](#binding)
+-   [Controlling a Matter device mediaplayback cluster](#media)
 -   [Additional Notes](#note)
 <hr>
 
@@ -107,7 +113,7 @@ It should be noted that chip-tool-web uses the `Interactive Mode` to allow users
 ### Pairing a Matter device
 
 To access the `Pairing` feature in chip-tool-web, first open the navigation bar and select `Pairing`. This will display the following menu interface:
- <img src="../images/chip_tool_web/chip_tool_web_menu.jpg" alt="Alt text" width="500"/>
+ <img src="../images/chip_tool_web/chip-tool-web_pairing.jpg" alt="Alt text" width="500"/>
 
 On the pairing page, there are three buttons to select the type of pairing: `ONNETWORK`, `BLE-WIFI`, and `BLE-THREAD`. These buttons allow the user to select the different pairing modes to use. After clicking the appropriate button, the user interface for the selected pairing type will appear.
 
@@ -116,12 +122,12 @@ The remainder of this section provides a detailed overview of each of these pair
 #### Pairing a device over IP
 
 Click on the `ONNETWORK` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip_tool_web_onnetwork.jpg" alt="Alt text" width="500"/>
+ <img src="../images/chip_tool_web/chip-tool-web_onnetwork.jpg" alt="Alt text" width="500"/>
 
-If you enter the correct parameters and click the `onnetwork` button on this interface, the following command will be triggered to discover devices and attempt to pair with the first discovered one using the provided setup code:
+You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `onnetwork` button on this interface, the following command will be triggered to discover devices and attempt to pair with the first discovered one using the provided setup code:
 
 ```
-$ chip-tool pairing onnetwork <node_id> <pin_code>
+$ chip-tool pairing onnetwork-commissioning-mode <node_id> <pin_code>
 ```
 
 In this command:
@@ -132,9 +138,9 @@ In this command:
 #### Pairing a device over Ble-WiFi
 
 Click on the `BLE-WIFI` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip_tool_web_blewifi.jpg" alt="Alt text" width="500"/>
+ <img src="../images/chip_tool_web/chip-tool-web_blewifi.jpg" alt="Alt text" width="500"/>
 
-If you enter the correct parameters and click the `BLE-WIFI` button on this interface, the following command will be triggered to commission the device to the existing WiFI network:
+You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `BLE-WIFI` button on this interface, the following command will be triggered to commission the device to the existing WiFI network:
 ```
 $ chip-tool pairing ble-wifi <node_id> <ssid> <password> <pin_code> <discriminator>
 ```
@@ -159,9 +165,9 @@ $ chip-tool pairing ble-wifi <node_id> hex:<ssid> hex:<password> <pin_code> <dis
 #### Pairing a device over Ble-Thread
 
 Click on the `BLE-THREAD` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip_tool_web_blethread.jpg" alt="Alt text" width="500"/>
+ <img src="../images/chip_tool_web/chip-tool-web_blethread.jpg" alt="Alt text" width="500"/>
 
-If you enter the correct parameters and click the `BLE-Thread` button on this interface, the following command will be triggered to commission the device to the existing Thread network:
+You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `BLE-Thread` button on this interface, the following command will be triggered to commission the device to the existing Thread network:
 ```
 $ chip-tool pairing ble-thread <node_id> hex:<operational_dataset> <pin_code> <discriminator>
 ```
@@ -178,12 +184,14 @@ To obtain the Thread network credentials, you can either form the OpenThread net
 
 Once the network has been formed, you can retrieve the Thread network credentials by clicking the `GET-DATASET` button in chip-tool-web instead of manually typing the `ot-ctl dataset active -x` command.
 
-### Controling a Matter device
+<a name="onoff"></a>
+
+## Controlling a Matter device OnOff cluster
 
 Once the pairing process is complete, the Matter device is successfully commissioned to the network. For the lighting application, the On/Off clusters are implemented in chip-tool-web, allowing you to control the end devices using the `onoff` cluster commands.
 
 To access the `onoff` function in the chip-tool-web, first open the navigation bar and select `OnOff`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip_tool_web_onoff.jpg" alt="Alt text" width="500"/>
+ <img src="../images/chip_tool_web/chip-tool-web_onoff.jpg" alt="Alt text" width="500"/>
 
 **Commands list supported for the onoff cluster:**
 ```bash
@@ -215,7 +223,7 @@ Use the following buttons to control or read the status of the `OnOff` attribute
     ```
     $ chip-tool onoff read on-off <node_id> <endpoint_id>
     ```
-    In below commands:
+    In above commands:
 
     -   _<node_id\>_ is the user-defined ID of the commissioned node.
     -   _<endpoint_id\>_ is the ID of the endpoint with OnOff cluster implemented.
@@ -230,11 +238,14 @@ After clicking the `READ` button to trigger the corresponding command, a report 
 
 The report is output in text format with the following structure:
 ```
-Report from ${nodeid}:${endpoint}. Cluster:${cluster}
+Report from ${nodealias} ${nodeid}:${endpoint}. Cluster:${cluster}
 ${attribute}:${value}
 ```
-#### Report Elements
 
+#### Report Elements
+<a name="onoff-report-elements"></a>
+
+- ${nodealias}: The node alias of the device.
 - ${nodeid}: The nodeid of the device.
 - ${endpoint}: The endpoint of the device.
 - ${cluster}: The cluster name to which the device belongs.
@@ -243,10 +254,268 @@ ${attribute}:${value}
 
 #### Report Examples
 
-The following is an example of a multiple read of a device whose nodeid and endpoint are both 1.
- <img src="../images/chip_tool_web/chip_tool_web_report.jpg" alt="Alt text" width="500"/>
+The following is an example of a multiple read of a device whose nodealias is Light and nodeid and endpoint are both 1.
+ <img src="../images/chip_tool_web/chip-tool-web_onoff-report.jpg" alt="Alt text" width="500"/>
 
 <hr>
+
+<a name="multiadmin"></a>
+
+## Opening the commissioning window for the commissioned Matter device
+
+Multi-admin feature allows you to join Matter device to multiple Matter fabrics and have multiple different Matter administrators administer it. Chip-tool-web supports the Basic Commissioning Method to open the commissioning window of i.MX Matter device for a new administrator from another fabric.
+
+To access the `Multi-admin` function in the chip-tool-web, first open the navigation bar and select `MultiAdmin`. The following interface will be displayed:
+ <img src="../images/chip_tool_web/chip-tool-web_multiadmin.jpg" alt="Alt text" width="500"/>
+
+Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then enter the value of windows timeout and click the `OPEN COMMISSIONING WINDOW` button to trigger the Open Commissioning window:
+```
+$ chip-tool pairing open-commissioning-window <node_id> <option> <window_timeout> <iteration> <discriminator>
+```
+In this command:
+
+-   _<node_id\>_ is the ID of the node that should open commissioning window.
+-   _<option\>_ is equal to `0` for Basic Commissioning Method.
+-   _<window_timeout\>_ is time in seconds, before the commissioning window
+    closes.
+-   _<iteration\>_ is number of PBKDF iterations to use to derive the PAKE
+    verifier.
+-   _<discriminator\>_ is device specific discriminator determined during
+    commissioning.
+
+> **Note:** The _<iteration\>_ and _<discriminator\>_ values are ignored because the _<option\>_ is set to 0.
+
+You can then commission the Matter device to a new fabric using another instance of the CHIP tool by below cmd or via the onnetwork pairing.
+```
+$ chip-tool pairing code <node_id> <payload>
+```
+In this command:
+
+-   _<node_id\>_ is the user-defined ID of the commissioned node.
+-   _<payload\>_ is the the QR code payload or a manual pairing code generated by the first commissioner instance when opened commissioning window. Since you are using the Basic Commissioning Method to open commissioning window, the manual pairing code should be `34970112332`.
+
+<a name="subscribe"></a>
+
+## Subscribing a Matter device OnOff cluster
+
+Subscribing to an attribute lets you mirror the state of the attribute as it changes in the Matter network. Chip-tool-web support for subscribing to the `on-off` attribute of the `onoff` cluster.
+
+To access the `Subscribe` function in the chip-tool-web, first open the navigation bar and select `Subscribe`. The following interface will be displayed:
+ <img src="../images/chip_tool_web/chip-tool-web_subscribe.jpg" alt="Alt text" width="500"/>
+
+Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then enter the value of windows timeout and click the `SUBSCRIBE` button to trigger the subscribe command:
+```
+$ chip-tool onoff subscribe on-off <min-interval> <max-interval> <node_id> <endpoint_id>
+```
+In this command:
+
+- _<min-interval\>_ specifies the minimum number of seconds that must elapse since the last report for the server to send a new report.
+- _<max-interval\>_ specifies the number of seconds that must elapse since the last report for the server to send a new report.
+- _<node-id\>_ is the user-defined ID of the commissioned node.
+- _<endpoint_id\>_ is the ID of the endpoint where the `onoff` cluster is implemented.
+
+#### Subscribe Report Format
+
+The subscribe report with the `on-off` attribute is updated on `Subsribe Status` section when it changes. The page does not clear previously generated reports and always displays the latest report at the top of the list.
+The following is an example of the subscription statue of a device whose nodealias is Light and whose nodeid and endpoint are both 1.
+ <img src="../images/chip_tool_web/chip-tool-web_subscribe-report.jpg" alt="Alt text" width="500"/>
+
+The report is output in text format with the following structure:
+```
+Subscribe Report from ${nodealias} ${nodeid}:${endpoint}. Cluster:${cluster}
+${attribute}:${value}
+```
+The elements of the subscribe report are the same as those of the [OnOff read report](#onoff-report-elements).
+
+> **Note:** Because subscribe must maintain the subscription status in interactive mode, please do not enter any other commands in the console of the i.MX Matter devices when the chip-tool-web initiates the subscribe command, as this may interrupt the update of the subscribe report.
+
+<a name="getstatus"></a>
+
+## Getting status for a commmissioned Matter device
+
+Chip-tool-web stores the node ID and node alias of the paired device in the chip_tool_config.web.ini file. If `TMPDIR` is not set, the chip_tool_config.web.ini file is located in the `/tmp/` directory. If `export TMPDIR=${tmpfir}` is set, it is stored in the `${tmpfir}` directory. You can see the node ID and node alias of all paired nodes in `GetStatus` tab, and you can delete the paired node information on this page so that you will no longer see information about that node in the node alias selection on other tabs.
+
+To access the `GetStatus` function in the chip-tool-web, first open the navigation bar and select `GetStatus`. The following interface will be displayed:
+ <img src="../images/chip_tool_web/chip-tool-web_getstatus.jpg" alt="Alt text" width="500"/>
+
+Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then click the `DELETE-STORAGENODE` button to delete the paired node information, then this node will not be displayed in the chip-tool-web front page.
+
+#### Node Information Format
+
+The provisioned nodes is displayed in text format with the following structure:
+```
+Node Alias: ${nodealias}
+node ID: ${nodeid}
+```
+In the structure above:
+- ${nodealias}: The node alias of the device.
+- ${nodeid}: The nodeid of the device.
+
+<a name="binding"></a>
+
+## Binding for light and switch Matter device
+
+Binding describes a relationship between the device that contains the binding cluster and the end device. The chip-tool-web supports binding a light in one light_switch_combo device to the switch in another light_switch_combo device, allowing the light in another device to be controlled by the switch of one device.
+
+To access the `Binding` function in the chip-tool-web, first open the navigation bar and select `Binding`. The following interface will be displayed:
+ <img src="../images/chip_tool_web/chip-tool-web_binding.jpg" alt="Alt text" width="500"/>
+
+### Write ACL
+
+First, the light_switch_combo application should run properly on the K32W Matter device, and then use the chip-tool-web ble-thread pairing method to pair with two light_switch_combo devices separately.
+
+Two light-switch_combo devices, one used as the switch device and the other used as the light device. Before binding, the access control list must be written. Therefore, in the `Light Node Alias` section, select the node alias that you want to use as the light device. In the `Switch Node Alias` section, select the node alias you want to use as the switch device, and they corresponding node IDs will be filled in automatically. `ACL EndPoint ID` is recommended to use endpoint `0`. Then click the `WRITE ACL` button to trigger write acl command like bellow.
+```
+chip-tool accesscontrol write acl <acl_data> <node_id> <endpoint_id>
+```
+In this command:
+
+-   _<acl_data\>_ is the ACL data formatted as a JSON array. Here is the `'[{"fabricIndex": 1, "privilege": 5, "authMode": 2, "subjects": [112233], "targets": null },{"fabricIndex": 1, "privilege": 3, "authMode": 2, "subjects": [<Switch Node Id>], "targets": null }]'`.
+-   _<node_id\>_ is the ID of the node that is going to receive ACL. Here is <Light node ID\>..
+-   _<endpoint_id\>_ is the ID of the endpoint on which the `accesscontrol`
+    cluster is implemented. 0 means all enpoints.
+
+For more details, you can refer to [access control guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/access-control-guide.md).
+
+### Write Binding
+
+After trigger the write access list command, you can click the `WRITE BINDING` button to binding the Light and Switch device， it will trigger the command:
+```
+$ ./chip-tool binding write binding <binding_data> <node_id> <endpoint_id>
+```
+In this command:
+
+-   _<binding_data\>_ is the binding data formatted as a JSON array. Here is `[{"fabricIndex": 1, "node": <Light NodeId>, "endpoint": <Light EndPoint ID>, "cluster": 6}]'`.
+-   _<node_id\>_ is the ID of the node that is going to receive the binding. Here is <Switch node ID\>.
+-   _<endpoint_id\>_ is the ID of the endpoint on which the `binding` cluster is
+    implemented. Here is the <Switch EndPoint ID\> of the switch device.
+
+<img src="../images/chip_tool_web/chip-tool-web_writebinding.jpg" alt="Alt text" width="500"/>
+
+After the binding command is successfully executed, press SW2 two times on the device acting as Switch to register the binding entry, and then you can control the light (D3) on the peer device (light device) just by pressing SW2/SW3.
+
+<a name="media"></a>
+
+## Controlling a Matter device mediaplayback cluster
+
+The i.MX Matter supports nxp-media-app in the 2023 q4 release, you can control the media player and read information through the chip-tool-web.
+Before controlling media app, you need to place meida in the `/home/root/media` folder of the nxp-media-app device, and you need also change to the correct audio card.
+
+```
+# start PulseAudio services
+$ pulseaudio --start
+# list audio cards information
+$ pacmd list-cards
+
+# set to the correct audio card
+# for i.MX8M Mini EVK and i.MX8ULP EVK
+$ pacmd set-default-sink alsa_output.platform-sound-wm8524.stereo-fallback
+
+# for i.MX93 EVK
+$ pacmd set-default-sink alsa_output.platform-sound-wm8962.stereo-fallback
+
+# for i.MX6ULL EVK
+$ pacmd set-default-sink alsa_output.platform-sound-wm8960.stereo-fallback
+```
+
+To access the `MediaControl` function in the chip-tool-web, first open the navigation bar and select `MediaControl`. The following interface will be displayed:
+ <img src="../images/chip_tool_web/chip-tool-web_mediacontrol.jpg" alt="Alt text" width="500"/>
+
+### Launch or Stop app
+
+Select the node alias of the paired Matter nxp-media-app device, and the page will automatically fill in the corresponding node ID. Then enter the Endpoint ID and click the `LAUNCH APP` or `STOP APP` button to launch or stop the app by bellow commands.
+```
+$ chip-tool applicationlauncher launch-app <launcher_data> <node_id> <endpoint_id>
+$ chip-tool applicationlauncher stop-app <launcher_data> <node_id> <endpoint_id>
+```
+
+In this command:
+-   _<launcher_data\>_ is the Launcher data formatted as a JSON array. Here is the `'{"catalogVendorID": 123, "applicationID": "exampleid"}'`.
+-   _<node_id\>_ is the ID of the node that is going to receive launcher data.
+-   _<endpoint_id\>_ is the ID of the endpoint on which the `applicationlauncher`
+    cluster is implemented.
+
+### Media Control
+
+Use the following buttons in the `Media Control` section to control the status of the `mediaplayback` attribute:
+
+-   Use the `PLAY` button to trigger the following command to change the current media playback state to play:
+    ```
+    $ chip-tool mediaplayback play <node_id> <endpoint_id>
+    ```
+-   Use the `PAUSE` button to trigger the following command to change the current media playback state to pause:
+    ```
+    $ chip-tool mediaplayback pause <node_id> <endpoint_id>
+    ```
+-   Use the `STOP` button to trigger the following command to change the current media playback state to stop:
+    ```
+    $ chip-tool mediaplayback stop <node_id> <endpoint_id>
+    ```
+-   Use the `PRIVIOUS` button to trigger the following command to play privious media:
+    ```
+    $ chip-tool mediaplayback privious <node_id> <endpoint_id>
+    ```
+-   Use the `NEXT` button to trigger the following command to play next media:
+    ```
+    $ chip-tool mediaplayback next <node_id> <endpoint_id>
+    ```
+-   Use the `START OVER` button to trigger the following command to start over the media being played:
+    ```
+    $ chip-tool mediaplayback start-over <node_id> <endpoint_id>
+    ```
+-   Use the `REWIND` button to trigger the following command to rewind the current media, and then you can use the `PLAY` button to play the rewinded media:
+    ```
+    $ chip-tool mediaplayback rewind <node_id> <endpoint_id>
+    ```
+-   Use the `FAST FORWARD` button to trigger the following command to fast forward the current media:
+    ```
+    $ chip-tool mediaplayback fast-forward <node_id> <endpoint_id>
+    ```
+    In above commands:
+
+    -   _<node_id\>_ is the user-defined ID of the commissioned node.
+    -   _<endpoint_id\>_ is the ID of the endpoint with `mediaplayback` cluster implemented.
+
+### Media Status
+
+Use the following buttons to read the status of the `mediaplayback` attribute in the `Media Status` section. The page and results are shown in the following: <img src="../images/chip_tool_web/chip-tool-web_mediastatus.jpg" alt="Alt text" width="500"/>
+
+-   Use the `CURRENTSTATE` button to trigger the following command to read the current state of media playback:
+    ```
+    $ chip-tool mediaplayback read current-state <node_id> <endpoint_id>
+    ```
+-   Use the `STARTTIME` button to trigger the following command to read the start time of the currently playing media:
+    ```
+    $ chip-tool mediaplayback read start-time <node_id> <endpoint_id>
+    ```
+-   Use the `DURATION` button to trigger the following command to read the duration of the currently playing media:
+    ```
+    $ chip-tool mediaplayback read duration <node_id> <endpoint_id>
+    ```
+-   Use the `PLAYBACK SPEED` button to trigger the following command to read the playback speed of the currently playing media:
+    ```
+    $ chip-tool mediaplayback read playback-speed <node_id> <endpoint_id>
+    ```
+In above commands:
+
+-   _<node_id\>_ is the user-defined ID of the commissioned node.
+-   _<endpoint_id\>_ is the ID of the endpoint with mediaplayback cluster implemented.
+
+#### Report Format
+
+The media read report is output in text format with the following structure:
+```
+Report from ${nodealias} ${nodeid}:${endpoint}. Cluster:${cluster}
+${attribute}:${value}
+```
+In the structure above,
+
+- ${nodealias}: The node alias of the device.
+- ${nodeid}: The nodeid of the device.
+- ${endpoint}: The endpoint of the device.
+- ${cluster}: The cluster name to which the device belongs.
+- ${attribute}: The name of the attribute being reported. In this case, the default attributes are  `CurrentState`, `StartTime`, `Duration`, `PlatbackSpeed`.
+- ${value}: The value of the attribute. There are three possible values for `CurrentState`: `Play`, `Pause`, `Stop`. The value of start time always be `0`. The value of `Duration` is currently playing media's duration. There are five possible values for `PlatbackSpeed`: `1.000000`, `2.000000`, `4.000000`, `8.000000`, `10.000000`.
 
 <a name="note"></a>
 

@@ -16,11 +16,13 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
 ## Hardware requirements
 
-- i.MX93 EVK + IW612(WiFi-BT-Thread tri-radio single-chip module)  → Role: Matter controller or Matter end device
+- i.MX93 EVK + IW612(WiFi-BT-Thread tri-radio chipset)  → Role: Matter controller or Matter end device
 
 - i.MX8M Mini EVK + 88W8987(WiFi-BT combo module)  → Role: Matter controller or Matter end device
 
 - i.MX6ULL EVK + 88W8987(WiFi-BT combo module)  → Role: Matter controller or Matter end device
+
+- i.MX8ULP EVK + IW416(WiFi-BT combo module)  → Role: Matter controller or Matter end device
 
    For more information on the details of the i.MX MPU Matter platforms, please visit [NXP MPU Matter platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
@@ -53,7 +55,7 @@ For devices that support the Thread protocol, this guide uses the NXP K32W runni
 
 Figure Matter with OTBR network topology diagram for i.MX93 EVK
 
- <img src="../images/matter_demos/imx8mm_imx6ull-otbr.png" width = "500"/>
+ <img src="../images/matter_demos/imx8mm_imx6ull_imx8ulp-otbr.png" width = "500"/>
 
 Figure Matter with OTBR network topology diagram for i.MX8M Mini EVK or i.MX6ULL EVK
 
@@ -69,15 +71,11 @@ The commissioning process consists of the following main stages:
 
 To set up OTBR on the i.MX MPU platform, you need to do three steps:
 
-step1. Sync with the current time.
-
-    $ date -s "2023-03-23 23:23"
-
-step2. Save the Wi-Fi SSID and password to a file.
+step1. Save the Wi-Fi SSID and password to a file.
 
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
 
-Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX MPU Platform.
+Step2. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX MPU Platform.
 
 #### For i.MX93 EVK + IW612 platform:
 
@@ -109,7 +107,7 @@ Step3. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         otbr-web &
         、、、
 
-#### For i.MX8M Mini EVK + 88W8987 + K32W platform:
+#### For i.MX8M Mini EVK + 88W8987 + K32W platform or i.MX8ULP EVK + IW416 + K32W platform:
 
         、、、
         ifconfig eth0 down
@@ -189,7 +187,7 @@ You can form the Openthread network manually by following steps:
 Then, you should get thread network credentials information.
 
     $ ot-ctl dataset active -x
-    # Then you will get a really long blob like "0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8"
+    # Then you will get a dataset like "0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8"
 
 ### Factory reset lighting application on K32W DK6
 
@@ -212,8 +210,12 @@ If there is a message **“Device commissioning completed with success”** in t
 
 ### Control the lighting-app on the i.MX controller
 
-    # control the lighting on/off
+    # toggle the lighting
     $ chip-tool onoff toggle 8888 1
+    # turn on the lighting
+    $ chip-tool onoff on 8888 1
+    # turn off the lighting
+    $ chip-tool onoff off 8888 1
 
     # read the lighting on-off status
     $ chip-tool onoff read on-off 8888 1
@@ -245,15 +247,11 @@ The commissioning process consists of the following main stages:
 
 #### Set up BT and connect to a wifi AP on controller device
 
-step1. Sync with current time.
-
-    $ date -s "2023-03-23 23:23"
-
-step2. Save Wi-Fi SSID and Password to a file.
+step1. Save Wi-Fi SSID and Password to a file.
 
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
 
-step3. Setup BT and connectd to a WiFi AP.
+step2. Setup BT and connectd to a WiFi AP.
 
 For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
 
@@ -268,13 +266,7 @@ For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
 
 #### Load the Wi-Fi/BT firmware and set up BT on the end device
 
-step1. Sync with current time.
-
-    $ date -s "2023-03-23 23:23"
-
-step2. Load the Wi-Fi/BT firmware and set up BT.
-
-For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
+Load the Wi-Fi/BT firmware and set up BT. For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK:
 
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
@@ -303,10 +295,13 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     # to run chip-bridge-app
     $ chip-bridge-app --wifi --ble-device 0
 
+    # to run nxp-meida-app
+    $ nxp-media-app --wifi --ble-device 0
+
 #### Finally, commission and control the end devices on the controller device.
 
     # commission the end devices
-    $ chip-tool pairing ble-wifi 8888 {SSID} {PASSWORD} 20202021 3840
+    $ chip-tool pairing ble-wifi 8888 ${SSID} ${PASSWORD} 20202021 3840
 
     # control the lighting app / chip-all-clusters-app
     $ chip-tool onoff toggle 8888 1
@@ -342,6 +337,62 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     $ chip-tool actions read endpoint-lists 8888 1     # read endpoint-lists
     $ chip-tool actions read action-list 8888 1        # read action-list
     $ chip-tool actions instant-action 0x1001 8888 1   # the room 1 LED1 LED2 will be ON on the bridge end.
+
+Before playing media, you need to put the __media__ in the `/home/root/media` folder and select the output audio cards.
+
+    # list all audio outputs
+    $ chip-tool audiooutput read output-list 8888 1
+
+> CHIP:TOO:     [3]: {
+    CHIP:TOO:       **Index: 2**
+    CHIP:TOO:       OutputType: 5
+    CHIP:TOO:       **Name: Audio Jack**
+    CHIP:TOO:      }
+
+    # select the index of the audio jack for audio output.
+> $ chip-tool audiooutput select-output **2** 8888 1
+
+Then you should launch the app, and when you don't need it, you can stop it.
+
+    # launch the nxp-media-app
+    $ chip-tool applicationlauncher launch-app '{"catalogVendorID": 123, "applicationID": "exampleid"}' 8888 1
+    # stop the nxp-media-app
+    $ chip-tool applicationlauncher stop-app '{"catalogVendorID": 123, "applicationID": "exampleid"}' 8888 1
+
+Control and read status for nxp-meida-app:
+
+    # play media
+    $ chip-tool mediaplayback play 8888 1
+    # stop media
+    $ chip-tool mediaplayback stop 8888 1
+    # pause media
+    $ chip-tool mediaplayback pause 8888 1
+    # start over play the current media
+    $ chip-tool mediaplayback start-over 8888 1
+    # play previous media
+    $ chip-tool mediaplayback previous 8888 1
+    # play next media
+    $ chip-tool mediaplayback next 8888 1
+    # rewind the playing media, then use the play command to paly media
+    $ chip-tool mediaplayback rewind 8888 1
+    # fast forward the playing media, the playback speed will be 1-2-4-8-10
+    $ chip-tool mediaplayback fast-forward 8888 1
+    # move the current playback position forward by 20 seconds
+    $ chip-tool mediaplayback skip-forward 20000 8888 1
+    # move the current playback position backwrd by 20 seconds
+    $ chip-tool mediaplayback skip-backward 20000 8888 1
+    # move the current playback position to the 20th second
+    $ chip-tool mediaplayback seek  20000 8888 1
+    # read the current state, 0 means play, 1 means pause, 2 means stop
+    $ chip-tool mediaplayback read current-state 8888 1
+    # the start time of the currently playing media, which is always 0
+    $ chip-tool mediaplayback read start-time 8888 1
+    # the total duration of currently playing media
+    $ chip-tool mediaplayback read duration 8888 1
+    # the current position of currently playing media
+    $ chip-tool mediaplayback read sampled-position 8888 1
+    # the playback speed of currently playing media
+    $ chip-tool mediaplayback read playback-speed 8888 1
 
 Currently, applications with trusty are supported on the i.MX8M Mini EVK, such as chip-tool-trusty, chip-lighting-app-trusty, and nxp-thermostat-app-trusty. Before running these example applications, you must execute the following commands to enable the secure storage service (only need to execute once after initial boot), and the the following commissioning steps are consistent with the above.
 
