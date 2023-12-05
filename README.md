@@ -181,36 +181,26 @@ There are 3 modules for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and 
 To build these binaries, we need to use the Yocto SDK toolchain with meta-matter included.
 This SDK can be generated with below commands:
 
-    # For i.MX8M Mini EVK:
-    $ cd ${MY_YOCTO}/bld-xwayland-imx8mm
+    # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK:
+    $ MACHINE=imx8n9-sdk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8n9sdk
+    $ cd ${MY_YOCTO}/bld-xwayland-imx8n9sdk
 
     # For i.MX6ULL EVK:
+    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     $ cd ${MY_YOCTO}/bld-xwayland-imx6ull
 
-    # For i.MX93 EVK:
-    $ cd ${MY_YOCTO}/bld-xwayland-imx93
-
-    # For i.MX8ULP EVK:
-    $ cd ${MY_YOCTO}/bld-xwayland-imx8ulp
-
-    $ bitbake imx-image-multimedia -c populate_sdk
+    $ bitbake imx-image-sdk -c populate_sdk
 
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
-    # For i.MX8M Mini EVK:
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8mmevk-matter-toolchain-6.1-mickledore.sh
+    # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK:
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8n9-sdk-toolchain-6.1-mickledore.sh
 
     # For i.MX6ULL EVK
     $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.1-mickledore.sh
 
-    # For i.MX93 EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx93evk-matter-toolchain-6.1-mickledore.sh
-
-    # For i.MX8ULP EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8ulpevk-toolchain-6.1-mickledore.sh
-
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm for i.MX8M Mini EVK SDK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK, /opt/fsl-imx-xwayland/6.1-mickledore-imx93 for i.MX93 EVK and /opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp for i.MX8ULP EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8n9 for i.MX8M Mini EVK SDK, i.MX93 EVK SDK and i.MX8ULP EVK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK.___
 
     NXP i.MX Release Distro SDK installer version 6.1-mickledore
     ============================================================
@@ -219,17 +209,11 @@ ___Please use board specific paths if you need to build the SDK for several boar
 After the Yocto SDK is installed on the host machine, an SDK environment setup script is also generated.
 User needs to import Yocto build environment, by sourcing this script each time the SDK is used in a new shell; for example:
 
-    # For i.MX8M Mini EVK
-    $ . /opt/fsl-imx-xwayland/6.1-mickledore-imx8mm/environment-setup-armv8a-poky-linux
+    # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK
+    $ . /opt/fsl-imx-xwayland/6.1-mickledore-imx8n9/environment-setup-armv8a-poky-linux
 
     $ For i.MX6ULL EVK
     $ . /opt/fsl-imx-wayland/6.1-mickledore-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
-
-    # For i.MX93 EVK
-    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx93/environment-setup-armv8a-poky-linux
-
-    # For i.MX8ULP EVK
-    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx8ulp/environment-setup-armv8a-poky-linux
 
 Fetch the latest otbr source code and execute the build:
 
@@ -465,8 +449,19 @@ A : Open a new shell, then remove the Yocto SDK environment and initialise the a
     $ rm -rf .environment
     $ source scripts/activate.sh
 
-Q3 : How to download official PAA files from CSA?
+Q3 : How to download the official PAA files from CSA and how to use the official PAA files?
 
-A : Connect the i.MX Matter device to a network that can access CSA resources, and then execute the following command. This will store the PAA files in the "/etc/dcl_paas" dirctory.
+A : Connect the i.MX Matter device to a network that can access CSA resources, and then execute the following command. This will store the PAA files in the "/etc/dcl_paas" directory.
 
     $ dcldownloader
+
+You can configure the macro with the following command, and then directly execute the chip-tool command directly to use it.
+
+    $ export CHIPTOOL_PAA_TRUST_STORE_PATH=/etc/dcl_paas
+    $ ${chip-tool command}
+
+Another way is to add a suffix when executing the command, as shown below:
+
+    $ ${chip-tool command} --paa-trust-store-path /etc/dcl_paas
+
+>  **Note** If you are using the official PAA files, the end Matter device must have the official DAC and PAI installed.
