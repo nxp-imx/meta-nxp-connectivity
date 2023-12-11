@@ -223,24 +223,32 @@ Fetch the latest otbr source code and execute the build:
     $ cd ot-br-posix
     $ git checkout -b 8d12b242dbf2398e8df20aa4ee6d387a41abb537
     $ git submodule update --init
+    $ mkdir ${PROTOC_DIR}
+    $ cd ${PROTOC_DIR}
+    $ wget https://github.com/protocolbuffers/protobuf/releases/download/v21.0/protoc-21.0-linux-x86_64.zip
+    $ unzip protoc-21.0-linux-x86_64.zip
+    $ cd ../ot-br-posix
 
     # For i.MX8M Mini EVK and i.MX8ULP EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
-      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake \
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
 
     # For i.MX6ULL EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
-      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake
+      -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake \
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
 
     # For i.MX93 EVK
-    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=OFF -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
+    $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
       -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
-      -DOT_POSIX_CONFIG_RCP_BUS=SPI -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake
+      -DOT_POSIX_CONFIG_RCP_BUS=SPI -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake \
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
 
 The otbr-agent is built in \${MY_OTBR}/build/otbr/src/agent/otbr-agent.
 The otbr-web is built in \${MY_OTBR}/build/otbr/src/web/otbr-web.
