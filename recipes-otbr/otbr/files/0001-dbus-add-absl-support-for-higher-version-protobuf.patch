@@ -1,0 +1,44 @@
+From d4d1f571e3d88c18992390193d29a27d9f529e8a Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Tue, 12 Dec 2023 20:56:22 +0800
+Subject: [PATCH] [dbus] add absl support for higher version protobuf
+
+Protobuf which higher than 22 need link absl. Add the linked shared
+library to pass the build.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ src/proto/CMakeLists.txt | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/proto/CMakeLists.txt b/src/proto/CMakeLists.txt
+index e982d52aa9..4d19916ac4 100644
+--- a/src/proto/CMakeLists.txt
++++ b/src/proto/CMakeLists.txt
+@@ -7,6 +7,15 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+     list(APPEND CMAKE_PREFIX_PATH "${Protobuf_PREFIX_PATH}")
+ endif()
+ find_package(Protobuf REQUIRED)
++if ("${Protobuf_VERSION}" MATCHES [[[0-9]+.([0-9]+).[0-9]+]])
++    string(COMPARE GREATER_EQUAL "${CMAKE_MATCH_1}" "22" REQUEST_ABSL)
++endif()
++if(REQUEST_ABSL)
++    find_package(absl REQUIRED)
++    set(ABSL_LIBS absl::log_internal_check_op)
++else()
++    set(ABSL_LIBS "")
++endif()
+ 
+ # Set up the output path.
+ set(PROTO_GEN_DIR ${PROJECT_SOURCE_DIR}/build/src/proto)
+@@ -61,6 +70,7 @@ find_package(Protobuf REQUIRED)
+ 
+ target_link_libraries(otbr-proto PUBLIC
+     protobuf::libprotobuf-lite
++    ${ABSL_LIBS}
+ )
+ 
+ target_include_directories(otbr-proto PUBLIC
+-- 
+2.34.1
+
