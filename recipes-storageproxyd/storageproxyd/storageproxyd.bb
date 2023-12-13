@@ -9,7 +9,7 @@ SRC_URI = "gitsm://github.com/nxp-imx/libtrustymatter.git;protocol=https;branch=
 SRCREV = "95f8b30d83da8bf05f3e6b776919511f58766540"
 
 S = "${WORKDIR}/git"
-FILES:${PN} += "lib/systemd"
+FILES:${PN} += "/usr/lib/systemd/system/storageproxyd.service"
 
 DEPENDS += " pkgconfig-native systemd "
 
