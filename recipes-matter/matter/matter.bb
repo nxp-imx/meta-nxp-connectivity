@@ -4,8 +4,9 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.2-branch-nxp_imx_2023_q4"
-IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
+SRCBRANCH = "v1.2-branch-nxp_imx_2024_q1"
+#IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
+IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 MATTER_PY_PATH ?= "${TOPDIR}/matter_venv/bin/python"
 
@@ -102,8 +103,8 @@ do_configure() {
     cd ${S}/examples/nxp-thermostat/linux
     common_configure
 
-#    cd ${S}/examples/nxp-media-app/linux
-#    common_configure
+    cd ${S}/examples/nxp-media-app/linux
+    common_configure
 
     cd ${S}/examples/chip-tool
     common_configure
@@ -145,8 +146,8 @@ do_configure() {
         cd ${S}/examples/nxp-thermostat/linux
         trusty_configure
 
-#        cd ${S}/examples/nxp-media-app/linux
-#        trusty_configure
+        cd ${S}/examples/nxp-media-app/linux
+        trusty_configure
     fi
 }
 
@@ -164,8 +165,8 @@ do_compile() {
     cd ${S}/examples/nxp-thermostat/linux
     ninja -C out/aarch64
 
-#    cd ${S}/examples/nxp-media-app/linux
-#    ninja -C out/aarch64
+    cd ${S}/examples/nxp-media-app/linux
+    ninja -C out/aarch64
 
     cd ${S}/examples/chip-tool
     ninja -C out/aarch64
@@ -193,8 +194,8 @@ do_compile() {
         cd ${S}/examples/nxp-thermostat/linux
         ninja -C out/aarch64-trusty
 
-#        cd ${S}/examples/nxp-media-app/linux
-#        ninja -C out/aarch64-trusty
+        cd ${S}/examples/nxp-media-app/linux
+        ninja -C out/aarch64-trusty
 
         cd ${S}/examples/chip-tool
         ninja -C out/aarch64-trusty
@@ -207,7 +208,7 @@ do_install() {
     install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
     install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
     install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
-#    install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
+    install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
     install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
     install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
@@ -223,7 +224,7 @@ do_install() {
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
         install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
-#        install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
+        install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
 }
