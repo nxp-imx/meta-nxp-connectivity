@@ -1,88 +1,45 @@
-From 545e374ad50f119e7855180db176751a8e5d88cb Mon Sep 17 00:00:00 2001
+From 1e18bafbe7d13ff0063b78dd522b278ed03ffb82 Mon Sep 17 00:00:00 2001
 From: Ji Luo <ji.luo@nxp.com>
-Date: Wed, 19 Apr 2023 16:25:35 +0800
-Subject: [PATCH 1/2] Add trusty drivers
+Date: Wed, 27 Dec 2023 17:33:28 +0900
+Subject: [PATCH 1/2] MATTER-1869-1 Integrate trusty drivers
 
-This commit is a collection of below patches:
-	8699d2f2a9ca MA-19352 Obtain attributes based on kernel vaddr
-	94b2091a90c7 MA-15997-1 Add back Trusty OS GICv3 workaround
-	4bd97ea53237 MA-13966 Route Trusty OS log to Linux end
-	5223980749b5 MA-17372-1 trusty: remove trusty-log buffer when shutdown
-	ddb70b4f6964 ANDROID: escalate kthread nice for Trusty
-	7e55d1da7998 ANDROID: Use kthread for trusty work instead of wq
-	84cbb306476c ANDROID: trusty: Create API for sharing trusty info
-	06817efa1ff1 ANDROID: trusty: Add trace points
-	d495489639be ANDROID: trusty: Use high priority check WQ and regular nop WQ
-	4256f5d20ea5 ANDROID: trusty-log: fix poll check for data availability.
-	fa40b3775e72 ANDROID: trusty: Add trusty OWNERS files uapi and docs
-	56085d1c8b00 ANDROID: trusty: Add OWNERS files referring to the top level trusty OWNERS
-	ef0d768d1a4e ANDROID: trusty: add a toggle for running trusty work in higher priority
-	46d8428eb40b ANDROID: trusty-log: Optionally copy Trusty log to kernel log
-	0c97c2d35a31 Revert "ANDROID: trusty-log: Don't copy Trusty logs to linux kernel log"
-	3290b3615158 ANDROID: trusty-log: make rate limit configurable
-	ea6e2313f441 ANDROID: trusty: Enforce only TRUSTY_SEND_SECURE can send secure memory
-	9c1a9dab1259 ANDROID: trusty-ipc: Allow registering multiple handles
-	5cbd5aa57c9b ANDROID: trusty: Support setting trusty_shared_mem_id_t
-	4d66247e8a67 ANDROID: trusty-log: Don't copy Trusty logs to linux kernel log
-	0a3b0f578ef1 ANDROID: trusty-log: rework buffer allocation
-	4a4b03611455 ANDROID: trusty-ipc: Fix lock protection of shared_handles
-	5755682b5385 ANDROID: trusty-log: support poll()
-	073d8559f6c9 ANDROID: trusty-irq: enqueue work in trusty_irq_cpu_up
-	ac35449899a9 ANDROID: trusty: Add config TRUSTY_CRASH_IS_PANIC
-	9d1430b36ac7 ANDROID: trusty-ipc: Fix crash when running out of txbuffers
-	0c6dafd16bfc ANDROID: trusty: Allow TRUSTY_LEND of buffers
-	819d098a4176 ANDROID: trusty-virtio: remove unnecessary include of dma-mapping.h
-	27913e1d90c9 ANDROID: trusty-log: Complement logging sink with unthrottled virtual file
-	aa97e83c25f9 ANDROID: trusty-log: Refactor logging state to support concurrent sinks
-	2481925ce79e ANDROID: trusty-log: Sanitize u32 overflow of the log ring buffer write index
-	fce4e2a53883 ANDROID: trusty-log: On trusty panic, unthrottle sink to the kernel log
-	805f0de6547f ANDROID: trusty-log: Update trusty log buffer size to hold a complete Trusty crash logs
-	4353ce250313 ANDROID: trusty_qemu_defconfig: Enable dma-buf and ion system heaps
-	43473218c2a6 ANDROID: trusty: Support setting FF-A Tag
-	cabf2a6d70fa ANDROID: Add trusty_qemu_defconfig
-	9bf83fae1130 ANDROID: trusty-ipc: Switch from memfd to dma_buf
-	5a2cd1b85030 ANDROID: trusty-irq: document new way of specifying IPIs
-	90f1316dd12d ANDROID: trusty-irq: specify IPIs in new way
-	37fee4164948 ANDROID: trusty: Add trusty-test driver
-	377035a03476 ANDROID: trusty: Add trusty-ipc driver
-	27e40713f46a ANDROID: trusty: Add trusty-virtio driver
-	6c2f5780ccb7 ANDROID: trusty: Add trusty-log driver
-	bc742c75fdd0 ANDROID: trusty: Add trusty-irq driver
-	54182825a001 ANDROID: trusty: Add trusty-core driver
+Integrate trusty drivers for matter kernel v6.6.
 
-Change-Id: I3e7726a5332447d42fb5660578aefa6df8e80c16
+Change-Id: I39233b977b00d6d76fc02964903f906919089afd
 Signed-off-by: Ji Luo <ji.luo@nxp.com>
 ---
  .../devicetree/bindings/trusty/OWNERS         |    2 +
  .../devicetree/bindings/trusty/trusty-irq.txt |   67 +
  .../devicetree/bindings/trusty/trusty-smc.txt |    6 +
+ PREUPLOAD.cfg                                 |    7 +
  arch/arm/configs/trusty_qemu_defconfig        |  291 ++
  .../configs/trusty_qemu_defconfig.fragment    |   26 +
  drivers/Kconfig                               |    2 +
  drivers/Makefile                              |    1 +
- drivers/trusty/Kconfig                        |  116 +
+ drivers/trusty/Kconfig                        |  117 +
  drivers/trusty/Makefile                       |   14 +
  drivers/trusty/OWNERS                         |    2 +
- drivers/trusty/trusty-ipc-trace.h             |  244 ++
- drivers/trusty/trusty-ipc.c                   | 2382 +++++++++++++++++
+ drivers/trusty/trusty-ipc-trace.h             |  245 ++
+ drivers/trusty/trusty-ipc.c                   | 2386 +++++++++++++++++
  drivers/trusty/trusty-irq-trace.h             |   32 +
- drivers/trusty/trusty-irq.c                   |  678 +++++
- drivers/trusty/trusty-log.c                   |  939 +++++++
+ drivers/trusty/trusty-irq.c                   |  673 +++++
+ drivers/trusty/trusty-irq.h                   |   17 +
+ drivers/trusty/trusty-log.c                   |  999 +++++++
  drivers/trusty/trusty-log.h                   |   33 +
  drivers/trusty/trusty-mem.c                   |  139 +
- drivers/trusty/trusty-sched-share-api.h       |   23 +
- drivers/trusty/trusty-sched-share.c           |  271 ++
+ drivers/trusty/trusty-sched-share-api.h       |   27 +
+ drivers/trusty/trusty-sched-share.c           |  286 ++
  drivers/trusty/trusty-sched-share.h           |   58 +
  drivers/trusty/trusty-smc-arm.S               |   41 +
  drivers/trusty/trusty-smc-arm64.S             |   35 +
  drivers/trusty/trusty-smc.h                   |   26 +
  drivers/trusty/trusty-test.c                  |  440 +++
  drivers/trusty/trusty-test.h                  |   13 +
- drivers/trusty/trusty-trace.h                 |  247 ++
+ drivers/trusty/trusty-trace.h                 |  268 ++
  drivers/trusty/trusty-virtio.c                |  843 ++++++
- drivers/trusty/trusty.c                       | 1116 ++++++++
+ drivers/trusty/trusty.c                       | 1281 +++++++++
  include/linux/trusty/OWNERS                   |    2 +
- include/linux/trusty/arm_ffa.h                |  590 ++++
+ include/linux/trusty/arm_ffa.h                |  597 +++++
  include/linux/trusty/sm_err.h                 |   28 +
  include/linux/trusty/smcall.h                 |  154 ++
  include/linux/trusty/trusty.h                 |  138 +
@@ -90,10 +47,11 @@ Signed-off-by: Ji Luo <ji.luo@nxp.com>
  include/uapi/linux/trusty/OWNERS              |    2 +
  include/uapi/linux/trusty/ipc.h               |   65 +
  include/uapi/linux/virtio_ids.h               |    2 +-
- 37 files changed, 9157 insertions(+), 1 deletion(-)
+ 39 files changed, 9454 insertions(+), 1 deletion(-)
  create mode 100644 Documentation/devicetree/bindings/trusty/OWNERS
  create mode 100644 Documentation/devicetree/bindings/trusty/trusty-irq.txt
  create mode 100644 Documentation/devicetree/bindings/trusty/trusty-smc.txt
+ create mode 100644 PREUPLOAD.cfg
  create mode 100644 arch/arm/configs/trusty_qemu_defconfig
  create mode 100644 arch/arm64/configs/trusty_qemu_defconfig.fragment
  create mode 100644 drivers/trusty/Kconfig
@@ -103,6 +61,7 @@ Signed-off-by: Ji Luo <ji.luo@nxp.com>
  create mode 100644 drivers/trusty/trusty-ipc.c
  create mode 100644 drivers/trusty/trusty-irq-trace.h
  create mode 100644 drivers/trusty/trusty-irq.c
+ create mode 100644 drivers/trusty/trusty-irq.h
  create mode 100644 drivers/trusty/trusty-log.c
  create mode 100644 drivers/trusty/trusty-log.h
  create mode 100644 drivers/trusty/trusty-mem.c
@@ -219,6 +178,19 @@ index 000000000000..1b39ad317c67
 +
 +Required properties:
 +- compatible: "android,trusty-smc-v1"
+diff --git a/PREUPLOAD.cfg b/PREUPLOAD.cfg
+new file mode 100644
+index 000000000000..ad93a062ad5a
+--- /dev/null
++++ b/PREUPLOAD.cfg
+@@ -0,0 +1,7 @@
++[Builtin Hooks]
++checkpatch = true
++commit_msg_bug_field = true
++commit_msg_changeid_field = true
++
++[Builtin Hooks Options]
++checkpatch = --ignore=FILE_PATH_CHANGES,GERRIT_CHANGE_ID
 diff --git a/arch/arm/configs/trusty_qemu_defconfig b/arch/arm/configs/trusty_qemu_defconfig
 new file mode 100644
 index 000000000000..46ad9504c23d
@@ -549,10 +521,10 @@ index 000000000000..166eef1797fd
 +# CONFIG_LTO_CLANG is not set
 +# CONFIG_LTO_CLANG_FULL is not set
 diff --git a/drivers/Kconfig b/drivers/Kconfig
-index d6f76afd0150..3a8692159d61 100644
+index 5946aff3f5d0..370bbdcdf4a8 100644
 --- a/drivers/Kconfig
 +++ b/drivers/Kconfig
-@@ -85,6 +85,8 @@ source "drivers/hwmon/Kconfig"
+@@ -87,6 +87,8 @@ source "drivers/hwmon/Kconfig"
  
  source "drivers/thermal/Kconfig"
  
@@ -562,10 +534,10 @@ index d6f76afd0150..3a8692159d61 100644
  
  source "drivers/ssb/Kconfig"
 diff --git a/drivers/Makefile b/drivers/Makefile
-index abc047cee871..13ba1ac24019 100644
+index c1a43e0bf997..86eed1d0ef65 100644
 --- a/drivers/Makefile
 +++ b/drivers/Makefile
-@@ -117,6 +117,7 @@ obj-$(CONFIG_W1)		+= w1/
+@@ -123,6 +123,7 @@ obj-$(CONFIG_W1)		+= w1/
  obj-y				+= power/
  obj-$(CONFIG_HWMON)		+= hwmon/
  obj-$(CONFIG_THERMAL)		+= thermal/
@@ -575,10 +547,10 @@ index abc047cee871..13ba1ac24019 100644
  obj-$(CONFIG_BT)		+= bluetooth/
 diff --git a/drivers/trusty/Kconfig b/drivers/trusty/Kconfig
 new file mode 100644
-index 000000000000..fcde7f097acf
+index 000000000000..92b164a53226
 --- /dev/null
 +++ b/drivers/trusty/Kconfig
-@@ -0,0 +1,116 @@
+@@ -0,0 +1,117 @@
 +# SPDX-License-Identifier: GPL-2.0-only
 +#
 +# Trusty driver
@@ -603,16 +575,17 @@ index 000000000000..fcde7f097acf
 +if TRUSTY
 +
 +config TRUSTY_IRQ
-+	tristate "Trusty IRQ support"
++	bool "Trusty IRQ support"
 +	default y
 +	help
-+	  Enable forwarding of IRQs from Linux to Trusty.  This module retrieves
++	  Enable forwarding of IRQs from Linux to Trusty.  This driver retrieves
 +	  from Trusty a list of IRQs that Trusty uses, and it registers handlers
 +	  for them which notify Trusty that the IRQ has been received.
 +
-+	  If you build this as a module, it will be called trusty-irq.
++	  If you build the trusty core driver as a module, this will be part of the
++	  trusty-core module.
 +
-+	  Usually this is needed for Trusty to work, so say 'y' or 'm'.
++	  Usually this is needed for Trusty to work, so say 'y'.
 +
 +config TRUSTY_LOG
 +	tristate "Trusty log support"
@@ -697,7 +670,7 @@ index 000000000000..fcde7f097acf
 +endmenu
 diff --git a/drivers/trusty/Makefile b/drivers/trusty/Makefile
 new file mode 100644
-index 000000000000..42424ad06f4c
+index 000000000000..eb0765ed46b0
 --- /dev/null
 +++ b/drivers/trusty/Makefile
 @@ -0,0 +1,14 @@
@@ -710,7 +683,7 @@ index 000000000000..42424ad06f4c
 +trusty-core-objs		+= trusty.o trusty-mem.o trusty-sched-share.o
 +trusty-core-$(CONFIG_ARM)	+= trusty-smc-arm.o
 +trusty-core-$(CONFIG_ARM64)	+= trusty-smc-arm64.o
-+obj-$(CONFIG_TRUSTY_IRQ)	+= trusty-irq.o
++trusty-core-$(CONFIG_TRUSTY_IRQ)+= trusty-irq.o
 +obj-$(CONFIG_TRUSTY_LOG)	+= trusty-log.o
 +obj-$(CONFIG_TRUSTY_TEST)	+= trusty-test.o
 +obj-$(CONFIG_TRUSTY_VIRTIO)	+= trusty-virtio.o
@@ -725,10 +698,10 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/drivers/trusty/trusty-ipc-trace.h b/drivers/trusty/trusty-ipc-trace.h
 new file mode 100644
-index 000000000000..79ebfb191ae1
+index 000000000000..aded126172e1
 --- /dev/null
 +++ b/drivers/trusty/trusty-ipc-trace.h
-@@ -0,0 +1,244 @@
+@@ -0,0 +1,245 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2022 Google, Inc.
@@ -907,8 +880,9 @@ index 000000000000..79ebfb191ae1
 +TRACE_EVENT(trusty_ipc_read_end,
 +	TP_PROTO(struct tipc_chan *chan,
 +		int len_or_err,
-+		struct tipc_msg_buf *rxbuf),
-+	TP_ARGS(chan, len_or_err, rxbuf),
++		trusty_shared_mem_id_t buf_id,
++		size_t shm_cnt),
++	TP_ARGS(chan, len_or_err, buf_id, shm_cnt),
 +	TP_STRUCT__entry(
 +		__field(int, len_or_err)
 +		__field(u32, chan)
@@ -920,8 +894,8 @@ index 000000000000..79ebfb191ae1
 +		__entry->len_or_err = len_or_err;
 +		__entry->chan = chan ? chan->local : ~0U;
 +		memcpy(__entry->srv_name, chan ? chan->srv_name : "", MAX_SRV_NAME_LEN);
-+		__entry->buf_id = rxbuf ? rxbuf->buf_id : ~0ULL;
-+		__entry->shm_cnt = rxbuf ? rxbuf->shm_cnt : 0;
++		__entry->buf_id = buf_id;
++		__entry->shm_cnt = shm_cnt;
 +	),
 +	TP_printk("len_or_err=%d chan=%u srv_name=%s buf_id=0x%llx shm_cnt=%zu",
 +		__entry->len_or_err, __entry->chan, __entry->srv_name,
@@ -975,10 +949,10 @@ index 000000000000..79ebfb191ae1
 +#include <trace/define_trace.h>
 diff --git a/drivers/trusty/trusty-ipc.c b/drivers/trusty/trusty-ipc.c
 new file mode 100644
-index 000000000000..570832214fdd
+index 000000000000..2e24ae99fd8d
 --- /dev/null
 +++ b/drivers/trusty/trusty-ipc.c
-@@ -0,0 +1,2382 @@
+@@ -0,0 +1,2386 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2020 Google, Inc.
@@ -1192,7 +1166,7 @@ index 000000000000..570832214fdd
 +{
 +	int ret;
 +	struct tipc_msg_buf *mb;
-+	size_t sz = vds->msg_buf_max_sz;
++	size_t sz = ALIGN(vds->msg_buf_max_sz, PAGE_SIZE);
 +	pgprot_t pgprot = share_write ? PAGE_KERNEL : PAGE_KERNEL_RO;
 +
 +	/* allocate tracking structure */
@@ -2431,7 +2405,7 @@ index 000000000000..570832214fdd
 +		goto load_shm_args_failed;
 +	}
 +
-+	ret = import_iovec(READ, u64_to_user_ptr(req.iov), req.iov_cnt,
++	ret = import_iovec(WRITE, u64_to_user_ptr(req.iov), req.iov_cnt,
 +			   ARRAY_SIZE(fast_iovs), &iov, &iter);
 +	if (ret < 0) {
 +		dev_dbg(dev, "Failed to import iovec\n");
@@ -2576,6 +2550,8 @@ index 000000000000..570832214fdd
 +{
 +	ssize_t ret;
 +	size_t len;
++	trusty_shared_mem_id_t buf_id = ~0ULL;
++	size_t shm_cnt = 0;
 +	struct tipc_msg_buf *mb = NULL;
 +	struct file *filp = iocb->ki_filp;
 +	struct tipc_dn_chan *dn = filp->private_data;
@@ -2610,6 +2586,8 @@ index 000000000000..570832214fdd
 +
 +	mb = list_first_entry(&dn->rx_msg_queue, struct tipc_msg_buf, node);
 +
++	buf_id = mb->buf_id;
++	shm_cnt = mb->shm_cnt;
 +	len = mb_avail_data(mb);
 +	if (len > iov_iter_count(iter)) {
 +		ret = -EMSGSIZE;
@@ -2626,7 +2604,7 @@ index 000000000000..570832214fdd
 +	tipc_chan_put_rxbuf(dn->chan, mb);
 +
 +out:
-+	trace_trusty_ipc_read_end(dn->chan, ret, mb);
++	trace_trusty_ipc_read_end(dn->chan, ret, buf_id, shm_cnt);
 +	mutex_unlock(&dn->lock);
 +	return ret;
 +}
@@ -3321,7 +3299,7 @@ index 000000000000..570832214fdd
 +	}
 +
 +	tipc_major = MAJOR(dev);
-+	tipc_class = class_create(THIS_MODULE, KBUILD_MODNAME);
++	tipc_class = class_create(KBUILD_MODNAME);
 +	if (IS_ERR(tipc_class)) {
 +		ret = PTR_ERR(tipc_class);
 +		pr_err("%s: class_create failed: %d\n", __func__, ret);
@@ -3401,10 +3379,10 @@ index 000000000000..c3aa3835b930
 +#include <trace/define_trace.h>
 diff --git a/drivers/trusty/trusty-irq.c b/drivers/trusty/trusty-irq.c
 new file mode 100644
-index 000000000000..c2e52913fa8b
+index 000000000000..ddec1c6ae7cb
 --- /dev/null
 +++ b/drivers/trusty/trusty-irq.c
-@@ -0,0 +1,678 @@
+@@ -0,0 +1,673 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2013 Google, Inc.
@@ -3424,6 +3402,7 @@ index 000000000000..c2e52913fa8b
 +#include <linux/trusty/sm_err.h>
 +#include <linux/trusty/trusty.h>
 +
++#include "trusty-irq.h"
 +#include "trusty-irq-trace.h"
 +
 +struct trusty_irq {
@@ -4040,7 +4019,7 @@ index 000000000000..c2e52913fa8b
 +	},
 +};
 +
-+static int __init trusty_irq_driver_init(void)
++int __init trusty_irq_driver_init(void)
 +{
 +	int ret;
 +
@@ -4068,27 +4047,44 @@ index 000000000000..c2e52913fa8b
 +	return ret;
 +}
 +
-+static void __exit trusty_irq_driver_exit(void)
++void trusty_irq_driver_exit(void)
 +{
 +	platform_driver_unregister(&trusty_irq_driver);
 +	cpuhp_remove_multi_state(trusty_irq_cpuhp_slot);
 +	trusty_irq_cpuhp_slot = -1;
 +}
 +
-+module_init(trusty_irq_driver_init);
-+module_exit(trusty_irq_driver_exit);
-+
 +#define CREATE_TRACE_POINTS
 +#include "trusty-irq-trace.h"
+diff --git a/drivers/trusty/trusty-irq.h b/drivers/trusty/trusty-irq.h
+new file mode 100644
+index 000000000000..d3444f971d82
+--- /dev/null
++++ b/drivers/trusty/trusty-irq.h
+@@ -0,0 +1,17 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (C) 2023 Google, Inc.
++ */
 +
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Trusty IRQ driver");
++#if !defined(_TRUSTY_IRQ_H)
++#define _TRUSTY_IRQ_H
++
++#ifdef CONFIG_TRUSTY_IRQ
++int __init trusty_irq_driver_init(void);
++void trusty_irq_driver_exit(void);
++#else
++static inline int trusty_irq_driver_init(void) { return 0; }
++static inline void trusty_irq_driver_exit(void) {}
++#endif
++
++#endif /* _TRUSTY_IRQ_H */
 diff --git a/drivers/trusty/trusty-log.c b/drivers/trusty/trusty-log.c
 new file mode 100644
-index 000000000000..0da6f52e77aa
+index 000000000000..6a5754585e05
 --- /dev/null
 +++ b/drivers/trusty/trusty-log.c
-@@ -0,0 +1,939 @@
+@@ -0,0 +1,999 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2015 Google, Inc.
@@ -4271,6 +4267,7 @@ index 000000000000..0da6f52e77aa
 +	struct device *dev;
 +	struct device *trusty_dev;
 +	struct trusty_log_sfile log_sfile;
++	struct kref refcount;
 +
 +	/*
 +	 * This lock is here to ensure only one consumer will read
@@ -4292,6 +4289,7 @@ index 000000000000..0da6f52e77aa
 +	spinlock_t wake_up_lock;
 +	u32 last_wake_put;
 +	bool have_first_reader;
++	bool registered;
 +};
 +
 +static inline u32 u32_add_overflow(u32 a, u32 b)
@@ -4700,6 +4698,7 @@ index 000000000000..0da6f52e77aa
 +	sfile->private = ls;
 +	s = container_of(ls, struct trusty_log_state, log_sfile);
 +	s->have_first_reader = true;
++	kref_get(&s->refcount);
 +	return 0;
 +}
 +
@@ -4719,6 +4718,12 @@ index 000000000000..0da6f52e77aa
 +	sfile = filp->private_data;
 +	lb = sfile->private;
 +	s = container_of(lb, struct trusty_log_state, log_sfile);
++
++	if (!s->registered) {
++		dev_err(s->dev, "invalid poll fd\n");
++		return -EINVAL;
++	}
++
 +	poll_wait(filp, &s->poll_waiters, wait);
 +	log = s->log;
 +
@@ -4739,12 +4744,50 @@ index 000000000000..0da6f52e77aa
 +	return 0;
 +}
 +
++static void trusty_log_cleanup(struct kref *ref);
++
++static int trusty_log_sfile_dev_release(struct inode *inode,
++					struct file *filp)
++{
++	struct seq_file *sfile;
++	struct trusty_log_sfile *lb;
++	struct trusty_log_state *s;
++
++	sfile = filp->private_data;
++	lb = sfile->private;
++	s = container_of(lb, struct trusty_log_state, log_sfile);
++
++	kref_put(&s->refcount, trusty_log_cleanup);
++
++	seq_release(inode, filp);
++	return 0;
++}
++
++ssize_t trusty_log_sfile_dev_read(struct file *filp, char __user *buf,
++				  size_t size, loff_t *ppos)
++{
++	struct seq_file *sfile;
++	struct trusty_log_sfile *lb;
++	struct trusty_log_state *s;
++
++	sfile = filp->private_data;
++	lb = sfile->private;
++	s = container_of(lb, struct trusty_log_state, log_sfile);
++
++	if (!s->registered) {
++		dev_err(s->dev, "invalid read fd\n");
++		return -EINVAL;
++	}
++
++	return seq_read(filp, buf, size, ppos);
++}
++
 +static const struct file_operations log_sfile_dev_operations = {
 +	.owner = THIS_MODULE,
 +	.open = trusty_log_sfile_dev_open,
 +	.poll = trusty_log_sfile_dev_poll,
-+	.read = seq_read,
-+	.release = seq_release,
++	.read = trusty_log_sfile_dev_read,
++	.release = trusty_log_sfile_dev_release,
 +};
 +
 +static int trusty_log_sfile_register(struct trusty_log_state *s)
@@ -4768,6 +4811,7 @@ index 000000000000..0da6f52e77aa
 +			ret);
 +		return ret;
 +	}
++	s->registered = true;
 +	dev_info(s->dev, "/dev/%s registered\n",
 +		 ls->device_name);
 +	return 0;
@@ -4781,6 +4825,7 @@ index 000000000000..0da6f52e77aa
 +	if (s->dev) {
 +		dev_info(s->dev, "/dev/%s unregistered\n",
 +			 ls->misc.name);
++		s->registered = false;
 +	}
 +}
 +
@@ -4917,6 +4962,7 @@ index 000000000000..0da6f52e77aa
 +		goto error_log_sfile;
 +	}
 +
++	kref_init(&s->refcount);
 +	platform_set_drvdata(pdev, s);
 +
 +	return 0;
@@ -4968,11 +5014,23 @@ index 000000000000..0da6f52e77aa
 +
 +static int trusty_log_remove(struct platform_device *pdev)
 +{
-+	int result;
 +	struct trusty_log_state *s = platform_get_drvdata(pdev);
-+	trusty_shared_mem_id_t mem_id = s->log_pages_shared_mem_id;
 +
 +	trusty_log_sfile_unregister(s);
++	kref_put(&s->refcount, trusty_log_cleanup);
++	return 0;
++}
++
++static void trusty_log_cleanup(struct kref *ref)
++{
++	int result;
++	struct trusty_log_state *s;
++	trusty_shared_mem_id_t mem_id;
++
++	s = container_of(ref, struct trusty_log_state, refcount);
++	dev_info(s->dev, "log_cleanup\n");
++	mem_id = s->log_pages_shared_mem_id;
++
 +	atomic_notifier_chain_unregister(&panic_notifier_list,
 +					 &s->panic_notifier);
 +	trusty_call_notifier_unregister(s->trusty_dev, &s->call_notifier);
@@ -4980,14 +5038,14 @@ index 000000000000..0da6f52e77aa
 +	result = trusty_std_call32(s->trusty_dev, SMC_SC_SHARED_LOG_RM,
 +				   (u32)mem_id, (u32)(mem_id >> 32), 0);
 +	if (result) {
-+		dev_err(&pdev->dev,
++		dev_err(s->dev,
 +			"trusty std call (SMC_SC_SHARED_LOG_RM) failed: %d\n",
 +			result);
 +	}
 +	result = trusty_reclaim_memory(s->trusty_dev, mem_id, s->sg,
 +				       s->log_num_pages);
 +	if (WARN_ON(result)) {
-+		dev_err(&pdev->dev,
++		dev_err(s->dev,
 +			"trusty failed to remove shared memory: %d\n", result);
 +	} else {
 +		/*
@@ -4998,8 +5056,6 @@ index 000000000000..0da6f52e77aa
 +	}
 +	kfree(s->sg);
 +	kfree(s);
-+
-+	return 0;
 +}
 +
 +static void trusty_log_shutdown(struct platform_device *pdev)
@@ -5214,10 +5270,10 @@ index 000000000000..8a360298e501
 +}
 diff --git a/drivers/trusty/trusty-sched-share-api.h b/drivers/trusty/trusty-sched-share-api.h
 new file mode 100644
-index 000000000000..760506707e39
+index 000000000000..412704a6fbe8
 --- /dev/null
 +++ b/drivers/trusty/trusty-sched-share-api.h
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,27 @@
 +/* SPDX-License-Identifier: MIT */
 +/*
 + * Copyright (c) 2022 Google, Inc.
@@ -5233,8 +5289,12 @@ index 000000000000..760506707e39
 +
 +struct trusty_sched_share_state;
 +
-+struct trusty_sched_share_state *trusty_register_sched_share(struct device *device);
++int trusty_alloc_sched_share(struct device *device,
++		struct trusty_sched_share_state **state);
++void trusty_register_sched_share(struct device *device,
++		struct trusty_sched_share_state *sched_share_state);
 +void trusty_unregister_sched_share(struct trusty_sched_share_state *sched_share_state);
++void trusty_free_sched_share(struct trusty_sched_share_state *sched_share_state);
 +
 +int trusty_get_requested_nice(unsigned int cpu_num, struct trusty_sched_share_state *tcpu_state);
 +int trusty_set_actual_nice(unsigned int cpu_num, struct trusty_sched_share_state *tcpu_state,
@@ -5243,10 +5303,10 @@ index 000000000000..760506707e39
 +#endif /* _TRUSTY_SCHED_SHARE_API_H_ */
 diff --git a/drivers/trusty/trusty-sched-share.c b/drivers/trusty/trusty-sched-share.c
 new file mode 100644
-index 000000000000..a85d8996b783
+index 000000000000..07e623142b4e
 --- /dev/null
 +++ b/drivers/trusty/trusty-sched-share.c
-@@ -0,0 +1,271 @@
+@@ -0,0 +1,286 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (c) 2022 Google, Inc.
@@ -5280,88 +5340,55 @@ index 000000000000..a85d8996b783
 +	u32 mem_size;
 +	u32 buf_size;
 +	u32 num_pages;
++	bool is_registered;
++	bool vm_is_shared;
 +};
 +
-+static int
-+trusty_sched_share_resources_allocate(struct trusty_sched_share_state *share_state)
++static inline struct trusty_percpu_data *trusty_get_trusty_percpu_data(
++		struct trusty_sched_shared *tsh, int cpu_num)
 +{
-+	struct scatterlist *sg;
-+	struct trusty_sched_shared *shared;
-+	unsigned char *mem;
-+	trusty_shared_mem_id_t mem_id;
-+	int result = 0;
-+	int i;
-+
-+	share_state->mem_size = sizeof(struct trusty_sched_shared) +
-+				nr_cpu_ids * sizeof(struct trusty_percpu_data);
-+	share_state->num_pages =
-+		round_up(share_state->mem_size, PAGE_SIZE) / PAGE_SIZE;
-+	share_state->buf_size = share_state->num_pages * PAGE_SIZE;
-+
-+	dev_dbg(share_state->dev,
-+		"%s: mem_size=%d,  num_pages=%d,  buf_size=%d", __func__,
-+		share_state->mem_size, share_state->num_pages,
-+		share_state->buf_size);
-+
-+	share_state->sg = kcalloc(share_state->num_pages,
-+				  sizeof(*share_state->sg), GFP_KERNEL);
-+	if (!share_state->sg) {
-+		result = ENOMEM;
-+		goto err_rsrc_alloc_sg;
-+	}
-+
-+	mem = vzalloc(share_state->buf_size);
-+	if (!mem) {
-+		result = -ENOMEM;
-+		goto err_rsrc_alloc_mem;
-+	}
-+	share_state->sched_shared_vm = mem;
-+	dev_dbg(share_state->dev, "%s: sched_shared_vm=%p  size=%d\n",
-+		__func__, share_state->sched_shared_vm, share_state->buf_size);
-+
-+	sg_init_table(share_state->sg, share_state->num_pages);
-+	for_each_sg(share_state->sg, sg, share_state->num_pages, i) {
-+		struct page *pg = vmalloc_to_page(mem + (i * PAGE_SIZE));
-+
-+		if (!pg) {
-+			result = -ENOMEM;
-+			goto err_rsrc_sg_lookup;
-+		}
-+		sg_set_page(sg, pg, PAGE_SIZE, 0);
-+	}
-+
-+	result = trusty_share_memory(share_state->dev, &mem_id, share_state->sg,
-+				     share_state->num_pages, PAGE_KERNEL);
-+	if (result != 0) {
-+		dev_err(share_state->dev, "trusty_share_memory failed: %d\n",
-+			result);
-+		goto err_rsrc_share_mem;
-+	}
-+	dev_dbg(share_state->dev, "%s: sched_shared_mem_id=0x%llx", __func__,
-+		mem_id);
-+	share_state->sched_shared_mem_id = mem_id;
-+
-+	shared = (struct trusty_sched_shared *)share_state->sched_shared_vm;
-+	shared->hdr_size = sizeof(struct trusty_sched_shared);
-+	shared->percpu_data_size = sizeof(struct trusty_percpu_data);
-+
-+	return result;
-+
-+err_rsrc_share_mem:
-+err_rsrc_sg_lookup:
-+	vfree(share_state->sched_shared_vm);
-+err_rsrc_alloc_mem:
-+	kfree(share_state->sg);
-+err_rsrc_alloc_sg:
-+	return result;
++	return (struct trusty_percpu_data *)((unsigned char *)tsh +
++			sizeof(struct trusty_sched_shared) +
++			(cpu_num * sizeof(struct trusty_percpu_data)));
 +}
 +
-+struct trusty_sched_share_state *trusty_register_sched_share(struct device *device)
++static void trusty_sched_share_reclaim_memory(
++		struct trusty_sched_share_state *sched_share_state)
 +{
-+	int result = 0;
++	int result;
++
++	if (!sched_share_state->vm_is_shared) {
++		dev_warn(sched_share_state->dev,
++				"%s called unexpectedly when vm not shared\n", __func__);
++		return;
++	}
++
++	result = trusty_reclaim_memory(sched_share_state->dev,
++				       sched_share_state->sched_shared_mem_id,
++				       sched_share_state->sg,
++				       sched_share_state->num_pages);
++	if (result != 0) {
++		dev_err(sched_share_state->dev,
++			"trusty_reclaim_memory() failed: ret=%d mem_id=0x%llx\n",
++			result, sched_share_state->sched_shared_mem_id);
++		/*
++		 * It is not safe to free this memory if trusty_reclaim_memory()
++		 * failed. Leak it in that case.
++		 */
++		dev_err(sched_share_state->dev,
++			"WARNING: leaking some allocated resources!!\n");
++	} else {
++		sched_share_state->vm_is_shared = false;
++	}
++}
++
++int trusty_alloc_sched_share(struct device *device,
++		struct trusty_sched_share_state **state)
++{
 +	struct trusty_sched_share_state *sched_share_state = NULL;
 +	struct trusty_sched_shared *shared;
 +	uint sched_share_state_size;
++	unsigned int cpu;
 +
 +	sched_share_state_size = sizeof(*sched_share_state);
 +
@@ -5369,17 +5396,93 @@ index 000000000000..a85d8996b783
 +	if (!sched_share_state)
 +		goto err_sched_state_alloc;
 +	sched_share_state->dev = device;
++	sched_share_state->is_registered = false;
++	sched_share_state->vm_is_shared = false;
 +
-+	result = trusty_sched_share_resources_allocate(sched_share_state);
-+	if (result)
++	sched_share_state->mem_size = sizeof(struct trusty_sched_shared) +
++				nr_cpu_ids * sizeof(struct trusty_percpu_data);
++	sched_share_state->num_pages =
++		round_up(sched_share_state->mem_size, PAGE_SIZE) / PAGE_SIZE;
++	sched_share_state->buf_size = sched_share_state->num_pages * PAGE_SIZE;
++
++	dev_dbg(sched_share_state->dev,
++		"%s: mem_size=%d,  num_pages=%d,  buf_size=%d", __func__,
++		sched_share_state->mem_size, sched_share_state->num_pages,
++		sched_share_state->buf_size);
++
++	sched_share_state->sched_shared_vm = vzalloc(sched_share_state->buf_size);
++	if (!sched_share_state->sched_shared_vm)
 +		goto err_resources_alloc;
++	dev_dbg(sched_share_state->dev, "%s: sched_shared_vm=%p  size=%d\n",
++		__func__, sched_share_state->sched_shared_vm, sched_share_state->buf_size);
 +
 +	shared = (struct trusty_sched_shared *)sched_share_state->sched_shared_vm;
 +	shared->cpu_count = nr_cpu_ids;
++	shared->hdr_size = sizeof(struct trusty_sched_shared);
++	shared->percpu_data_size = sizeof(struct trusty_percpu_data);
++
++	for_each_possible_cpu(cpu) {
++		trusty_get_trusty_percpu_data(shared, cpu)->ask_shadow_priority
++				= TRUSTY_SHADOW_PRIORITY_NORMAL;
++	}
++
++	*state = sched_share_state;
++	return 0;
++
++err_resources_alloc:
++	kfree(sched_share_state);
++err_sched_state_alloc:
++	return -ENOMEM;
++}
++
++void trusty_register_sched_share(struct device *device,
++		struct trusty_sched_share_state *sched_share_state)
++{
++	int result = 0;
++	struct scatterlist *sg;
++	unsigned char *mem = sched_share_state->sched_shared_vm;
++	trusty_shared_mem_id_t mem_id;
++	int i;
++
++	/* allocate and initialize scatterlist */
++	sched_share_state->sg = kcalloc(sched_share_state->num_pages,
++				  sizeof(*sched_share_state->sg), GFP_KERNEL);
++	if (!sched_share_state->sg) {
++		result = -ENOMEM;
++		dev_err(sched_share_state->dev, "%s: failed to alloc sg\n", __func__);
++		goto err_rsrc_alloc_sg;
++	}
++
++	sg_init_table(sched_share_state->sg, sched_share_state->num_pages);
++	for_each_sg(sched_share_state->sg, sg, sched_share_state->num_pages, i) {
++		struct page *pg = vmalloc_to_page(mem + (i * PAGE_SIZE));
++
++		if (!pg) {
++			result = -ENOMEM;
++			dev_err(sched_share_state->dev, "%s: failed to map page i= %d\n",
++					__func__, i);
++			goto err_rsrc_sg_lookup;
++		}
++		sg_set_page(sg, pg, PAGE_SIZE, 0);
++	}
++
++	/* share memory with Trusty */
++	result = trusty_share_memory(sched_share_state->dev, &mem_id, sched_share_state->sg,
++				     sched_share_state->num_pages, PAGE_KERNEL);
++	if (result != 0) {
++		dev_err(sched_share_state->dev, "trusty_share_memory failed: %d\n",
++			result);
++		goto err_rsrc_share_mem;
++	}
++	dev_dbg(sched_share_state->dev, "%s: sched_shared_mem_id=0x%llx", __func__,
++		mem_id);
++	sched_share_state->sched_shared_mem_id = mem_id;
++	sched_share_state->vm_is_shared = true;
 +
 +	dev_dbg(device, "%s: calling api SMC_SC_SCHED_SHARE_REGISTER...\n",
 +		__func__);
 +
++	/* tell sched share code on Trusty side to share priorities */
 +	result = trusty_std_call32(
 +		sched_share_state->dev, SMC_SC_SCHED_SHARE_REGISTER,
 +		(u32)sched_share_state->sched_shared_mem_id,
@@ -5400,40 +5503,26 @@ index 000000000000..a85d8996b783
 +	dev_dbg(device, "%s: sched_share_state=%llx\n", __func__,
 +		(u64)sched_share_state);
 +
-+	return sched_share_state;
++	sched_share_state->is_registered = true;
++
++	return;
 +
 +err_smc_std_call32:
-+	result = trusty_reclaim_memory(sched_share_state->dev,
-+				       sched_share_state->sched_shared_mem_id,
-+				       sched_share_state->sg,
-+				       sched_share_state->num_pages);
-+	if (result != 0) {
-+		dev_err(sched_share_state->dev,
-+			"trusty_reclaim_memory() failed: ret=%d mem_id=0x%llx\n",
-+			result, sched_share_state->sched_shared_mem_id);
-+		/*
-+		 * It is not safe to free this memory if trusty_reclaim_memory()
-+		 * failed. Leak it in that case.
-+		 */
-+		dev_err(sched_share_state->dev,
-+			"WARNING: leaking some allocated resources!!\n");
-+	} else {
-+		vfree(sched_share_state->sched_shared_vm);
-+	}
++	trusty_sched_share_reclaim_memory(sched_share_state);
++err_rsrc_share_mem:
++err_rsrc_sg_lookup:
 +	kfree(sched_share_state->sg);
-+err_resources_alloc:
-+	kfree(sched_share_state);
-+	dev_warn(sched_share_state->dev,
-+		 "Trusty-Sched_Share API not available.\n");
-+err_sched_state_alloc:
-+	return NULL;
++	sched_share_state->sg = NULL;
++err_rsrc_alloc_sg:
++	return;
++
 +}
 +
 +void trusty_unregister_sched_share(struct trusty_sched_share_state *sched_share_state)
 +{
 +	int result;
 +
-+	if (!sched_share_state)
++	if (!sched_share_state->is_registered)
 +		return;
 +
 +	/* ask Trusty to release the Trusty-side resources */
@@ -5446,25 +5535,18 @@ index 000000000000..a85d8996b783
 +			"call SMC_SC_SCHED_SHARE_UNREGISTER failed, error=%d\n",
 +			result);
 +	}
-+	result = trusty_reclaim_memory(sched_share_state->dev,
-+				       sched_share_state->sched_shared_mem_id,
-+				       sched_share_state->sg,
-+				       sched_share_state->num_pages);
-+	if (result) {
-+		dev_err(sched_share_state->dev,
-+			"trusty_reclaim_memory() failed: ret=%d mem_id=0x%llx\n",
-+			result, sched_share_state->sched_shared_mem_id);
-+		/*
-+		 * It is not safe to free this memory if trusty_reclaim_memory()
-+		 * failed. Leak it in that case.
-+		 */
-+		dev_err(sched_share_state->dev,
-+			"WARNING: leaking some allocated resources!!\n");
-+	} else {
-+		vfree(sched_share_state->sched_shared_vm);
-+	}
++
++
++	trusty_sched_share_reclaim_memory(sched_share_state);
 +
 +	kfree(sched_share_state->sg);
++}
++
++void trusty_free_sched_share(struct trusty_sched_share_state *sched_share_state)
++{
++	if (!sched_share_state->vm_is_shared)
++		vfree(sched_share_state->sched_shared_vm);
++
 +	kfree(sched_share_state);
 +}
 +
@@ -5486,13 +5568,6 @@ index 000000000000..a85d8996b783
 +	}
 +
 +	return new_nice;
-+}
-+
-+static inline struct trusty_percpu_data *trusty_get_trusty_percpu_data(
-+		struct trusty_sched_shared *tsh, int cpu_num)
-+{
-+	return (struct trusty_percpu_data *)((unsigned char *)tsh + tsh->hdr_size +
-+			(cpu_num * tsh->percpu_data_size));
 +}
 +
 +int trusty_get_requested_nice(unsigned int cpu_num, struct trusty_sched_share_state *tcpu_state)
@@ -6169,10 +6244,10 @@ index 000000000000..eea7beb96876
 +#endif /* _TRUSTY_TEST_H */
 diff --git a/drivers/trusty/trusty-trace.h b/drivers/trusty/trusty-trace.h
 new file mode 100644
-index 000000000000..ec72d4ecfb7a
+index 000000000000..f4157931f961
 --- /dev/null
 +++ b/drivers/trusty/trusty-trace.h
-@@ -0,0 +1,247 @@
+@@ -0,0 +1,268 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2022 Google, Inc.
@@ -6345,11 +6420,32 @@ index 000000000000..ec72d4ecfb7a
 +	TP_printk("arg1=0x%x, arg2=0x%x, arg3=0x%x", __entry->arg1, __entry->arg2, __entry->arg3)
 +);
 +
++TRACE_EVENT(trusty_dequeue_nop,
++	TP_PROTO(bool signaled, bool nop_dequeued, bool queue_emptied),
++	TP_ARGS(signaled, nop_dequeued, queue_emptied),
++	TP_STRUCT__entry(
++		__field(bool, signaled)
++		__field(bool, nop_dequeued)
++		__field(bool, queue_emptied)
++	),
++	TP_fast_assign(
++		__entry->signaled = signaled;
++		__entry->nop_dequeued = nop_dequeued;
++		__entry->queue_emptied = queue_emptied;
++	),
++	TP_printk("%c%c%c",
++		__entry->signaled ? 'S' : ' ',
++		__entry->nop_dequeued ? 'D' : ' ',
++		__entry->queue_emptied ? 'E' : ' '
++	)
++);
++
 +#define CPUNICE_CAUSE_LIST (			\
 +	cpu_nice(CAUSE_DEFAULT)	\
 +	cpu_nice(CAUSE_USE_HIGH_WQ)		\
 +	cpu_nice(CAUSE_TRUSTY_REQ)	\
-+	cpu_nice_end(CAUSE_NOP_ESCALATE)	\
++	cpu_nice(CAUSE_NOP_ESCALATE)	\
++	cpu_nice_end(CAUSE_ENQUEUE_BOOST)	\
 +	)
 +
 +#undef cpu_nice
@@ -7271,10 +7367,10 @@ index 000000000000..2df10d1592b0
 +MODULE_SOFTDEP("pre: trusty-ipc");
 diff --git a/drivers/trusty/trusty.c b/drivers/trusty/trusty.c
 new file mode 100644
-index 000000000000..71241689c6df
+index 000000000000..4a1e3e74cdc9
 --- /dev/null
 +++ b/drivers/trusty/trusty.c
-@@ -0,0 +1,1116 @@
+@@ -0,0 +1,1281 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2013 Google, Inc.
@@ -7297,6 +7393,7 @@ index 000000000000..71241689c6df
 +#include <linux/scatterlist.h>
 +#include <linux/dma-mapping.h>
 +
++#include "trusty-irq.h"
 +#include "trusty-smc.h"
 +#include "trusty-trace.h"
 +#include "trusty-sched-share-api.h"
@@ -7304,16 +7401,20 @@ index 000000000000..71241689c6df
 +
 +struct trusty_state;
 +static struct platform_driver trusty_driver;
++static int trusty_cpuhp_slot = -1;
 +
 +static bool use_high_wq;
 +module_param(use_high_wq, bool, 0660);
 +
-+static bool override_high_prio_nop;
-+module_param(override_high_prio_nop, bool, 0660);
++static int nop_nice_value = -20; /* default to highest */
++module_param(nop_nice_value, int, 0660);
 +
 +struct trusty_work {
++	struct trusty_state *s;
++	unsigned int cpu;
 +	struct task_struct *nop_thread;
 +	wait_queue_head_t nop_event_wait;
++	int signaled;
 +};
 +
 +struct trusty_state {
@@ -7324,6 +7425,7 @@ index 000000000000..71241689c6df
 +	u32 api_version;
 +	bool trusty_panicked;
 +	struct device *dev;
++	struct hlist_node cpuhp_node;
 +	struct trusty_work __percpu *nop_works;
 +	struct list_head nop_queue;
 +	spinlock_t nop_lock; /* protects nop_queue */
@@ -7424,11 +7526,9 @@ index 000000000000..71241689c6df
 +			local_irq_disable();
 +
 +		/* tell Trusty scheduler what the current priority is */
-+		if (s->trusty_sched_share_state) {
-+			WARN_ON_ONCE(current->policy != SCHED_NORMAL);
-+			trusty_set_actual_nice(smp_processor_id(),
-+					s->trusty_sched_share_state, task_nice(current));
-+		}
++		WARN_ON_ONCE(current->policy != SCHED_NORMAL);
++		trusty_set_actual_nice(smp_processor_id(),
++				s->trusty_sched_share_state, task_nice(current));
 +
 +		atomic_notifier_call_chain(&s->notifier, TRUSTY_CALL_PREPARE,
 +					   NULL);
@@ -7630,7 +7730,7 @@ index 000000000000..71241689c6df
 +		emad->comp_mrd_offset = comp_mrd_offset;
 +		emad->reserved_8_15 = 0;
 +	}
-+	comp_mrd->total_page_count = len / PAGE_SIZE;
++	comp_mrd->total_page_count = len / FFA_PAGE_SIZE;
 +	comp_mrd->address_range_count = nents;
 +	comp_mrd->reserved_8_15 = 0;
 +
@@ -7645,7 +7745,7 @@ index 000000000000..71241689c6df
 +
 +		for (i = 0; i < lcount; i++) {
 +			cons_mrd[i].address = sg_dma_address(sg);
-+			cons_mrd[i].page_count = sg_dma_len(sg) / PAGE_SIZE;
++			cons_mrd[i].page_count = sg_dma_len(sg) / FFA_PAGE_SIZE;
 +			cons_mrd[i].reserved_12_15 = 0;
 +			sg = sg_next(sg);
 +		}
@@ -7898,6 +7998,14 @@ index 000000000000..71241689c6df
 +	s->ffa_local_id = smc_ret.r2;
 +	s->ffa_remote_id = 0x8000;
 +
++	/*
++	 * The pKVM hypervisor uses the same page size as the host, including for
++	 * stage-2 mappings. So the rx/tx buffers need to be page-sized multiple,
++	 * and page-aligned.
++	 *
++	 * TODO: This can be made more generic by discovering the required size
++	 * through SMC_FC_FFA_FEATURES later.
++	 */
 +	s->ffa_tx = kmalloc(PAGE_SIZE, GFP_KERNEL);
 +	if (!s->ffa_tx) {
 +		ret = -ENOMEM;
@@ -7920,8 +8028,8 @@ index 000000000000..71241689c6df
 +		goto err_unaligned_rx_buf;
 +	}
 +
-+	smc_ret = trusty_smc8(SMC_FCZ_FFA_RXTX_MAP, tx_paddr, rx_paddr, 1, 0,
-+			      0, 0, 0);
++	smc_ret = trusty_smc8(SMC_FCZ_FFA_RXTX_MAP, tx_paddr, rx_paddr,
++				PAGE_SIZE / FFA_PAGE_SIZE, 0, 0, 0, 0);
 +	if (smc_ret.r0 != SMC_FC_FFA_SUCCESS) {
 +		dev_err(s->dev, "%s: SMC_FCZ_FFA_RXTX_MAP failed 0x%lx 0x%lx 0x%lx\n",
 +			__func__, smc_ret.r0, smc_ret.r1, smc_ret.r2);
@@ -8034,8 +8142,15 @@ index 000000000000..71241689c6df
 +{
 +	unsigned long flags;
 +	struct trusty_nop *nop = NULL;
++	struct trusty_work *tw;
++	bool ret = false;
++	bool signaled;
++	bool nop_dequeued = false;
++	bool queue_emptied = false;
 +
 +	spin_lock_irqsave(&s->nop_lock, flags);
++	tw = this_cpu_ptr(s->nop_works);
++	signaled = tw->signaled;
 +	if (!list_empty(&s->nop_queue)) {
 +		nop = list_first_entry(&s->nop_queue,
 +				       struct trusty_nop, node);
@@ -8043,18 +8158,33 @@ index 000000000000..71241689c6df
 +		args[0] = nop->args[0];
 +		args[1] = nop->args[1];
 +		args[2] = nop->args[2];
++
++		nop_dequeued = true;
++		if (list_empty(&s->nop_queue))
++			queue_emptied = true;
++
++		ret = true;
 +	} else {
 +		args[0] = 0;
 +		args[1] = 0;
 +		args[2] = 0;
++
++		ret = tw->signaled;
 +	}
++	tw->signaled = false;
 +	spin_unlock_irqrestore(&s->nop_lock, flags);
-+	return nop;
++
++	/* don't log when false as it is preempt case which can be very noisy */
++	if (ret)
++		trace_trusty_dequeue_nop(signaled, nop_dequeued, queue_emptied);
++
++	return ret;
 +}
 +
-+static void locked_nop_work_func(struct trusty_state *s)
++static void locked_nop_work_func(struct trusty_work *tw)
 +{
 +	int ret;
++	struct trusty_state *s = tw->s;
 +
 +	ret = trusty_std_call32(s->dev, SMC_SC_LOCKED_NOP, 0, 0, 0);
 +	if (ret != 0)
@@ -8069,60 +8199,96 @@ index 000000000000..71241689c6df
 +	CPUNICE_CAUSE_USE_HIGH_WQ,
 +	CPUNICE_CAUSE_TRUSTY_REQ,
 +	CPUNICE_CAUSE_NOP_ESCALATE,
++	CPUNICE_CAUSE_ENQUEUE_BOOST,
 +};
 +
-+static void trusty_adjust_nice_nopreempt(struct trusty_state *s, bool next)
++static void trusty_adjust_nice_nopreempt(struct trusty_state *s, bool do_nop)
 +{
 +	int req_nice, cur_nice;
 +	int cause_id = CPUNICE_CAUSE_DEFAULT;
++	unsigned long flags;
++	struct trusty_work *tw;
++
++	local_irq_save(flags);
++
++	cur_nice = task_nice(current);
++
++	/* check to see if another signal has come in since dequeue_nop */
++	tw = this_cpu_ptr(s->nop_works);
++	do_nop |= tw->signaled;
 +
 +	if (use_high_wq) {
++		/* use highest priority (lowest nice) for everything */
 +		req_nice = LINUX_NICE_FOR_TRUSTY_PRIORITY_HIGH;
 +		cause_id = CPUNICE_CAUSE_USE_HIGH_WQ;
-+	} else if (!override_high_prio_nop && next) {
-+		return; /* Do not undo priority boost when there's more */
-+	} else if (s->trusty_sched_share_state) {
++	} else {
++		/* read trusty request for this cpu if available */
 +		req_nice = trusty_get_requested_nice(smp_processor_id(),
 +				s->trusty_sched_share_state);
 +		cause_id = CPUNICE_CAUSE_TRUSTY_REQ;
-+	} else {
-+		req_nice = LINUX_NICE_FOR_TRUSTY_PRIORITY_NORMAL;
 +	}
 +
-+	cur_nice = task_nice(current);
++	/* ensure priority will not be lower than system request
++	 * when there is more work to do
++	 */
++	if (do_nop && nop_nice_value < req_nice) {
++		req_nice = nop_nice_value;
++		cause_id = CPUNICE_CAUSE_NOP_ESCALATE;
++	}
++
++	/* trace entry only if changing */
 +	if (req_nice != cur_nice)
 +		trace_trusty_change_cpu_nice(cur_nice, req_nice, cause_id);
 +
 +	/* tell Linux the desired priority */
 +	set_user_nice(current, req_nice);
++
++	local_irq_restore(flags);
 +}
 +
-+static void nop_work_func(struct trusty_state *s)
++static void nop_work_func(struct trusty_work *tw)
 +{
 +	int ret;
-+	bool next;
++	bool do_nop;
 +	u32 args[3];
 +	u32 last_arg0;
++	struct trusty_state *s = tw->s;
 +
-+	dequeue_nop(s, args);
-+	do {
++	do_nop = dequeue_nop(s, args);
++
++	if (do_nop) {
++		/* we have been signaled or there's a nop so
++		 * adjust priority before making SMC call below
++		 */
++		trusty_adjust_nice_nopreempt(s, do_nop);
++	}
++
++	while (do_nop) {
 +		dev_dbg(s->dev, "%s: %x %x %x\n",
 +			__func__, args[0], args[1], args[2]);
 +
++		if (kthread_should_park())
++			kthread_parkme();
++
 +		preempt_disable();
++
++		if (tw != this_cpu_ptr(s->nop_works)) {
++			dev_warn_ratelimited(s->dev,
++					     "trusty-nop-%d ran on wrong cpu, %u\n",
++					     tw->cpu, smp_processor_id());
++		}
 +
 +		last_arg0 = args[0];
 +		ret = trusty_std_call32(s->dev, SMC_SC_NOP,
 +					args[0], args[1], args[2]);
 +
-+		next = dequeue_nop(s, args);
++		do_nop = dequeue_nop(s, args);
++
++		/* adjust priority in case Trusty has requested a change */
++		trusty_adjust_nice_nopreempt(s, do_nop);
 +
 +		if (ret == SM_ERR_NOP_INTERRUPTED) {
-+			local_irq_disable();
-+			trusty_adjust_nice_nopreempt(s, next);
-+			local_irq_enable();
-+
-+			next = true;
++			do_nop = true;
 +		} else if (ret != SM_ERR_NOP_DONE) {
 +			dev_err(s->dev, "%s: SMC_SC_NOP %x failed %d",
 +				__func__, last_arg0, ret);
@@ -8131,12 +8297,12 @@ index 000000000000..71241689c6df
 +				 * Don't break out of the loop if a non-default
 +				 * nop-handler returns an error.
 +				 */
-+				next = true;
++				do_nop = true;
 +			}
 +		}
 +
 +		preempt_enable();
-+	} while (next);
++	}
 +	dev_dbg(s->dev, "%s: done\n", __func__);
 +}
 +
@@ -8145,7 +8311,7 @@ index 000000000000..71241689c6df
 +	unsigned long flags;
 +	struct trusty_work *tw;
 +	struct trusty_state *s = platform_get_drvdata(to_platform_device(dev));
-+	int old_nice = 0, new_nice = 0;
++	int cur_nice;
 +
 +	trace_trusty_enqueue_nop(nop);
 +	preempt_disable();
@@ -8159,14 +8325,16 @@ index 000000000000..71241689c6df
 +		spin_unlock_irqrestore(&s->nop_lock, flags);
 +	}
 +
-+	if (!override_high_prio_nop) {
-+		old_nice = task_nice(current);
-+		set_user_nice(tw->nop_thread, LINUX_NICE_FOR_TRUSTY_PRIORITY_HIGH);
-+		new_nice = LINUX_NICE_FOR_TRUSTY_PRIORITY_HIGH;
-+		if (old_nice != new_nice)
-+			trace_trusty_change_cpu_nice(old_nice, new_nice,
-+					CPUNICE_CAUSE_NOP_ESCALATE);
-+		}
++	/* boost the priority here so the thread can get to it fast */
++	cur_nice = task_nice(tw->nop_thread);
++	if (nop_nice_value < cur_nice) {
++		trace_trusty_change_cpu_nice(cur_nice, nop_nice_value,
++				CPUNICE_CAUSE_ENQUEUE_BOOST);
++		set_user_nice(tw->nop_thread, nop_nice_value);
++	}
++
++	/* indicate that this cpu was signaled */
++	tw->signaled = true;
 +
 +	wake_up_interruptible(&tw->nop_event_wait);
 +	preempt_enable();
@@ -8190,9 +8358,9 @@ index 000000000000..71241689c6df
 +
 +static int trusty_nop_thread(void *context)
 +{
-+	struct trusty_state *s = context;
-+	struct trusty_work *tw = this_cpu_ptr(s->nop_works);
-+	void (*work_func)(struct trusty_state *s);
++	struct trusty_work *tw = context;
++	struct trusty_state *s = tw->s;
++	void (*work_func)(struct trusty_work *tw);
 +	int ret = 0;
 +
 +	DEFINE_WAIT_FUNC(wait, woken_wake_function);
@@ -8209,12 +8377,43 @@ index 000000000000..71241689c6df
 +
 +		wait_woken(&wait, TASK_INTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);
 +
++		if (kthread_should_park())
++			kthread_parkme();
++
 +		/* process work */
-+		work_func(s);
++		work_func(tw);
 +	};
 +	remove_wait_queue(&tw->nop_event_wait, &wait);
 +
 +	return ret;
++}
++
++static int trusty_cpu_up(unsigned int cpu, struct hlist_node *node)
++{
++	struct trusty_state *s;
++	struct trusty_work *tw;
++
++	s = container_of(node, struct trusty_state, cpuhp_node);
++	tw = this_cpu_ptr(s->nop_works);
++	kthread_unpark(tw->nop_thread);
++
++	dev_dbg(s->dev, "cpu %d up\n", cpu);
++
++	return 0;
++}
++
++static int trusty_cpu_down(unsigned int cpu, struct hlist_node *node)
++{
++	struct trusty_state *s;
++	struct trusty_work *tw;
++
++	s = container_of(node, struct trusty_state, cpuhp_node);
++	tw = this_cpu_ptr(s->nop_works);
++
++	dev_dbg(s->dev, "cpu %d down\n", cpu);
++	kthread_park(tw->nop_thread);
++
++	return 0;
 +}
 +
 +static int trusty_probe(struct platform_device *pdev)
@@ -8273,27 +8472,41 @@ index 000000000000..71241689c6df
 +	for_each_possible_cpu(cpu) {
 +		struct trusty_work *tw = per_cpu_ptr(s->nop_works, cpu);
 +
++		tw->s = s;
++		tw->cpu = cpu;
 +		tw->nop_thread = ERR_PTR(-EINVAL);
 +		init_waitqueue_head(&tw->nop_event_wait);
++		tw->signaled = false;
 +	}
 +
 +	for_each_possible_cpu(cpu) {
 +		struct trusty_work *tw = per_cpu_ptr(s->nop_works, cpu);
 +
-+		tw->nop_thread = kthread_create(trusty_nop_thread, s,
-+				"trusty-nop-%d", cpu);
++		tw->nop_thread = kthread_create_on_cpu(trusty_nop_thread, tw,
++						       cpu, "trusty-nop-%d");
 +		if (IS_ERR(tw->nop_thread)) {
 +			ret = PTR_ERR(tw->nop_thread);
 +			dev_err(s->dev, "%s: failed to create thread for cpu= %d (%p)\n",
 +					__func__, cpu, tw->nop_thread);
 +			goto err_thread_create;
 +		}
-+
-+		kthread_bind(tw->nop_thread, cpu);
-+		wake_up_process(tw->nop_thread);
++		kthread_set_per_cpu(tw->nop_thread, cpu);
++		kthread_park(tw->nop_thread);
 +	}
 +
-+	s->trusty_sched_share_state = trusty_register_sched_share(&pdev->dev);
++	ret = cpuhp_state_add_instance(trusty_cpuhp_slot, &s->cpuhp_node);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "cpuhp_state_add_instance failed %d\n",
++			ret);
++		goto err_add_cpuhp_instance;
++	}
++
++	ret = trusty_alloc_sched_share(&pdev->dev, &s->trusty_sched_share_state);
++	if (ret) {
++		dev_err(s->dev, "%s: unabled to allocate sched memory (%d)\n",
++				__func__, ret);
++		goto err_alloc_sched_share;
++	}
 +
 +	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
 +	if (ret < 0) {
@@ -8301,14 +8514,24 @@ index 000000000000..71241689c6df
 +		goto err_add_children;
 +	}
 +
++	/* attempt to share; it is optional for compatibility with Trusty
++	 * versions that don't support priority sharing
++	 */
++	trusty_register_sched_share(s->dev, s->trusty_sched_share_state);
++
 +	if (of_find_property(s->dev->of_node, "use-gicv3-workaround", NULL)) {
 +		s->gicv3_workaround = true;
 +	} else {
 +		s->gicv3_workaround = false;
 +	}
++
 +	return 0;
 +
 +err_add_children:
++	trusty_free_sched_share(s->trusty_sched_share_state);
++err_alloc_sched_share:
++	cpuhp_state_remove_instance(trusty_cpuhp_slot, &s->cpuhp_node);
++err_add_cpuhp_instance:
 +err_thread_create:
 +	for_each_possible_cpu(cpu) {
 +		struct trusty_work *tw = per_cpu_ptr(s->nop_works, cpu);
@@ -8340,12 +8563,16 @@ index 000000000000..71241689c6df
 +
 +	device_for_each_child(&pdev->dev, NULL, trusty_remove_child);
 +
++	cpuhp_state_remove_instance(trusty_cpuhp_slot, &s->cpuhp_node);
++
 +	for_each_possible_cpu(cpu) {
 +		struct trusty_work *tw = per_cpu_ptr(s->nop_works, cpu);
 +
 +		kthread_stop(tw->nop_thread);
 +	}
 +	free_percpu(s->nop_works);
++
++	trusty_free_sched_share(s->trusty_sched_share_state);
 +
 +	mutex_destroy(&s->share_memory_msg_lock);
 +	mutex_destroy(&s->smc_lock);
@@ -8375,12 +8602,46 @@ index 000000000000..71241689c6df
 +
 +static int __init trusty_driver_init(void)
 +{
-+	return platform_driver_register(&trusty_driver);
++	int ret;
++
++	/*
++	 * Initialize trusty_irq_driver first since trusty_probe makes an
++	 * std-call at the end where interrupts might be needed.
++	 */
++	ret = trusty_irq_driver_init();
++	if (ret < 0)
++		return ret;
++
++	/* allocate dynamic cpuhp state slot */
++	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
++				      "trusty:online",
++				      trusty_cpu_up,
++				      trusty_cpu_down);
++	if (ret < 0)
++		goto err_cpuhp_setup;
++
++	trusty_cpuhp_slot = ret;
++
++	ret = platform_driver_register(&trusty_driver);
++	if (ret < 0)
++		goto err_driver_register;
++
++	return 0;
++
++err_driver_register:
++	cpuhp_remove_multi_state(trusty_cpuhp_slot);
++	trusty_cpuhp_slot = -1;
++err_cpuhp_setup:
++	trusty_irq_driver_exit();
++	return ret;
 +}
 +
 +static void __exit trusty_driver_exit(void)
 +{
 +	platform_driver_unregister(&trusty_driver);
++	cpuhp_remove_multi_state(trusty_cpuhp_slot);
++	trusty_cpuhp_slot = -1;
++	trusty_irq_driver_exit();
 +}
 +
 +subsys_initcall(trusty_driver_init);
@@ -8401,10 +8662,10 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/include/linux/trusty/arm_ffa.h b/include/linux/trusty/arm_ffa.h
 new file mode 100644
-index 000000000000..ab7b2afb794c
+index 000000000000..95d31b32bac6
 --- /dev/null
 +++ b/include/linux/trusty/arm_ffa.h
-@@ -0,0 +1,590 @@
+@@ -0,0 +1,597 @@
 +/* SPDX-License-Identifier: MIT */
 +/*
 + * Copyright (C) 2020 Google, Inc.
@@ -8441,6 +8702,13 @@ index 000000000000..ab7b2afb794c
 +	SMC_FASTCALL_NR(SMC_ENTITY_SHARED_MEMORY, nr)
 +#define SMC_FASTCALL64_NR_SHARED_MEMORY(nr) \
 +	SMC_FASTCALL64_NR(SMC_ENTITY_SHARED_MEMORY, nr)
++
++/**
++ * FF-A specification mentions explicitly about '4K pages'. This should
++ * not be confused with the kernel PAGE_SIZE, which is the translation
++ * granule kernel is configured and may be one among 4K, 16K and 64K.
++ */
++#define FFA_PAGE_SIZE		SZ_4K
 +
 +/**
 + * typedef ffa_endpoint_id16_t - Endpoint ID
@@ -9522,5 +9790,5 @@ index 7aa2eb766205..a01272f7e780 100644
  #define VIRTIO_ID_CLOCK			17 /* virtio clock/timer */
  #define VIRTIO_ID_INPUT			18 /* virtio input */
 -- 
-2.36.0
+2.34.1
 
