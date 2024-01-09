@@ -8,14 +8,14 @@ SRCBRANCH = "v1.2-branch-nxp_imx_2024_q1"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
-MATTER_PY_PATH ?= "${TOPDIR}/matter_venv/bin/python"
+MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
 SRCREV = "${AUTOREV}"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost "
+DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native zap-native boost python3-pip-native"
 RDEPENDS_${PN} += " libavahi-client "
 FILES:${PN} += "usr/share"
 
@@ -86,6 +86,8 @@ trusty_configure() {
 }
 
 do_configure() {
+    ${MATTER_PY_PATH} -m pip install -r ${S}/scripts/setup/requirements.build.txt  -c ${S}/scripts/setup/constraints.txt
+
     cd ${S}/
     if ${DEPLOY_TRUSTY}; then
         git submodule update --init

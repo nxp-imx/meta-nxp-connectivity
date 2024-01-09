@@ -7,16 +7,6 @@ fi
 echo "MACHINE = $MACHINE"
 echo "OT_RCP_BUS = $OT_RCP_BUS"
 
-echo "========= Will setup Matter build dependency ========"
-python3 -m venv matter_venv
-source matter_venv/bin/activate
-pip install --upgrade pip setuptools
-rm -rf /tmp/connectedhomeip
-git clone https://github.com/project-chip/connectedhomeip/ /tmp/connectedhomeip -b v1.2.0.0
-pip install -r /tmp/connectedhomeip/scripts/setup/requirements.build.txt -c /tmp/connectedhomeip/scripts/setup/constraints.txt
-CURRENT_DIR=$(pwd)
-MATTER_PYTHON_PATH="$CURRENT_DIR/matter_venv/bin/python3"
-
 EULA=$EULA DISTRO=$DISTRO MACHINE=$MACHINE . ./imx-setup-release.sh -b $@
 
 if [ "$OT_RCP_BUS" = "SPI" ]; then
