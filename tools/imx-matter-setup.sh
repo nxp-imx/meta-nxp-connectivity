@@ -20,7 +20,6 @@ echo "# layers for i.MX IoT for MATTER & OpenThread Border Router" >> conf/bblay
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-matter\"" >> conf/bblayers.conf
 echo "IMAGE_INSTALL:append = \" boost boost-dev boost-staticdev \"" >> conf/local.conf
 echo "PACKAGECONFIG:append:pn-iptables = \" libnftnl\"" >> conf/local.conf
-echo "MATTER_PY_PATH=\"${MATTER_PYTHON_PATH}\"" >> conf/local.conf
 
 echo ""
 echo "Now you can use below command to generate your image:"
