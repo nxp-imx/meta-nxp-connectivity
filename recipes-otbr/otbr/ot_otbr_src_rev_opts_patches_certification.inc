@@ -133,6 +133,10 @@ do_openthread_repo_reset_and_patch() {
     rm -rf  ${WORKDIR}/tmp_patches
 }
 
+do_configure:prepend () {
+    chmod 755 ${STAGING_DIR_NATIVE}/usr/bin/protoc
+}
+
 do_install:append() {
     mkdir ${D}${sysconfdir}/init.d
     cp ${S}/script/otbr-firewall ${D}${sysconfdir}/init.d
