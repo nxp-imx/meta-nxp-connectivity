@@ -1,0 +1,41 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+diff --git a/src/agent/otbr-agent.default.in b/src/agent/otbr-agent.default.in
+index f5cdaf9465..7c99732ca6 100644
+--- a/src/agent/otbr-agent.default.in
++++ b/src/agent/otbr-agent.default.in
+@@ -1,5 +1,6 @@
+ # Default settings for otbr-agent. This file is sourced by systemd
+ 
+ # Options to pass to otbr-agent
+-OTBR_AGENT_OPTS="-I wpan0 -B @OTBR_INFRA_IF_NAME@ @OTBR_RADIO_URL@ trel://@OTBR_INFRA_IF_NAME@"
++#OTBR_AGENT_OPTS="-I wpan0 -B @OTBR_INFRA_IF_NAME@ @OTBR_RADIO_URL@ trel://@OTBR_INFRA_IF_NAME@"
++OTBR_AGENT_OPTS="-d 1 -I wpan0 -B eth0 'spinel+spi:///dev/spidev1.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip5&gpio-int-line=12&gpio-reset-line=13&spi-mode=0&spi-speed=2000000&spi-reset-delay=0' trel://eth0"
+ OTBR_NO_AUTO_ATTACH=@OTBR_NO_AUTO_ATTACH@

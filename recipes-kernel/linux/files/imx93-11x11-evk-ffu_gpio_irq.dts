@@ -5,8 +5,15 @@
 
 #include "imx93-11x11-evk.dts"
 
+&flexcan2 {
+	status = "disabled";
+};
+
+&lpuart7 {
+	status = "disabled";
+};
+
 &lpi2c1 {
-    pinctrl-assert-gpios = <&pcal6524 13 GPIO_ACTIVE_HIGH>;
     pcal6408: gpio@20 {
         compatible = "nxp,pcal9554b";
         reg = <0x20>;
@@ -15,7 +22,6 @@
         status = "okay";
     };
 };
-
 &lpspi3 {
     fsl,spi-num-chipselects = <1>;
     pinctrl-names = "default", "sleep";
@@ -23,6 +29,7 @@
     pinctrl-1 = <&pinctrl_lpspi3>;
     cs-gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
     pinctrl-assert-gpios = <&adp5585gpio 4 GPIO_ACTIVE_LOW>;
+    pinctrl-assert-gpios = <&pcal6408 0 GPIO_ACTIVE_HIGH>;
     status = "okay";
 
     spidev0: spi@0 {

@@ -17,9 +17,11 @@ SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-iw612-matter imx93evk
 addtask copy_dts after do_unpack before do_prepare_recipe_sysroot
 do_copy_dts () {
     if [ -n "${DTS_FILE}" ]; then
-        if [ -f ${DTS_FILE} ]; then
-            echo "do_copy_dts: copying ${DTS_FILE} in ${S}/arch/arm64/boot/dts/freescale"
-            cp ${DTS_FILE} ${S}/arch/arm64/boot/dts/freescale/
-        fi
+        for i in ${DTS_FILE}; do
+            if [ -f ${i} ]; then
+                echo "do_copy_dts: copying ${i} in ${S}/arch/arm64/boot/dts/freescale"
+                cp ${i} ${S}/arch/arm64/boot/dts/freescale/
+            fi
+        done
     fi
 }

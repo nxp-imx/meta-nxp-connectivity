@@ -96,12 +96,16 @@ Change the current directory to the top directory of the Yocto source code and e
 
     # For i.MX8M Mini EVK:
     $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
-    # For i.MX8M Mini EVK which use IW612 chipset (Note this operation will switch meta-imx and meta-matter repo to specific revision):
-    $ TARGET_15_4_CHIP=IW612 OT_RCP_BUS=SPI MACHINE=imx8mmevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
+
+    # For i.MX8M Mini EVK with certified IW612 chipset usage:
+    $ MACHINE=imx8mmevk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm-iw612
+
     # For i.MX6ULL EVK:
     $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
+
     # For i.MX93 EVK:
     $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
+
     # For i.MX8ULP EVK:
     $ MACHINE=imx8ulpevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8ulp
 
@@ -113,6 +117,7 @@ This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M 
 
 After execution of previous commands, the Yocto images will be generated:
 - ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst for i.MX8M Mini EVK.
+- ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-iw612-matter/imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst for i.MX8M Mini EVK with certified IW612 chipset usage.
 - ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
 - ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst for i.MX93 EVK.
 - ${MY_YOCTO}/bld-xwayland-imx8ulp/tmp/deploy/images/imx8ulpevk/imx-image-multimedia-imx8ulpevk.wic.zst for i.MX8ULP EVK.
@@ -121,6 +126,9 @@ The zst images are symbolic link files, so you should copy them to a dedicated f
 
     # For i.MX8M Mini EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst ${MY_images}
+
+    # For i.MX8M Mini EVK with certified IW612 chipset usage:
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-iw612-matter/imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst ${MY_images}
 
     # For i.MX6ULL EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
@@ -143,6 +151,10 @@ ___Be cautious when executing the dd command below, making sure that the output 
     $ zstd -d imx-image-multimedia-imx8mmevk-matter.wic.zst
     $ sudo dd if=imx-image-multimedia-imx8mmevk-matter.wic of=/dev/sdc bs=4M conv=fsync
 
+    # For i.MX8M Mini EVK with certified IW612 chipset usage:
+    $ zstd -d imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst
+    $ sudo dd if=imx-image-multimedia-imx8mmevk-iw612-matter.wic of=/dev/sdc bs=4M conv=fsync
+
     # For i.MX6ULL EVK:
     $ zstd -d imx-image-multimedia-imx6ullevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
@@ -162,6 +174,9 @@ ___Before flashing the image, follow the prompts on the board to put the board i
 
     # For i.MX8M Mini EVK:
     $ sudo uuu -b sd_all imx-image-multimedia-imx8mmevk-matter.wic.zst
+
+    # For i.MX8M Mini EVK with certified IW612 chipset usage:
+    $ sudo uuu -b sd_all imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst
 
     # For i.MX6ULL EVK:
     $ sudo uuu -b sd_all imx-image-multimedia-imx6ullevk.wic.zst
