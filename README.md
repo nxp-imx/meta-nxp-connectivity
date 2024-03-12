@@ -187,6 +187,9 @@ ___Before flashing the image, follow the prompts on the board to put the board i
     # For i.MX8ULP EVK:
     $ sudo uuu -b emmc_all imx-image-multimedia-imx8ulpevk.wic.zst
 
+The prebuilt images for i.MX8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+
+
 <a name="How-to-build-OTBR"></a>
 
 # How to build OpenThread Border Router with the Yocto SDK
