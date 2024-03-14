@@ -86,7 +86,8 @@ The `chip-tool-web` can run on a variety of devices, including desktops, laptops
 #### Example of opening on an iPhone
 
 Here is an example of opening `chip-tool-web` on an Apple mobile phone using Safari:
- <img src="../images/chip_tool_web/chip_tool_web_home.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_home.jpg" alt="Alt text" width="500"/>
 <hr>
 
 > **Note:** The network connected to the running device must be on the same segment as the i.MX device.
@@ -113,7 +114,8 @@ It should be noted that chip-tool-web uses the `Interactive Mode` to allow users
 ### Pairing a Matter device
 
 To access the `Pairing` feature in chip-tool-web, first open the navigation bar and select `Pairing`. This will display the following menu interface:
- <img src="../images/chip_tool_web/chip-tool-web_pairing.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_pairing.jpg" alt="Alt text" width="500"/>
 
 On the pairing page, there are three buttons to select the type of pairing: `ONNETWORK`, `BLE-WIFI`, and `BLE-THREAD`. These buttons allow the user to select the different pairing modes to use. After clicking the appropriate button, the user interface for the selected pairing type will appear.
 
@@ -122,7 +124,8 @@ The remainder of this section provides a detailed overview of each of these pair
 #### Pairing a device over IP
 
 Click on the `ONNETWORK` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip-tool-web_onnetwork.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_onnetwork.jpg" alt="Alt text" width="500"/>
 
 You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `onnetwork` button on this interface, the following command will be triggered to discover devices and attempt to pair with the first discovered one using the provided setup code:
 
@@ -138,7 +141,8 @@ In this command:
 #### Pairing a device over Ble-WiFi
 
 Click on the `BLE-WIFI` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip-tool-web_blewifi.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_blewifi.jpg" alt="Alt text" width="500"/>
 
 You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `BLE-WIFI` button on this interface, the following command will be triggered to commission the device to the existing WiFI network:
 ```
@@ -159,13 +163,15 @@ If you prefer the hexadecimal format, add `hex:` prefix when entering ssid, pass
 ```
 $ chip-tool pairing ble-wifi <node_id> hex:<ssid> hex:<password> <pin_code> <discriminator>
 ```
+<hr>
 
 > **Note:** The _<node_id>_ can be provided as a hexadecimal value with the `0x` prefix.
 
 #### Pairing a device over Ble-Thread
 
 Click on the `BLE-THREAD` pairing type selection button, the display interface will be as shown below.
- <img src="../images/chip_tool_web/chip-tool-web_blethread.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_blethread.jpg" alt="Alt text" width="500"/>
 
 You should specify a node alias for the node ID so that you can identify it by node alias. If you enter the correct parameters and click the `BLE-Thread` button on this interface, the following command will be triggered to commission the device to the existing Thread network:
 ```
@@ -176,6 +182,8 @@ In this command:
 -   _<node_id\>_ is the user-defined ID of the node being commissioned.
 -   _<operational_dataset\>_ is the Operational Dataset determined in the [step](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md#obtaining-thread-network-credentials).
 -   _<pin_code\>_ and _<discriminator\>_ are device-specific keys determined in the [step](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md#step-5-determine-matter-devices-discriminator-and-setup-pin-code).
+
+<hr>
 
 > **Note:** When entering the _<operational_dataset>_,  there is no need to add the `hex:` prefix, as this is already added by default in the chip-tool-web backend.
 >
@@ -191,7 +199,8 @@ Once the network has been formed, you can retrieve the Thread network credential
 Once the pairing process is complete, the Matter device is successfully commissioned to the network. For the lighting application, the On/Off clusters are implemented in chip-tool-web, allowing you to control the end devices using the `onoff` cluster commands.
 
 To access the `onoff` function in the chip-tool-web, first open the navigation bar and select `OnOff`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_onoff.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_onoff.jpg" alt="Alt text" width="500"/>
 
 **Commands list supported for the onoff cluster:**
 ```bash
@@ -255,9 +264,8 @@ ${attribute}:${value}
 #### Report Examples
 
 The following is an example of a multiple read of a device whose nodealias is Light and nodeid and endpoint are both 1.
- <img src="../images/chip_tool_web/chip-tool-web_onoff-report.jpg" alt="Alt text" width="500"/>
 
-<hr>
+<img src="../images/chip_tool_web/chip-tool-web_onoff-report.jpg" alt="Alt text" width="500"/>
 
 <a name="multiadmin"></a>
 
@@ -266,7 +274,8 @@ The following is an example of a multiple read of a device whose nodealias is Li
 Multi-admin feature allows you to join Matter device to multiple Matter fabrics and have multiple different Matter administrators administer it. Chip-tool-web supports the Basic Commissioning Method to open the commissioning window of i.MX Matter device for a new administrator from another fabric.
 
 To access the `Multi-admin` function in the chip-tool-web, first open the navigation bar and select `MultiAdmin`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_multiadmin.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_multiadmin.jpg" alt="Alt text" width="500"/>
 
 Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then enter the value of windows timeout and click the `OPEN COMMISSIONING WINDOW` button to trigger the Open Commissioning window:
 ```
@@ -282,6 +291,8 @@ In this command:
     verifier.
 -   _<discriminator\>_ is device specific discriminator determined during
     commissioning.
+
+<hr>
 
 > **Note:** The _<iteration\>_ and _<discriminator\>_ values are ignored because the _<option\>_ is set to 0.
 
@@ -301,7 +312,8 @@ In this command:
 Subscribing to an attribute lets you mirror the state of the attribute as it changes in the Matter network. Chip-tool-web support for subscribing to the `on-off` attribute of the `onoff` cluster.
 
 To access the `Subscribe` function in the chip-tool-web, first open the navigation bar and select `Subscribe`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_subscribe.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_subscribe.jpg" alt="Alt text" width="500"/>
 
 Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then enter the value of windows timeout and click the `SUBSCRIBE` button to trigger the subscribe command:
 ```
@@ -318,7 +330,8 @@ In this command:
 
 The subscribe report with the `on-off` attribute is updated on `Subsribe Status` section when it changes. The page does not clear previously generated reports and always displays the latest report at the top of the list.
 The following is an example of the subscription statue of a device whose nodealias is Light and whose nodeid and endpoint are both 1.
- <img src="../images/chip_tool_web/chip-tool-web_subscribe-report.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_subscribe-report.jpg" alt="Alt text" width="500"/>
 
 The report is output in text format with the following structure:
 ```
@@ -326,6 +339,8 @@ Subscribe Report from ${nodealias} ${nodeid}:${endpoint}. Cluster:${cluster}
 ${attribute}:${value}
 ```
 The elements of the subscribe report are the same as those of the [OnOff read report](#onoff-report-elements).
+
+<hr>
 
 > **Note:** Because subscribe must maintain the subscription status in interactive mode, please do not enter any other commands in the console of the i.MX Matter devices when the chip-tool-web initiates the subscribe command, as this may interrupt the update of the subscribe report.
 
@@ -336,7 +351,8 @@ The elements of the subscribe report are the same as those of the [OnOff read re
 Chip-tool-web stores the node ID and node alias of the paired device in the chip_tool_config.web.ini file. If `TMPDIR` is not set, the chip_tool_config.web.ini file is located in the `/tmp/` directory. If `export TMPDIR=${tmpfir}` is set, it is stored in the `${tmpfir}` directory. You can see the node ID and node alias of all paired nodes in `GetStatus` tab, and you can delete the paired node information on this page so that you will no longer see information about that node in the node alias selection on other tabs.
 
 To access the `GetStatus` function in the chip-tool-web, first open the navigation bar and select `GetStatus`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_getstatus.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_getstatus.jpg" alt="Alt text" width="500"/>
 
 Select the node alias of the paired Matter device, and the page will automatically fill in the corresponding node ID. Then click the `DELETE-STORAGENODE` button to delete the paired node information, then this node will not be displayed in the chip-tool-web front page.
 
@@ -358,7 +374,8 @@ In the structure above:
 Binding describes a relationship between the device that contains the binding cluster and the end device. The chip-tool-web supports binding a light in one light_switch_combo device to the switch in another light_switch_combo device, allowing the light in another device to be controlled by the switch of one device.
 
 To access the `Binding` function in the chip-tool-web, first open the navigation bar and select `Binding`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_binding.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_binding.jpg" alt="Alt text" width="500"/>
 
 ### Write ACL
 
@@ -419,7 +436,8 @@ $ pacmd set-default-sink alsa_output.platform-sound-wm8960.stereo-fallback
 ```
 
 To access the `MediaControl` function in the chip-tool-web, first open the navigation bar and select `MediaControl`. The following interface will be displayed:
- <img src="../images/chip_tool_web/chip-tool-web_mediacontrol.jpg" alt="Alt text" width="500"/>
+
+<img src="../images/chip_tool_web/chip-tool-web_mediacontrol.jpg" alt="Alt text" width="500"/>
 
 ### Launch or Stop app
 
@@ -478,7 +496,9 @@ Use the following buttons in the `Media Control` section to control the status o
 
 ### Media Status
 
-Use the following buttons to read the status of the `mediaplayback` attribute in the `Media Status` section. The page and results are shown in the following: <img src="../images/chip_tool_web/chip-tool-web_mediastatus.jpg" alt="Alt text" width="500"/>
+Use the following buttons to read the status of the `mediaplayback` attribute in the `Media Status` section. The page and results are shown in the following:
+
+<img src="../images/chip_tool_web/chip-tool-web_mediastatus.jpg" alt="Alt text" width="500"/>
 
 -   Use the `CURRENTSTATE` button to trigger the following command to read the current state of media playback:
     ```

@@ -24,7 +24,7 @@ This repository contains the i.MX MPU project Matter related Yocto recipes. The 
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter v1.2.0.0 tag](https://github.com/project-chip/connectedhomeip/tree/v1.2.0.0).
+All the software components revisions are based on [project Matter 2024 January revision on master tree](https://github.com/project-chip/connectedhomeip).
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -34,7 +34,9 @@ The Following Matter related binaries will be installed into the Yocto image roo
  - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
  - nxp-thermostat-app-trusty: NXP customized thermostat application with enhanced security on i.MX8M Mini
  - chip-bridge-app: Matter bridge demo
+ - imx-chip-bridge-app: NXP customized Zigbee bridge application
  - nxp-media-app: NXP customized media application
+ - nxp-media-app-trusty: NXP customized media application with enhanced security on i.MX8M Mini
  - chip-tool: Matter Controller tool
  - chip-tool-trusty: Matter Controller tool with enhanced security for i.MX8M Mini
  - chip-tool-web: Matter Web Controller tool
@@ -71,7 +73,7 @@ Make sure that your default Python3 version is 3.8:
 Then, Yocto build environment must be setup.
 
 The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.1.55-2.2.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
+This document is tested with the i.MX Yocto 6.6.3-1.0.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -81,14 +83,15 @@ Run the commands below to download this release:
 
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-mickledore -m imx-6.1.55-2.2.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-nanbield -m imx-6.6.3-1.0.0.xml
     $ repo sync
 
 Then integrate the meta-matter recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
     $ git clone https://github.com/nxp-imx/meta-matter.git
-    $ git checkout imx_matter_2023_q4
+    $ cd meta-matter
+    $ git checkout imx_matter_2024_q1
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -187,6 +190,8 @@ ___Before flashing the image, follow the prompts on the board to put the board i
     # For i.MX8ULP EVK:
     $ sudo uuu -b emmc_all imx-image-multimedia-imx8ulpevk.wic.zst
 
+The prebuilt images for i.MX8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+
 <a name="How-to-build-OTBR"></a>
 
 # How to build OpenThread Border Router with the Yocto SDK
@@ -209,26 +214,26 @@ This SDK can be generated with below commands:
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
     # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK:
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8n9-sdk-toolchain-6.1-mickledore.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8n9-sdk-toolchain-6.6-nanbield.sh
 
     # For i.MX6ULL EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.1-mickledore.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.6-nanbield.sh
 
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.1-mickledore-imx8n9 for i.MX8M Mini EVK SDK, i.MX93 EVK SDK and i.MX8ULP EVK, /opt/fsl-imx-xwayland/6.1-mickledore-imx6ull for i.MX6ULL EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.6-nanbield-imx8n9 for i.MX8M Mini EVK SDK, i.MX93 EVK SDK and i.MX8ULP EVK, /opt/fsl-imx-xwayland/6.6-nanbield-imx6ull for i.MX6ULL EVK.___
 
-    NXP i.MX Release Distro SDK installer version 6.1-mickledore
+    NXP i.MX Release Distro SDK installer version 6.6-nanbield
     ============================================================
-    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.1-mickledore):
+    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.6-nanbield):
 
 After the Yocto SDK is installed on the host machine, an SDK environment setup script is also generated.
 User needs to import Yocto build environment, by sourcing this script each time the SDK is used in a new shell; for example:
 
     # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK
-    $ . /opt/fsl-imx-xwayland/6.1-mickledore-imx8n9/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-xwayland/6.6-nanbield-imx8n9/environment-setup-armv8a-poky-linux
 
     $ For i.MX6ULL EVK
-    $ . /opt/fsl-imx-wayland/6.1-mickledore-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    $ . /opt/fsl-imx-wayland/6.6-nanbield-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
 Fetch the latest otbr source code and execute the build:
 
@@ -236,34 +241,36 @@ Fetch the latest otbr source code and execute the build:
     $ cd ${MY_OTBR}
     $ git clone https://github.com/openthread/ot-br-posix
     $ cd ot-br-posix
-    $ git checkout -b 8d12b242dbf2398e8df20aa4ee6d387a41abb537
+    $ git checkout 8d12b242dbf2398e8df20aa4ee6d387a41abb537
+    $ git cherry-pick afe85ccdc5b8557281241d21bb175a55db83c28f
     $ git submodule update --init
+    $ cd ..
     $ mkdir ${PROTOC_DIR}
     $ cd ${PROTOC_DIR}
-    $ wget https://github.com/protocolbuffers/protobuf/releases/download/v21.0/protoc-21.0-linux-x86_64.zip
-    $ unzip protoc-21.0-linux-x86_64.zip
+    $ wget https://github.com/protocolbuffers/protobuf/releases/download/v23.0/protoc-23.0-linux-x86_64.zip
+    $ unzip protoc-23.0-linux-x86_64.zip
     $ cd ../ot-br-posix
 
     # For i.MX8M Mini EVK and i.MX8ULP EVK
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
-      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=avahi \
       -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake \
-      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc -DCMAKE_CXX_STANDARD=14
 
     # For i.MX6ULL EVK
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
-      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=avahi \
       -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/arm.cmake \
-      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc -DCMAKE_CXX_STANDARD=14
 
     # For i.MX93 EVK
     $ ./script/cmake-build -DOTBR_BORDER_ROUTING=ON -DOTBR_REST=ON -DOTBR_WEB=ON -DBUILD_TESTING=OFF -DOTBR_DBUS=ON \
       -DOTBR_DNSSD_DISCOVERY_PROXY=ON -DOTBR_SRP_ADVERTISING_PROXY=ON -DOT_THREAD_VERSION=1.3 -DOTBR_INFRA_IF_NAME=mlan0 \
-      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=mDNSResponder \
+      -DOTBR_BACKBONE_ROUTER=ON -DOT_BACKBONE_ROUTER_MULTICAST_ROUTING=ON -DOTBR_MDNS=avahi \
       -DOT_POSIX_CONFIG_RCP_BUS=SPI -DCMAKE_TOOLCHAIN_FILE=./examples/platforms/nxp/linux-imx/aarch64.cmake \
-      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc
+      -DProtobuf_PROTOC_EXECUTABLE=${PROTOC_DIR}/bin/protoc -DCMAKE_CXX_STANDARD=14 -DOT_RCP_RESTORATION_MAX_COUNT=5
 
 The otbr-agent is built in \${MY_OTBR}/build/otbr/src/agent/otbr-agent.
 The otbr-web is built in \${MY_OTBR}/build/otbr/src/web/otbr-web.
@@ -320,28 +327,28 @@ A document explaining how to use Matter with OTBR on the i.MX MPU platform can b
 
 # How to build Matter application
 
-The Matter application has been installed into the Yocto image by default. If you want build it separately, run the below commands to download the Matter application source code and switch to v1.0 branch:
+The Matter application has been installed into the Yocto image by default. If you want build it separately, run the below commands to download the Matter application source code and switch to v1.2.1 branch:
 
     $ mkdir ${MY_Matter_Apps}     # this is top level directory of this project
     $ cd ${MY_Matter_Apps}
     $ git clone https://github.com/NXP/matter.git
     $ cd matter
-    $ git checkout origin/v1.2-branch-nxp_imx_2023_q4
+    $ git checkout origin/v1.2.1-branch-nxp_imx_2024_q1
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx8mm
+    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx8mm
 
-    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.1-mickledore-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx6ull
+    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.6-nanbield-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx6ull
 
-    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx93 is ${IMX93_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx93
+    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx93 is ${IMX93_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx93
 
-    # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.1-mickledore-imx8ulp
+    # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp
 
 User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the build_examples.py script. Please refer to below examples.
 
@@ -373,14 +380,23 @@ Assuming that the working directory is changed to the top level directory of thi
     # Build the nxp-media-app example with below command
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-media-app/linux/ -o out/nxp-media -d
 
-    # Build the security enhanced with Trusty OS application using build_examples.py, by adding "-trusty" to te target. For example:
+    # Build the Matter Controller tool with enhanced security using build_examples.py, by adding "-trusty" to the target. For example:
     $ ./scripts/build/build_examples.py  --target imx-chip-tool-trusty build
 
-    # Build the security enhanced with Trusty OS application using imxlinux_example.sh, by adding "trusty" to the command. For example:
+    # Build the Matter lighting app with enhanced security using build_examples.py, by adding "-trusty" to the target. For example:
+    $ ./scripts/build/build_examples.py  --target imx-lighting-app-trusty build
+
+    # Build the NXP customized thermostat application with enhanced security using imxlinux_example.sh, by adding "-t" to the command. For example:
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux -o out/nxp-thermostat-trusty -t
+
+    # Build the NXP customized media application with enhanced security using imxlinux_example.sh, by adding "-t" to the command. For example:
+    $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-media-app/linux/ -o out/nxp-media-trusty -t
 
     # Build the chip-tool-web application using imxlinux_example.sh, by adding "NXP_CHIPTOOL_WITH_WEB=1" to the command. For example:
     $ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web -d
+
+    # Build the NXP customized Zigbee bridge application with below command
+    $ ./scripts/examples/imxlinux_example.sh -s examples/bridge-app/nxp/linux-imx -o out/zigbee-bridge/
 
 The applications are built in out/ subdirectories; the subdirectory name is specified with --target option, when building the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
 
@@ -393,7 +409,7 @@ After executing the above command, the chip-tool executable files will be found 
 
 An official Matter document explaining how to use chip-tool as a Matter controller can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
 
-A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md) and a document explaining how to use chip-tool-web application can be found in the [NXP chip-tool-web guide](docs/guides/nxp_chip_tool_web_guide.md).
+A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md). A document explaining how to use chip-tool-web application can be found in the [NXP chip-tool-web guide](docs/guides/nxp_chip_tool_web_guide.md). A document explaining how to use NXP customized Zigbee bridge application imx-chip-bridge-app application can be found in the [NXP imx-chip-bridge-app guide](https://github.com/NXP/matter/blob/v1.2.1-branch-nxp_imx_2024_q1/examples/bridge-app/nxp/linux-imx/README.md).
 
 <a name="Security-configuration-for-Matter"></a>
 
@@ -488,3 +504,12 @@ Another way is to add a suffix when executing the command, as shown below:
     $ ${chip-tool command} --paa-trust-store-path /etc/dcl_paas
 
 >  **Note** If you are using the official PAA files, the end Matter device must have the official DAC and PAI installed.
+
+Q4 : What should do when encountering the log "Avahi client collision detected: Local name collision" during OTBR setup with K32W RCP on i.MX8M Mini EVK?
+
+A : Please run the following commands to clear the Avahi cache and then setup the OTBR.
+
+    $ sudo systemctl stop avahi-daemon
+    $ sudo rm -rf /var/run/avahi-daemon/*
+    $ sudo systemd-resolve --flush-caches
+    $ sudo systemctl start avahi-daemon
