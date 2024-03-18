@@ -1,0 +1,70 @@
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index 025e3ad42..17406899f 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -371,8 +371,7 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             break;
+ 
+         case MFG_CMD_GET_SET_PAYLOAD_SIZE + 1: // set
+-            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength, aArgs, 0, 127);
+-            // actual limits are set in MFG function and error is return in case of wrong parameter
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength, aArgs, 17, 116);
+             break;
+ 
+         case MFG_CMD_GET_RX_RESULT:
+@@ -411,15 +410,16 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ 
+         case MFG_CMD_BURST_TX:
+         {
+-            uint8_t mode = 0;
++            uint8_t mode = 0, gap = 0;
+             if(aArgsLength == 3)
+             {
+                 mode = (uint8_t)atoi(aArgs[1]);
+-                if(mode < 8)
++                gap = (uint8_t)atoi(aArgs[2]);
++                if((mode < 8) && (gap > 5))
+                 {
+                     payload[1] = MFG_CMD_BURST_TX;
+                     payload[4] = mode;
+-                    payload[5] = (uint8_t)atoi(aArgs[2]);
++                    payload[5] = gap;
+                     otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
+                     error = OT_ERROR_NONE;
+                 }
+@@ -445,15 +445,18 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             {
+                 payload[1] = MFG_CMD_CONTINOUS_CCA_TEST;
+                 payload[2] = MFG_CMD_ACTION_SET;
+-                payload[4] = (uint8_t)atoi(aArgs[1]);
+-                payload[5] = (uint8_t)atoi(aArgs[2]);
+-                otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
+-                if((outputLen >= 4) && (payload[3] == 0))
++                payload[4] = (uint8_t)atoi(aArgs[1]); // enable
++                payload[5] = (uint8_t)atoi(aArgs[2]); // CCA Mode
++                if((payload[4] < 2) && (payload[5] < 4))
+                 {
+-                    error = OT_ERROR_NONE;
+-                }
+-                else{
+-                    error = OT_ERROR_FAILED;
++                    otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                    if((outputLen >= 4) && (payload[3] == 0))
++                    {
++                        error = OT_ERROR_NONE;
++                    }
++                    else{
++                        error = OT_ERROR_FAILED;
++                    }
+                 }
+             }
+         }
+@@ -464,7 +467,7 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             break;
+ 
+         case MFG_CMD_CONTINOUS_ED_TEST:
+-            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINOUS_ED_TEST, aArgsLength, aArgs, -127, 127);
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINOUS_ED_TEST, aArgsLength, aArgs, 0, 1);
+             break;
+ 
+         case MFG_CMD_GET_ED_VALUE:

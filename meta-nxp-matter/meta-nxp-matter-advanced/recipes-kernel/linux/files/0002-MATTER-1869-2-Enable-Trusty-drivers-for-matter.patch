@@ -1,0 +1,56 @@
+From 44bb48bd85f0e8ad879f29308f398e453e21f72d Mon Sep 17 00:00:00 2001
+From: Ji Luo <ji.luo@nxp.com>
+Date: Wed, 27 Dec 2023 17:30:20 +0900
+Subject: [PATCH 2/2] MATTER-1869-2 Enable Trusty drivers for matter
+
+enable trusty drivers for matter.
+
+Change-Id: Ifa0b94b6273cf6b7834fad60f58c23a92aaeef4c
+Signed-off-by: Ji Luo <ji.luo@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/imx8mm-evk.dts | 18 ++++++++++++++++++
+ arch/arm64/configs/imx_v8_defconfig          |  2 ++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
+index 932bb7cc3bb9..48908964ff1c 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
+@@ -26,6 +26,24 @@ reg_usdhc1_vmmc: regulator-usdhc1 {
+ 		gpio = <&gpio2 10 GPIO_ACTIVE_HIGH>;
+ 		enable-active-high;
+ 	};
++
++	trusty {
++		compatible = "android,trusty-smc-v1";
++		ranges;
++		#address-cells = <2>;
++		#size-cells = <2>;
++		trusty-irq {
++			compatible = "android,trusty-irq-v1";
++			interrupt-ranges = < 0 15 0>;
++			ipi-range = <8 15 8>;
++		};
++		trusty-virtio {
++			compatible = "android,trusty-virtio-v1";
++		};
++		trusty-log {
++			compatible = "android,trusty-log-v1";
++		};
++	};
+ };
+ 
+ &flexspi {
+diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
+index f064eaaeb521..a641aac80b4b 100644
+--- a/arch/arm64/configs/imx_v8_defconfig
++++ b/arch/arm64/configs/imx_v8_defconfig
+@@ -1428,3 +1428,5 @@ CONFIG_CORESIGHT_STM=m
+ CONFIG_CORESIGHT_CPU_DEBUG=m
+ CONFIG_CORESIGHT_CTI=m
+ CONFIG_MEMTEST=y
++CONFIG_TRUSTY=y
++CONFIG_TRUSTY_CRASH_IS_PANIC=y
+-- 
+2.34.1
+

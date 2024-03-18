@@ -1,0 +1,53 @@
+From 51cab4844f55b077cc129d499f269b1429097d28 Mon Sep 17 00:00:00 2001
+From: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+Date: Wed, 10 May 2023 15:52:42 +0200
+Subject: [PATCH 1/1] OT_TCP option parsing
+
+Signed-off-by: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+---
+ etc/cmake/options.cmake     | 6 ++++++
+ examples/common-switches.mk | 7 +++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/etc/cmake/options.cmake b/etc/cmake/options.cmake
+index ff2dc5327..7c3ccdf60 100644
+--- a/etc/cmake/options.cmake
++++ b/etc/cmake/options.cmake
+@@ -184,3 +184,9 @@ if(OT_POSIX_SETTINGS_PATH)
+     target_compile_definitions(ot-config INTERFACE "OPENTHREAD_CONFIG_POSIX_SETTINGS_PATH=${OT_POSIX_SETTINGS_PATH}")
+ endif()
+
++if(OT_TCP)
++    target_compile_definitions(ot-config INTERFACE "OPENTHREAD_CONFIG_TCP_ENABLE=1")
++else()
++    target_compile_definitions(ot-config INTERFACE "OPENTHREAD_CONFIG_TCP_ENABLE=0")
++endif()
++
+diff --git a/examples/common-switches.mk b/examples/common-switches.mk
+index 334433945..4ddfdbd7c 100644
+--- a/examples/common-switches.mk
++++ b/examples/common-switches.mk
+@@ -79,6 +79,7 @@ NETDATA_PUBLISHER         ?= 0
+ OTNS                      ?= 0
+ PING_SENDER               ?= 1
+ PLATFORM_UDP              ?= 0
++TCP                       ?= 0
+ REFERENCE_DEVICE          ?= 0
+ SERVICE                   ?= 0
+ SETTINGS_RAM              ?= 0
+@@ -309,6 +310,12 @@ ifeq ($(PLATFORM_UDP),1)
+ COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_PLATFORM_UDP_ENABLE=1
+ endif
+ 
++ifeq ($(TCP),1)
++COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_TCP_ENABLE=1
++else
++COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_TCP_ENABLE=0
++endif
++
+ # Enable features only required for reference device during certification.
+ ifeq ($(REFERENCE_DEVICE),1)
+ COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE=1
+-- 
+2.34.1
+

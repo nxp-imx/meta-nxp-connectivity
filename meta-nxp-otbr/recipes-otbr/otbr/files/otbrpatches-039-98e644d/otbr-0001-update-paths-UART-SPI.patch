@@ -1,0 +1,33 @@
+From 2b12a3e2a63ab2598dc5931d3566b9e0e637aa88 Mon Sep 17 00:00:00 2001
+From: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+Date: Thu, 11 May 2023 15:11:41 +0200
+Subject: [PATCH 1/1] update paths
+
+Signed-off-by: Jean-Yves Salaun <jean-yves.salaun@nxp.com>
+---
+ src/agent/otbr-agent.service.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/agent/otbr-agent.service.in b/src/agent/otbr-agent.service.in
+index 8314121347..a7533ccdc3 100644
+--- a/src/agent/otbr-agent.service.in
++++ b/src/agent/otbr-agent.service.in
+@@ -1,12 +1,12 @@
+ [Unit]
+ Description=OpenThread Border Router Agent
+-ConditionPathExists=@CMAKE_INSTALL_FULL_SBINDIR@/otbr-agent
++ConditionPathExists=/usr/sbin/otbr-agent
+ Requires=dbus.socket
+ After=dbus.socket
+ 
+ [Service]
+-EnvironmentFile=-@CMAKE_INSTALL_FULL_SYSCONFDIR@/default/otbr-agent
+-@EXEC_START_PRE@ExecStart=@CMAKE_INSTALL_FULL_SBINDIR@/otbr-agent $OTBR_AGENT_OPTS
++EnvironmentFile=-/etc/default/otbr-agent
++@EXEC_START_PRE@ExecStart=/usr/sbin/otbr-agent $OTBR_AGENT_OPTS
+ KillMode=mixed
+ Restart=on-failure
+ RestartSec=5
+-- 
+2.34.1
+

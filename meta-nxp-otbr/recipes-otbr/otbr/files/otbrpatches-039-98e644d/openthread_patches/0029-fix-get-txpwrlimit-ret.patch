@@ -1,0 +1,12 @@
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index f418603ad..025e3ad42 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -230,6 +230,7 @@ otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aAr
+
+         // Print value as ot-cli output
+         otCliOutputFormat("%d\r\n", txPowerLimit);
++        error = OT_ERROR_NONE;
+     }
+     else
+     {

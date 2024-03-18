@@ -1,0 +1,13 @@
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 3a5e9c99a43b..e68a4e01d790 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -90,6 +90,8 @@ dtb-$(CONFIG_ARCH_MXC) += imx8mm-ddr4-evk.dtb imx8mm-ddr4-evk-rm67191.dtb imx8mm
+ 			  imx8mm-ddr4-evk-rm67199.dtb \
+ 			  imx8mm-ddr4-evk-rm67191-cmd-ram.dtb \
+ 			  imx8mm-ddr4-evk-rm67199-cmd-ram.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8mm-evk-uart3-bt-ffu-gpio-irq.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8mm-evk-uart3-bt-3M-ffu-gpio-irq.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-emcon-avari.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-icore-mx8mm-ctouch2.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-icore-mx8mm-edimm2.2.dtb
