@@ -26,6 +26,6 @@ def get_rcp_bus(d):
     return ''
 
 inherit cmake
-OT_SRC_REV_OPTS_PATCHES_INCLUDE="${@bb.utils.contains_any('MACHINE', "imx8mmevk-iw612-matter imx93evk-iw612-matter", 'iw612_ot_src_rev_opts_patches.inc', 'ot_src_rev_opts_patches_standard.inc', d)}"
+OT_OTBR_SRC_REV_OPTS_PATCHES_INCLUDE="${@bb.utils.contains_any('MACHINE', "imx8mmevk-iw612-matter imx93evk-iw612-matter", 'iw612_otbr_src_rev_opts_patches.inc', 'ot_otbr_src_rev_opts_patches_standard.inc', d)}"
 include ${OT_OTBR_SRC_REV_OPTS_PATCHES_INCLUDE}
 EXTRA_OECMAKE += "${@get_rcp_bus(d)}"
