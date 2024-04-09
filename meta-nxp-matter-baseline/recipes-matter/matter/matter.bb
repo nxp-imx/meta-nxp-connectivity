@@ -15,23 +15,13 @@ PATCHTOOL = "git"
 SRCREV = "${AUTOREV}"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native"
+DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging python3-click "
 RDEPENDS_${PN} += " libavahi-client boost boost-dev boost-staticdev "
 FILES:${PN} += "usr/share"
 
 INSANE_SKIP:${PN} += "dev-so debug-deps strip"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
-
-def get_http_proxy(d):
-    return d.getVar('HTTP_PROXY')
-
-def get_https_proxy(d):
-    return d.getVar('HTTPS_PROXY')
-
-VAR_HTTP_PROXY = "${@get_http_proxy(d)}"
-VAR_HTTPS_PROXY = "${@get_https_proxy(d)}"
-
 
 def get_target_cpu(d):
     for arg in (d.getVar('TUNE_FEATURES') or '').split():
@@ -97,8 +87,6 @@ trusty_configure() {
 }
 
 do_configure() {
-    HTTP_PROXY=${VAR_HTTP_PROXY}  HTTPS_PROXY=${VAR_HTTPS_PROXY} ${MATTER_PY_PATH} -m pip install -r ${S}/scripts/setup/requirements.build.txt  -c ${S}/scripts/setup/constraints.txt
-
     cd ${S}/
     if ${DEPLOY_TRUSTY}; then
         git submodule update --init
