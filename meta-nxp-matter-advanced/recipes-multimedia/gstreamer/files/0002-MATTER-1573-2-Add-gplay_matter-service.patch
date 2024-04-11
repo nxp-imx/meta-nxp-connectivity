@@ -1,4 +1,4 @@
-From 57a30b2a914007195741322ad543a56b4ce1e11a Mon Sep 17 00:00:00 2001
+From 24cc3e76133ebbb094c7bea886a3256700c5f475 Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Mon, 30 Oct 2023 10:06:11 +0800
 Subject: [PATCH 2/3] MATTER-1573-2 Add gplay_matter service

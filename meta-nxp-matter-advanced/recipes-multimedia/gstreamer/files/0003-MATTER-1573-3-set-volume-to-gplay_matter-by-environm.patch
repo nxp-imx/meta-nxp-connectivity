@@ -1,4 +1,4 @@
-From d2dce28774219014573eb876b9ea4248c2381d61 Mon Sep 17 00:00:00 2001
+From 2543a905a5be1332dfc2a3c40850824b27ec95e2 Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Mon, 30 Oct 2023 15:51:05 +0800
 Subject: [PATCH 3/3] MATTER-1573-3 set volume to gplay_matter by environment
@@ -16,10 +16,10 @@ Change-Id: I2b2ba22d366161da6b546befe56512555578f612
  2 files changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
-index 32baed2..3a1dc5d 100755
+index 6841933..31cfd98 100755
 --- a/tools/gplay2/gplay2.c
 +++ b/tools/gplay2/gplay2.c
-@@ -1883,6 +1883,16 @@ main (int argc, char *argv[])
+@@ -1879,6 +1879,16 @@ main (int argc, char *argv[])
          &sPlay);
    }
    //gst_play_play (play);
@@ -36,7 +36,7 @@ index 32baed2..3a1dc5d 100755
    gst_play_play_sync (play, options.timeout);
  
    /* for auto test script */
-@@ -1903,7 +1913,9 @@ main (int argc, char *argv[])
+@@ -1899,7 +1909,9 @@ main (int argc, char *argv[])
      gst_play_pause (play);
      gst_play_set_mute (play, ismute);
    }
