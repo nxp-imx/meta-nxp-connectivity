@@ -8,8 +8,8 @@ S = "${WORKDIR}/git"
 #FILES_${PN} += "lib/systemd"
 #FILES_${PN} += "usr/share"
 
-DEPENDS += " avahi boost "
-RDEPENDS_${PN} += " libavahi-client "
+DEPENDS += " avahi boost readline "
+RDEPENDS_${PN} += " libavahi-client readline "
 
 TARGET_CFLAGS += " -Wno-error "
 def get_rcp_bus(d):
