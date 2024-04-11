@@ -1,4 +1,4 @@
-From d6515e6dbaa6895bbebd5563a2fb88daaddb708e Mon Sep 17 00:00:00 2001
+From 673ccdc98577fb91bec2446c5f67979235aeed60 Mon Sep 17 00:00:00 2001
 From: "Haoran.Wang" <elven.wang@nxp.com>
 Date: Tue, 7 Mar 2023 06:27:13 +0800
 Subject: [PATCH 2/3] Enable otbr and firewall configs for imx6/7
@@ -10,7 +10,7 @@ Signed-off-by: Haoran.Wang <elven.wang@nxp.com>
  1 file changed, 135 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/configs/imx_v7_defconfig b/arch/arm/configs/imx_v7_defconfig
-index 8396efce421a..08a49f75976d 100644
+index 472dff26b4b3..6843bbfaf5f0 100644
 --- a/arch/arm/configs/imx_v7_defconfig
 +++ b/arch/arm/configs/imx_v7_defconfig
 @@ -66,9 +66,138 @@ CONFIG_INET=y
