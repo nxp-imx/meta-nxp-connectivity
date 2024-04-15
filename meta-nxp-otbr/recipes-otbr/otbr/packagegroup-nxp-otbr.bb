@@ -7,10 +7,6 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 inherit packagegroup
 
-TOOLCHAIN_HOST_TASK:append=" nativesdk-protobuf-compiler"
-PACKAGECONFIG:append:pn-iptables = "libnftnl"
-IMAGE_INSTALL:append = " boost boost-dev boost-staticdev "
-
 RDEPENDS:${PN} = " \
     otbr \
     tayga \
