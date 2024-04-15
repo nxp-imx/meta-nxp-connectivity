@@ -22,6 +22,7 @@ FILES:${PN} += "usr/share"
 INSANE_SKIP:${PN} += "dev-so debug-deps strip"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
+MATTER_ADVANCED = "${@bb.utils.contains('MACHINE_FEATURES', 'matter-advanced', 'true', 'false', d)}"
 
 def get_target_cpu(d):
     for arg in (d.getVar('TUNE_FEATURES') or '').split():
@@ -104,8 +105,10 @@ do_configure() {
     cd ${S}/examples/nxp-thermostat/linux
     common_configure
 
-    cd ${S}/examples/nxp-media-app/linux
-    common_configure
+    if ${MATTER_ADVANCED}; then
+        cd ${S}/examples/nxp-media-app/linux
+        common_configure
+    fi
 
     cd ${S}/examples/chip-tool
     common_configure
@@ -147,8 +150,11 @@ do_configure() {
         cd ${S}/examples/nxp-thermostat/linux
         trusty_configure
 
-        cd ${S}/examples/nxp-media-app/linux
-        trusty_configure
+
+        if ${MATTER_ADVANCED}; then
+            cd ${S}/examples/nxp-media-app/linux
+            trusty_configure
+        fi
     fi
 }
 
@@ -165,8 +171,10 @@ do_compile() {
     cd ${S}/examples/nxp-thermostat/linux
     ninja -C out/aarch64
 
-    cd ${S}/examples/nxp-media-app/linux
-    ninja -C out/aarch64
+    if ${MATTER_ADVANCED}; then
+        cd ${S}/examples/nxp-media-app/linux
+        ninja -C out/aarch64
+    fi
 
     cd ${S}/examples/chip-tool
     ninja -C out/aarch64
@@ -194,8 +202,10 @@ do_compile() {
         cd ${S}/examples/nxp-thermostat/linux
         ninja -C out/aarch64-trusty
 
-        cd ${S}/examples/nxp-media-app/linux
-        ninja -C out/aarch64-trusty
+        if ${MATTER_ADVANCED}; then
+            cd ${S}/examples/nxp-media-app/linux
+            ninja -C out/aarch64-trusty
+        fi
 
         cd ${S}/examples/chip-tool
         ninja -C out/aarch64-trusty
@@ -208,7 +218,11 @@ do_install() {
     install ${S}/examples/all-clusters-app/linux/out/aarch64/chip-all-clusters-app ${D}${bindir}
     install ${S}/examples/thermostat/linux/out/aarch64/thermostat-app ${D}${bindir}
     install ${S}/examples/nxp-thermostat/linux/out/aarch64/nxp-thermostat-app ${D}${bindir}
-    install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
+
+    if ${MATTER_ADVANCED}; then
+        install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
+    fi
+
     install ${S}/examples/chip-tool/out/aarch64/chip-tool ${D}${bindir}
     install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
@@ -224,7 +238,10 @@ do_install() {
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
         install ${S}/examples/nxp-thermostat/linux/out/aarch64-trusty/nxp-thermostat-app ${D}${bindir}/nxp-thermostat-app-trusty
-        install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
+
+        if ${MATTER_ADVANCED}; then
+            install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
+        fi
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
 }
