@@ -246,12 +246,4 @@ do_install() {
     fi
 }
 
-addtask do_nxp_patch after do_unpack before do_patch
-do_nxp_patch () {
-    if [ ${MACHINE} = "imx93evk-matter" ]; then
-        cd "${S}/third_party/imx-secure-enclave/repo/"
-        git am -3 "${THISDIR}/files/0001-MATTER-1352-2-Add-se_version.h.patch"
-    fi
-}
-
 INSANE_SKIP_${PN} = "ldflags"
