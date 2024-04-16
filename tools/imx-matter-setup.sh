@@ -17,13 +17,11 @@ if [ "$OT_RCP_BUS" = "UART" ]; then
 fi
  
 echo "# layers for i.MX IoT for MATTER & OpenThread Border Router" >> conf/bblayers.conf
-echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-matter/meta-nxp-matter-baseline\"" >> conf/bblayers.conf
-echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-matter/meta-nxp-matter-advanced\"" >> conf/bblayers.conf
+echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-matter-baseline\"" >> conf/bblayers.conf
+echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-matter-advanced\"" >> conf/bblayers.conf
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-openthread\"" >> conf/bblayers.conf
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-otbr\"" >> conf/bblayers.conf
 echo "BBLAYERS += \"\${BSPDIR}/sources/meta-nxp-connectivity/meta-nxp-connectivity-examples\"" >> conf/bblayers.conf
-#echo "IMAGE_INSTALL:append = \" boost boost-dev boost-staticdev \"" >> conf/local.conf
-#echo "PACKAGECONFIG:append:pn-iptables = \" libnftnl\"" >> conf/local.conf
 
 echo ""
 echo "Now you can use below command to generate your image:"
