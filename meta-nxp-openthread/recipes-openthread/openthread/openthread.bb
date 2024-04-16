@@ -5,8 +5,6 @@ LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=543b6fe90ec5901a683320a36390c65f"
 
 S = "${WORKDIR}/git"
-#FILES_${PN} += "lib/systemd"
-#FILES_${PN} += "usr/share"
 
 DEPENDS += " avahi boost readline "
 RDEPENDS_${PN} += " libavahi-client readline "

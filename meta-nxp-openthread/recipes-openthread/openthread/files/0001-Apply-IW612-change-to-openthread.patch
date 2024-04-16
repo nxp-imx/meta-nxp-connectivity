@@ -5,6 +5,8 @@ Subject: [PATCH] Apply IW612 change to openthread
 
 Refer changes from: otpatches-040-0f7e849
 
+Upstream-Status: Inappropriate [NXP-specific]
+
 Signed-off-by: Haoran Wang <elven.wang@nxp.com>
 ---
  include/openthread/platform/radio.h           |  60 ++
