@@ -1,8 +1,5 @@
 BUILD_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
-SRCBRANCH = "lf_v2.8"
-SRCREV = "9e397f9bdb473563d66eb3eb4c79cf9c3e542c28"
-
 do_compile:append() {
     if ${BUILD_TRUSTY}; then
         oe_runmake clean BUILD_BASE=build-trusty
