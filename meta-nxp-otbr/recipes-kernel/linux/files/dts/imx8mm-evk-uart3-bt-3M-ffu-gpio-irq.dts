@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2024 NXP
+ */
+
+/dts-v1/;
+
+#include "imx8mm-evk-usd-wifi.dts"
+
+&uart1 {
+        /delete-node/ bluetooth;
+};
+
+&uart3 {
+        bluetooth {
+                compatible = "nxp,88w8987-bt";
+                fw-init-baudrate = <3000000>;
+        };
+};
+
+&i2c3 {
+	pca6416: gpio@20 {
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pca6416_irq>;
+	};
+};
+
+&ecspi2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	fsl,spi-num-chipselects = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_espi2>;
+	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	spidev0: spi@0 {
+		reg = <0>;
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <500000>;
+	};
+
+};
+
+&iomuxc {
+	pinctrl_pca6416_irq: pca6416irq {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12		0x141
+		>;
+	};
+
+	pinctrl_espi2: espi2grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK		0x082
+			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI		0x082
+			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO		0x082
+			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13		0x000
+		>;
+	};
+
+	trusty {
+		compatible = "android,trusty-smc-v1";
+		ranges;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		trusty-irq {
+			compatible = "android,trusty-irq-v1";
+			interrupt-ranges = < 0 15 0>;
+			ipi-range = <8 15 8>;
+		};
+		trusty-virtio {
+			compatible = "android,trusty-virtio-v1";
+		};
+		trusty-log {
+			compatible = "android,trusty-log-v1";
+		};
+	};
+};

@@ -19,7 +19,7 @@
 <a name="Introduction"></a>
 
 # Introduction
-This repository contains the i.MX MPU project Matter related Yocto recipes. The following modules will be built with this meta-matter layer:
+This repository contains the i.MX MPU project Matter related Yocto recipes. The following modules will be built with this meta-nxp-connectivity layer:
  - Matter (CHIP) : https://github.com/nxp/matter.git
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
@@ -86,31 +86,28 @@ Run the commands below to download this release:
     $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-nanbield -m imx-6.6.3-1.0.0.xml
     $ repo sync
 
-Then integrate the meta-matter recipes into the Yocto code base
+Then integrate the meta-nxp-connectivity recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
-    $ git clone https://github.com/nxp-imx/meta-matter.git
-    $ cd meta-matter
+    $ git clone https://github.com/nxp-imx/meta-matter.git meta-nxp-connectivity
+    $ cd meta-nxp-connectivity
     $ git checkout imx_matter_2024_q1
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
 Change the current directory to the top directory of the Yocto source code and execute the command below:
 
-    # For i.MX8M Mini EVK:
-    $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm
-
-    # For i.MX8M Mini EVK with certified IW612 chipset usage:
-    $ MACHINE=imx8mmevk-iw612-matter OT_RCP_BUS=SPI DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8mm-iw612
+    # For i.MX8M Mini EVK
+    $ MACHINE=imx8mmevk-matter DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx8mm
 
     # For i.MX6ULL EVK:
-    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
+    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx6ull
 
     # For i.MX93 EVK:
-    $ MACHINE=imx93evk-matter DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx93
+    $ MACHINE=imx93evk-iwxxx-matter DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx93
 
     # For i.MX8ULP EVK:
-    $ MACHINE=imx8ulpevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8ulp
+    $ MACHINE=imx8ulpevk DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx8ulp
 
 This will create a Python virtual environment for the Matter build. To exit the Python virtual environment, please run "$ deactivate". You can also run "$ source matter_venv/bin/activate" at the top directory of the Yocto source code to re-enter the Python virtual environment for the Matter build.
 
@@ -119,25 +116,21 @@ This will also create a build directory (namely bld-xwayland-imx8mm/ for i.MX8M 
     $ bitbake imx-image-multimedia
 
 After execution of previous commands, the Yocto images will be generated:
-- ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst for i.MX8M Mini EVK.
-- ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-iw612-matter/imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst for i.MX8M Mini EVK with certified IW612 chipset usage.
+- ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst for i.MX8M Mini EVK with certified IW612 chipset usage.
 - ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst for i.MX6ULL EVK.
-- ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst for i.MX93 EVK.
+- ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-iwxxx-matter/imx-image-multimedia-imx93evk-iwxxx-matter.wic.zst for i.MX93 EVK.
 - ${MY_YOCTO}/bld-xwayland-imx8ulp/tmp/deploy/images/imx8ulpevk/imx-image-multimedia-imx8ulpevk.wic.zst for i.MX8ULP EVK.
 
 The zst images are symbolic link files, so you should copy them to a dedicated folder ${MY_images} before unziping them.
 
-    # For i.MX8M Mini EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst ${MY_images}
-
-    # For i.MX8M Mini EVK with certified IW612 chipset usage:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-iw612-matter/imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst ${MY_images}
+    # For i.MX8M Mini EVK
+    $ cp ${MY_YOCTO}/bld-xwayland-imx8mm-iw612/tmp/deploy/images/imx8mmevk-matter/imx-image-multimedia-imx8mmevk-matter.wic.zst ${MY_images}
 
     # For i.MX6ULL EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx6ull/tmp/deploy/images/imx6ullevk/imx-image-multimedia-imx6ullevk.wic.zst ${MY_images}
 
     # For i.MX93 EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-matter/imx-image-multimedia-imx93evk-matter.wic.zst ${MY_images}
+    $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-iwxxx-matter/imx-image-multimedia-imx93evk-iwxxx-matter.wic.zst ${MY_images}
 
     # For i.MX8ULP EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx8ulp/tmp/deploy/images/imx8ulpevk/imx-image-multimedia-imx8ulpevk.wic.zst ${MY_images}
@@ -150,21 +143,17 @@ ___Be cautious when executing the dd command below, making sure that the output 
 
     $ cd ${MY_images}
 
-    # For i.MX8M Mini EVK:
+    # For i.MX8M Mini EVK
     $ zstd -d imx-image-multimedia-imx8mmevk-matter.wic.zst
     $ sudo dd if=imx-image-multimedia-imx8mmevk-matter.wic of=/dev/sdc bs=4M conv=fsync
-
-    # For i.MX8M Mini EVK with certified IW612 chipset usage:
-    $ zstd -d imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst
-    $ sudo dd if=imx-image-multimedia-imx8mmevk-iw612-matter.wic of=/dev/sdc bs=4M conv=fsync
 
     # For i.MX6ULL EVK:
     $ zstd -d imx-image-multimedia-imx6ullevk.wic.zst
     $ sudo dd if=imx-image-multimedia-imx6ullevk.wic of=/dev/sdc bs=4M conv=fsync
 
     # For i.MX93 EVK:
-    $ zstd -d imx-image-multimedia-imx93evk-matter.wic.zst
-    $ sudo dd if=imx-image-multimedia-imx93evk-matter.wic of=/dev/sdc bs=4M conv=fsync
+    $ zstd -d imx-image-multimedia-imx93evk-iwxxx-matter.wic.zst
+    $ sudo dd if=imx-image-multimedia-imx93evk-iwxxx-matter.wic of=/dev/sdc bs=4M conv=fsync
 
 For use with the uuu method, please install [uuu](https://github.com/nxp-imx/mfgtools/releases/tag/uuu_1.5.21) on your host and make sure it is at least version 1.5.109.
 
@@ -178,14 +167,11 @@ ___Before flashing the image, follow the prompts on the board to put the board i
     # For i.MX8M Mini EVK:
     $ sudo uuu -b sd_all imx-image-multimedia-imx8mmevk-matter.wic.zst
 
-    # For i.MX8M Mini EVK with certified IW612 chipset usage:
-    $ sudo uuu -b sd_all imx-image-multimedia-imx8mmevk-iw612-matter.wic.zst
-
     # For i.MX6ULL EVK:
     $ sudo uuu -b sd_all imx-image-multimedia-imx6ullevk.wic.zst
 
     # For i.MX93 EVK:
-    $ sudo uuu -b sd_all imx-image-multimedia-imx93evk-matter.wic.zst
+    $ sudo uuu -b sd_all imx-image-multimedia-imx93evk-iwxxx-matter.wic.zst
 
     # For i.MX8ULP EVK:
     $ sudo uuu -b emmc_all imx-image-multimedia-imx8ulpevk.wic.zst
@@ -198,15 +184,15 @@ The prebuilt images for i.MX8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP E
 
 There are 3 modules for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web. The otbr-web module requires liboost static and jsoncpp packages, which are not included in the default Yocto images.
 
-To build these binaries, we need to use the Yocto SDK toolchain with meta-matter included.
+To build these binaries, we need to use the Yocto SDK toolchain with meta-nxp-connectivity included.
 This SDK can be generated with below commands:
 
     # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK:
-    $ MACHINE=imx8n9-sdk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx8n9sdk
+    $ MACHINE=imx8n9-sdk DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx8n9sdk
     $ cd ${MY_YOCTO}/bld-xwayland-imx8n9sdk
 
     # For i.MX6ULL EVK:
-    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-matter/tools/imx-matter-setup.sh bld-xwayland-imx6ull
+    $ MACHINE=imx6ullevk DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx6ull
     $ cd ${MY_YOCTO}/bld-xwayland-imx6ull
 
     $ bitbake imx-image-sdk -c populate_sdk
@@ -447,7 +433,7 @@ The i.MX Matter secure storage is based on eMMC RPMB. Initialising the secure st
     Starting download of 32 bytes downloading of 32 bytes finished
     Set matter dac private key successfully!
 
-Test attestation binary can be found in: _meta-matter/tools/test_attestation_
+Test attestation binary can be found in: _meta-nxp-connectivity/tools/test_attestation_
 
 The Trusty OS, which contains the Trusted Application (TA) for i.MX Matter, is maintained by NXP and released as open source. Please follow below instructions to fetch the Trusty OS source code and build it:
 

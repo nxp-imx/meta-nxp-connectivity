@@ -52,7 +52,7 @@ TARGET_CPU = "${@get_target_cpu(d)}"
 TARGET_ARM_ARCH = "${@get_arm_arch(d)}"
 TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 
-USE_ELE = "${@bb.utils.contains('MACHINE', 'imx93evk-matter', 1, 0, d)}"
+USE_ELE = "${@bb.utils.contains('MACHINE', 'imx93evk-iwxxx-matter', 1, 0, d)}"
 
 S = "${WORKDIR}/git"
 
@@ -248,7 +248,7 @@ do_install() {
 
 addtask do_nxp_patch after do_unpack before do_patch
 do_nxp_patch () {
-    if [ ${MACHINE} = "imx93evk-matter" ]; then
+    if [ ${MACHINE} = "imx93evk-iwxxx-matter" ]; then
         cd "${S}/third_party/imx-secure-enclave/repo/"
         git am -3 "${THISDIR}/files/0001-MATTER-1352-2-Add-se_version.h.patch"
     fi

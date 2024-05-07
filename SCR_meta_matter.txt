@@ -6,7 +6,7 @@ Release - Matter Solutions
 --------------------------------------------
 NXP Provided Packages
 --------------------------------------------
-Package: meta-matter
+Package: meta-nxp-connectivity
 Outgoing License: MIT
 License File: LICENSE
 Release Location: https://github.com/nxp-imx/meta-matter
