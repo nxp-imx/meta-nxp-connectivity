@@ -4,10 +4,11 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.2.1-branch-nxp_imx_2024_q1-post"
+SRCBRANCH = "v1.3-branch-nxp_imx_2024_q2"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
+SRC_URI += "file://0001-MATTER-1352-2-Add-se_version.h.patch;patchdir=third_party/imx-secure-enclave/repo/"
 MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
@@ -22,7 +23,7 @@ FILES:${PN} += "usr/share"
 INSANE_SKIP:${PN} += "dev-so debug-deps strip"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
-MATTER_ADVANCED = "${@bb.utils.contains('MACHINE_FEATURES', 'matter-advanced', 'true', 'false', d)}"
+MATTER_ADVANCED = "${@bb.utils.contains('MACHINE_FEATURES', 'matteradvanced', 'true', 'false', d)}"
 
 def get_target_cpu(d):
     for arg in (d.getVar('TUNE_FEATURES') or '').split():
@@ -93,6 +94,8 @@ do_configure() {
         git submodule update --init
         ./scripts/checkout_submodules.py
     fi
+    cd ${S}
+    touch build_overrides/pigweed_environment.gni
     cd ${S}/examples/lighting-app/linux
     common_configure
 
@@ -122,8 +125,11 @@ do_configure() {
     cd ${S}/examples/bridge-app/linux
     common_configure
 
-    cd ${S}/examples/bridge-app/nxp/linux-imx
+    cd ${S}/examples/energy-management-app/linux
     common_configure
+
+    #cd ${S}/examples/bridge-app/nxp/linux-imx
+    #common_configure
 
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
@@ -188,8 +194,11 @@ do_compile() {
     cd ${S}/examples/bridge-app/linux
     ninja -C out/aarch64
 
-    cd ${S}/examples/bridge-app/nxp/linux-imx
+    cd ${S}/examples/energy-management-app/linux
     ninja -C out/aarch64
+
+    #cd ${S}/examples/bridge-app/nxp/linux-imx
+    #ninja -C out/aarch64
 
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
@@ -227,7 +236,8 @@ do_install() {
     install ${S}/examples/ota-provider-app/linux/out/aarch64/chip-ota-provider-app ${D}${bindir}
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
     install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
-    install ${S}/examples/bridge-app/nxp/linux-imx/out/aarch64/imx-chip-bridge-app ${D}${bindir}
+    install ${S}/examples/energy-management-app/linux/out/aarch64/chip-energy-management-app ${D}${bindir}
+    #install ${S}/examples/bridge-app/nxp/linux-imx/out/aarch64/imx-chip-bridge-app ${D}${bindir}
 
     # Install chip-tool-web
     install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
@@ -243,14 +253,6 @@ do_install() {
             install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
         fi
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
-    fi
-}
-
-addtask do_nxp_patch after do_unpack before do_patch
-do_nxp_patch () {
-    if [ ${MACHINE} = "imx93evk-iwxxx-matter" ]; then
-        cd "${S}/third_party/imx-secure-enclave/repo/"
-        git am -3 "${THISDIR}/files/0001-MATTER-1352-2-Add-se_version.h.patch"
     fi
 }
 
