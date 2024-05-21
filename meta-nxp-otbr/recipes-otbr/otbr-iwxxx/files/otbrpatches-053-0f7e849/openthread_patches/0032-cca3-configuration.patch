@@ -1,0 +1,95 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add support of CCA mode 3 [CCA1 OR CCA2].
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : CCA mode 3 (CCA1 or CCA2) can't be configured.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 890daa775..9c18a82d1 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -425,7 +425,7 @@ typedef struct otLinkMetrics
+  */
+ typedef struct otCCAModeConfig
+ {
+-    uint8_t mCcaMode;          ///< CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], NoCCA=0x04].
++    uint8_t mCcaMode;          ///< CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF.
+     uint8_t mCca1Threshold;    ///< Energy threshold for CCA Mode1.
+     uint8_t mCca2CorrThreshold;    ///< CCA Mode 2 Correlation Threshold.
+     uint8_t mCca2MinNumOfCorrTh;    ///< CCA Mode 2 Threshold Number of Correlation Peaks.
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index 0ac183783..3a3d11b3e 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -585,34 +585,34 @@ otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[])
+         aCcaCfg.mCca1Threshold      = (uint8_t)strtol(aArgs[1], NULL, 16);
+         aCcaCfg.mCca2CorrThreshold  = (uint8_t)strtol(aArgs[2], NULL, 16);
+         aCcaCfg.mCca2MinNumOfCorrTh = (uint8_t)strtol(aArgs[3], NULL, 16);
+-        if((aCcaCfg.mCcaMode>=1)&&(aCcaCfg.mCcaMode<=4) &&
++        if ((((aCcaCfg.mCcaMode >= 1) && (aCcaCfg.mCcaMode <= 4)) || (aCcaCfg.mCcaMode == 0xFF)) &&
+            (aCcaCfg.mCca2MinNumOfCorrTh <= 6) ){
+             otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x1);
+             //syslog(LOG_INFO, "SetCcaConfig DONE");
+         }
+     }
+-    else if ( aArgsLength == 0 ) // get tx power limit
++    else if ( aArgsLength == 0 ) // get cca configuration
+     {
+         otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x0);
+ 
+         // Add value in syslog
+         //syslog(LOG_INFO, "CCA Configuration:\r\n");
+-        //syslog(LOG_INFO, "CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2]: %d\r\n", aCcaCfg.mCcaMode);
++        //syslog(LOG_INFO, "CCA Mode type: CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF: 0x%x\r\n", aCcaCfg.mCcaMode);
+         //syslog(LOG_INFO, "CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
+         //syslog(LOG_INFO, "CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
+         //syslog(LOG_INFO, "CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
+ 
+         // Print value as ot-cli output
+         otCliOutputFormat("CCA Configuration:\r\n");
+-        otCliOutputFormat("CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2]: %d\r\n", aCcaCfg.mCcaMode);
++        otCliOutputFormat("CCA Mode type: CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF: 0x%x\r\n", aCcaCfg.mCcaMode);
+         otCliOutputFormat("CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
+         otCliOutputFormat("CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
+         otCliOutputFormat("CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
+     }
+     else
+     {
+-        //syslog(LOG_INFO, "SetTxPowerLimit FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2], NoCCA=4]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
+-        otCliOutputFormat("SetTxPowerLimit FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2], NoCCA=4]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++        //syslog(LOG_INFO, "ccacfg FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++        otCliOutputFormat("ccacfg FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
+     }
+ 
+     return OT_ERROR_NONE;

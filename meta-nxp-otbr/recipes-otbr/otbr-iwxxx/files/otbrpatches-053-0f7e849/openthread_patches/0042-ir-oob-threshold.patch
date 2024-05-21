@@ -1,0 +1,238 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for upgrading the independant reset
+*                         feature for OOB GPIO soft reset.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : The independant reset feature won't be upgraded to support soft reset through OOB GPIO.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 9c18a82d1..b2b340c2b 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -431,6 +431,14 @@ typedef struct otCCAModeConfig
+     uint8_t mCca2MinNumOfCorrTh;    ///< CCA Mode 2 Threshold Number of Correlation Peaks.
+ } otCCAModeConfig;
+ 
++/**
++* This structure represents threshold time for OOB 15.4 soft reset.
++*/
++typedef struct otIRConfig
++{
++    uint16_t mIRThreshold;    ///< threshold time in ms at which OOB toggle will trigger an IR
++} otIRConfig;
++
+ /**
+  * @}
+  *
+@@ -1346,6 +1354,12 @@ otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aCcaCo
+  */
+ otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersion, uint8_t fwVersionLen);
+ 
++/**
++ * @}
++ *
++*/
++otError otPlatRadioIRThresholdConfig(otInstance *aInstance, otIRConfig *aIRConfig, uint8_t aSetValue);
++
+ #ifdef __cplusplus
+ } // end of extern "C"
+ #endif
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index 78061b725..18ce33ee2 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -232,6 +232,16 @@ public:
+     */
+     otError GetFwVersion(const char *fwVersion, uint8_t fwVersionLen);
+ 
++    /**
++    * This method sets the threshold time at which OOB toggle will trigger an IR
++    *
++    * @param &aIRConfig
++    * will contain the IR trigger Configuration values of datatype otIRConfig.
++    *
++    * @returns otError
++    */
++    otError IRThresholdConfig(otIRConfig &aIRConfig, uint8_t aSetValue);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index 71c3ba9ac..96699d33e 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1122,6 +1122,24 @@ otError RadioSpinel<InterfaceType>::GetFwVersion(const char *fwVersion, uint8_t
+     return error;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::IRThresholdConfig(otIRConfig &aIRConfig, uint8_t aSetValue)
++{
++   otError error;
++   uint16_t aIRThreshold;
++
++   if(aSetValue)
++   {
++       error = Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT16_S), (&aIRConfig)->mIRThreshold);
++   }
++   else
++   {
++       error = Get(SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT16_S), &aIRThreshold);
++       (&aIRConfig)->mIRThreshold = aIRThreshold;
++   }
++   return error;
++}
++
+ template <typename InterfaceType>
+ otError RadioSpinel<InterfaceType>::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index 7831f0525..2a56ccc92 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4874,6 +4874,7 @@ enum
+     SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10C),
+     SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10D),
+     SPINEL_PROP_VENDOR_NXP_GET_SET_RCP_FREQUENCY_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10E),
++    SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD = (SPINEL_PROP_VENDOR__BEGIN + 0x10F),
+     SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
+ 
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 2e0927092..cf8777e65 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -78,6 +78,7 @@ extern otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aAr
+ extern otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ 
+ /**
+  * Initializes NCP app.
+@@ -373,7 +374,8 @@ static const otCliCommand kCommands[] = {
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+     {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+     {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
+-    {"spifreq", ProcessGetSetSpiFrequency}  //=> Get/Set SPI frequency supported by RCP
++    {"spifreq", ProcessGetSetSpiFrequency},  //=> Get/Set SPI frequency supported by RCP
++    {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index 0cde0f125..da0045d04 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -108,8 +108,8 @@ otError ProcessIRConfig(void *aContext, uint8_t aArgsLength, char *aArgs[])
+     if( aArgsLength == 1 )
+     {
+         uint16_t mode = (uint16_t)atoi(aArgs[0]);
+-        //syslog(LOG_INFO, "-> mode %s", mode==0 ? "Disable IR":(mode==1 ?("OOB IR"):"InBand IR"));
+-        if( mode < 3 )
++        //syslog(LOG_INFO, "-> mode %s", mode==0 ? "Disable IR":mode==3 ? "OOB IR 15.4":(mode==1 ?("OOB IR"):"InBand IR"));
++        if( mode < 4 )
+         {
+             otPlatRadioSetIRConfig((otInstance*)aContext, mode);
+             //syslog(LOG_INFO, "ProcessIRConfig DONE");
+@@ -687,6 +687,41 @@ otError ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aAr
+     return OT_ERROR_NONE;
+ }
+ 
++otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otIRConfig aIRConfig;
++    //syslog(LOG_INFO, "ProcessGetSetIRThreshold");
++
++    if( aArgsLength == 1 )      // Set IR threshold
++    {
++        aIRConfig.mIRThreshold = (uint16_t)atoi(aArgs[0]);
++        if( ( aIRConfig.mIRThreshold >= 100 ) && ( aIRConfig.mIRThreshold<= 1000 ) )
++        {
++           otPlatRadioIRThresholdConfig((otInstance*)aContext, &aIRConfig, 0x01);
++           //syslog(LOG_INFO, "OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++        }
++        else
++        {
++           //syslog(LOG_INFO, "OOB IR Threshold FAILED! Invalid Threshold Time - Required[100 to 1000\r\n");
++           otCliOutputFormat("OOB IR Threshold FAILED! Invalid Threshold Time - Required[100 to 1000\r\n");
++        }
++    }
++
++    else if ( aArgsLength == 0 ) // get IR threshold
++    {
++        otPlatRadioIRThresholdConfig((otInstance*)aContext, &aIRConfig, 0x00);
++        //syslog(LOG_INFO, "OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++        otCliOutputFormat("OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++    }
++
++    else
++    {
++        //syslog(LOG_INFO, "OOB IR Threshold FAILED! Invalid input arg\r\nFormat: irthold <Threshold Time>\r\nThreshold Time : 100 to 1000\r\n");
++        otCliOutputFormat("OOB IR Threshold FAILED! Invalid input arg\r\nFormat: irthold <Threshold Time>\r\nThreshold Time : 100 to 1000\r\n");
++    }
++    return OT_ERROR_NONE;
++}
++
+ static const otCliCommand kCommands[] = {
+     {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
+     {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
+@@ -695,7 +730,8 @@ static const otCliCommand kCommands[] = {
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+     {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+     {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
+-    {"spifreq", ProcessGetSetSpiFrequency}  //=> Get/Set SPI frequency supported by RCP
++    {"spifreq", ProcessGetSetSpiFrequency},  //=> Get/Set SPI frequency supported by RCP
++    {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
+ };
+ } //extern "C"
+ 
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index adad840b6..9dd3733ac 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -965,6 +965,12 @@ otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersi
+     return sRadioSpinel.GetFwVersion(fwVersion, fwVersionLen);
+ }
+ 
++otError otPlatRadioIRThresholdConfig(otInstance *aInstance, otIRConfig *aotIRConfig, uint8_t aSetValue)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return sRadioSpinel.IRThresholdConfig(*aotIRConfig, aSetValue);
++}
++
+ const otRadioSpinelMetrics *otSysGetRadioSpinelMetrics(void) { return sRadioSpinel.GetRadioSpinelMetrics(); }
+ 
+ const otRcpInterfaceMetrics *otSysGetRcpInterfaceMetrics(void)

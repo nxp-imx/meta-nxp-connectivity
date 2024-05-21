@@ -1,0 +1,82 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Addional changes required by our SPI driver in order to reach up to
+*                         10MHz SPI clock speed (dynamic configuration, predictable transaction length...).
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
+*/
+
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index f4f665ea1..ab1705c5f 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -623,14 +623,14 @@ void ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aArgs[
+         switch(speed)
+         {
+             case 1: //OT_RADIO_HIGH_BUS_SPEED
+-                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 6MHz\r\n");
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 10MHz\r\n");
+             break;
+             case 2: //OT_RADIO_FULL_BUS_SPEED
+-                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 10MHz\r\n");
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed > 10MHz\r\n");
+             break;
+             case 0: //OT_RADIO_DEFAULT_BUS_SPEED
+             default:
+-                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 3MHz\r\n");
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 4MHz\r\n");
+             break;
+         }
+     }
+@@ -638,7 +638,7 @@ void ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aArgs[
+     {
+         uint32_t speed = (uint32_t)atoi(aArgs[0]);
+ 
+-        if( (speed >= 10000) && (speed <= 10000000) )
++        if( (speed >= 10000) && (speed <= 20000000) )
+         {
+             if( otThreadGetDeviceRole((otInstance*)aContext) == OT_DEVICE_ROLE_DISABLED )
+             {
+diff --git a/src/posix/platform/include/openthread/openthread-system.h b/src/posix/platform/include/openthread/openthread-system.h
+index e8210703b..b34f953ae 100644
+--- a/src/posix/platform/include/openthread/openthread-system.h
++++ b/src/posix/platform/include/openthread/openthread-system.h
+@@ -62,7 +62,7 @@ enum
+     OT_PLATFORM_CONFIG_SPI_DEFAULT_ALIGN_ALLOWANCE =
+         16, ///< Default maximum number of 0xFF bytes to clip from start of MISO frame.
+     OT_PLATFORM_CONFIG_SPI_DEFAULT_SMALL_PACKET_SIZE =
+-        32,                                ///< Default smallest SPI packet size we can receive in a single transaction.
++        48,                                ///< Default smallest SPI packet size we can receive in a single transaction.
+     OT_PLATFORM_CONFIG_MAX_RADIO_URLS = 2, ///< Max number of Radio URLs.
+ };
+ 

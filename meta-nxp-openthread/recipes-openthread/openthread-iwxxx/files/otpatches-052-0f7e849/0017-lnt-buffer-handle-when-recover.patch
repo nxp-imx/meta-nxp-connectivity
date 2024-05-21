@@ -1,0 +1,65 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Clear Spinel RX buffer after Reset during recovery sequence.
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : Frames eventually sent by the RCP between disable and reset will be
+*                         handled post recovery and they could lead to failures.
+*/
+
+diff --git a/src/lib/spinel/multi_frame_buffer.hpp b/src/lib/spinel/multi_frame_buffer.hpp
+index 9a374cd6a..e1b2efa72 100644
+--- a/src/lib/spinel/multi_frame_buffer.hpp
++++ b/src/lib/spinel/multi_frame_buffer.hpp
+@@ -362,7 +362,7 @@ public:
+ 
+         aFrame = (aFrame == nullptr) ? mBuffer : aFrame + aLength;
+ 
+-        if (aFrame != mWriteFrameStart)
++        if (aFrame < mWriteFrameStart) // there were issues when clearing the buffer, index was not properly reset
+         {
+             uint16_t totalLength = Encoding::LittleEndian::ReadUint16(aFrame + kHeaderTotalLengthOffset);
+             uint16_t skipLength  = Encoding::LittleEndian::ReadUint16(aFrame + kHeaderSkipLengthOffset);
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index d6a43ba0c..5641e358b 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -2170,6 +2170,9 @@ template <typename InterfaceType> void RadioSpinel<InterfaceType>::RecoverFromRc
+     mIsTimeSynced = false;
+ 
+     ResetRcp(mResetRadioOnStartup);
++    // this clear is necessary in case the RCP has sent messages between disable and reset
++    mRxFrameBuffer.Clear();
++
+     SuccessOrDie(Set(SPINEL_PROP_PHY_ENABLED, SPINEL_DATATYPE_BOOL_S, true));
+     mState = kStateSleep;
+ 

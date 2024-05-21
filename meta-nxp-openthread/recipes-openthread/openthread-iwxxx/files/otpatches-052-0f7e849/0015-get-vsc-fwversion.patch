@@ -1,0 +1,189 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for Reading the FW version.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : Not possible to read the FW version. Lower debug capabilities.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 1941a9047..c1ed877d8 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -1328,6 +1328,12 @@ otError otPlatRadioMfgCommand(otInstance *aInstance, uint8_t *payload, const uin
+  */
+ otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aCcaConfig, uint8_t aSetValue);
+ 
++/**
++ * @}
++ *
++ */
++otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersion, uint8_t fwVersionLen);
++
+ #ifdef __cplusplus
+ } // end of extern "C"
+ #endif
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index 0d34293f3..3fe0fe98f 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -223,6 +223,15 @@ public:
+      */
+     otError CcaConfigValue(otCCAModeConfig &aCcaConfig, uint8_t aSetValue);
+ 
++   /**
++    * This method returns the fw version string.
++    *
++    * @param[out] fwVersion
++    *
++    * @returns otError
++    */
++    otError GetFwVersion(const char *fwVersion, uint8_t fwVersionLen);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index ef3745442..9b3e339af 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1115,6 +1115,13 @@ otError RadioSpinel<InterfaceType>::CcaConfigValue(otCCAModeConfig &aCcaConfig,
+     return error;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::GetFwVersion(const char *fwVersion, uint8_t fwVersionLen)
++{
++    otError error = Get(SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD, SPINEL_DATATYPE_UTF8_S, fwVersion, fwVersionLen);
++    return error;
++}
++
+ template <typename InterfaceType>
+ otError RadioSpinel<InterfaceType>::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index 0bcf14dda..ef4ca67f9 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4872,6 +4872,7 @@ enum
+     SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10A),
+     SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10B),
+     SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10C),
++    SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10D),
+     SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
+ 
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 2ba435dcd..988e0d58e 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -76,6 +76,7 @@ extern otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[
+ extern otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ 
+ /**
+  * Initializes NCP app.
+@@ -369,7 +370,8 @@ static const otCliCommand kCommands[] = {
+     {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
+     {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+-    {"ccacfg", ProcessGetSetCcaCfg} //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"fwversion", ProcessGetFwVersion} //=> Get firmware version for 15.4
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index db48669c4..011e53057 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -95,6 +95,8 @@ extern "C"
+ #define MFG_CMD_PHY_RX_TX_ACK_TEST 0x3A   //58
+ #define MFG_CMD_SET_GENERIC_PARAM 0x3B    //59
+ 
++#define MAX_VERSION_STRING_SIZE 128 //< Max size of version string
++
+ static uint8_t mfgEnable = 0;
+ 
+ // 15.4_INDEPENDENT_RESET
+@@ -611,13 +613,31 @@ otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[])
+     return OT_ERROR_NONE;
+ }
+ 
++otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    OT_UNUSED_VARIABLE(aArgs);
++
++    if ( aArgsLength == 0 )
++    {
++        const char version[MAX_VERSION_STRING_SIZE] = {0};
++        otPlatRadioGetFwVersionString((otInstance*)aContext, version, MAX_VERSION_STRING_SIZE);
++        otCliOutputFormat("%s\r\n", version);
++    }
++    else
++    {
++        //syslog(LOG_INFO, "GetFwVersion FAILED! Invalid input arg");
++    }
++    return OT_ERROR_NONE;
++}
++
+ static const otCliCommand kCommands[] = {
+     {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
+     {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
+     {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
+     {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+-    {"ccacfg", ProcessGetSetCcaCfg} //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"fwversion", ProcessGetFwVersion} //=> Get firmware version for 15.4
+ };
+ } //extern "C"
+ 
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index 6829ec857..cc3b326f4 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -953,6 +953,12 @@ otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aOtCCA
+     return sRadioSpinel.CcaConfigValue(*aOtCCAModeConfig, aSetValue);
+ }
+ 
++otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersion, uint8_t fwVersionLen)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return sRadioSpinel.GetFwVersion(fwVersion, fwVersionLen);
++}
++
+ const otRadioSpinelMetrics *otSysGetRadioSpinelMetrics(void) { return sRadioSpinel.GetRadioSpinelMetrics(); }
+ 
+ const otRcpInterfaceMetrics *otSysGetRcpInterfaceMetrics(void)

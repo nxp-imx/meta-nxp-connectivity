@@ -1,0 +1,245 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for configuring CCA mode and threshold at run time.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : CCA can't be configured at run-time.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 7080c14e5..1941a9047 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -420,6 +420,17 @@ typedef struct otLinkMetrics
+     bool mReserved : 1;   ///< Reserved, this is for reference device.
+ } otLinkMetrics;
+ 
++/**
++ * This structure represents different CCA mode configurations before Tx.
++ */
++typedef struct otCCAModeConfig
++{
++    uint8_t mCcaMode;          ///< CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], NoCCA=0x04].
++    uint8_t mCca1Threshold;    ///< Energy threshold for CCA Mode1.
++    uint8_t mCca2CorrThreshold;    ///< CCA Mode 2 Correlation Threshold.
++    uint8_t mCca2MinNumOfCorrTh;    ///< CCA Mode 2 Threshold Number of Correlation Peaks.
++} otCCAModeConfig;
++
+ /**
+  * @}
+  *
+@@ -1311,6 +1322,12 @@ otError otPlatRadioGetTxPowerLimit(otInstance *aInstance, uint8_t* txPowerLimit)
+  */
+ otError otPlatRadioMfgCommand(otInstance *aInstance, uint8_t *payload, const uint8_t payloadLenIn, uint8_t *payloadLenOut);
+ 
++/**
++ * @}
++ *
++ */
++otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aCcaConfig, uint8_t aSetValue);
++
+ #ifdef __cplusplus
+ } // end of extern "C"
+ #endif
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index ee0adcf08..0d34293f3 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -213,6 +213,16 @@ public:
+      */
+     otError MfgCmd(uint8_t *payload, const uint8_t payloadLenIn, uint8_t &payloadLenOut);
+ 
++    /**
++     * @brief Set / Get the CCA Mode Configuration Values
++     *
++     * @param &aCcaConfig
++     * will contain the CCA Configuration values of datatype otCCAModeConfig.
++     *
++     * @return otError
++     */
++    otError CcaConfigValue(otCCAModeConfig &aCcaConfig, uint8_t aSetValue);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index 4556af145..ef3745442 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1089,6 +1089,32 @@ otError RadioSpinel<InterfaceType>::MfgCmd(uint8_t *payload, const uint8_t paylo
+     return error;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::CcaConfigValue(otCCAModeConfig &aCcaConfig, uint8_t aSetValue)
++{
++    otError error;
++    uint8_t aCcaMode, aCca1Threshold, aCca2CorrThreshold, aCca2MinNumOfCorrTh;
++
++    if(aSetValue)
++    {
++        error = Set(SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT8_S
++                    SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S), (&aCcaConfig)->mCcaMode,
++                    (&aCcaConfig)->mCca1Threshold, (&aCcaConfig)->mCca2CorrThreshold, (&aCcaConfig)->mCca2MinNumOfCorrTh);
++    }
++    else
++    {
++        error = Get(SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT8_S
++                    SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S), &aCcaMode, &aCca1Threshold,
++                    &aCca2CorrThreshold, &aCca2MinNumOfCorrTh);
++        (&aCcaConfig)->mCcaMode = aCcaMode;
++        (&aCcaConfig)->mCca1Threshold = aCca1Threshold;
++        (&aCcaConfig)->mCca2CorrThreshold = aCca2CorrThreshold;
++        (&aCcaConfig)->mCca2MinNumOfCorrTh = aCca2MinNumOfCorrTh;
++    }
++
++    return error;
++}
++
+ template <typename InterfaceType>
+ otError RadioSpinel<InterfaceType>::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index 330dad16e..0bcf14dda 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4871,6 +4871,7 @@ enum
+     SPINEL_PROP_VENDOR_NXP_IR_CMD        = (SPINEL_PROP_VENDOR__BEGIN + 0x101),
+     SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10A),
+     SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10B),
++    SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10C),
+     SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
+ 
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 4bd7c8630..2ba435dcd 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -75,6 +75,7 @@ extern otError ProcessIRCmd(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ 
+ /**
+  * Initializes NCP app.
+@@ -367,7 +368,8 @@ static const otCliCommand kCommands[] = {
+     {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
+     {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
+     {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
+-    {"mfgcmd", ProcessMfgCommands} //=> Generic VSC for MFG RF commands
++    {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
++    {"ccacfg", ProcessGetSetCcaCfg} //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index c1cc7079e..db48669c4 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -566,12 +566,58 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ 
+     return error;
+ }
++
++otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otCCAModeConfig aCcaCfg;
++    //syslog(LOG_INFO, "SetCcaConfig");
++
++    if( aArgsLength == 4 ) // set cca configuration
++    {
++        aCcaCfg.mCcaMode            = (uint8_t)strtol(aArgs[0], NULL, 16);
++        aCcaCfg.mCca1Threshold      = (uint8_t)strtol(aArgs[1], NULL, 16);
++        aCcaCfg.mCca2CorrThreshold  = (uint8_t)strtol(aArgs[2], NULL, 16);
++        aCcaCfg.mCca2MinNumOfCorrTh = (uint8_t)strtol(aArgs[3], NULL, 16);
++        if((aCcaCfg.mCcaMode>=1)&&(aCcaCfg.mCcaMode<=4) &&
++           (aCcaCfg.mCca2MinNumOfCorrTh <= 6) ){
++            otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x1);
++            //syslog(LOG_INFO, "SetCcaConfig DONE");
++        }
++    }
++    else if ( aArgsLength == 0 ) // get tx power limit
++    {
++        otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x0);
++
++        // Add value in syslog
++        //syslog(LOG_INFO, "CCA Configuration:\r\n");
++        //syslog(LOG_INFO, "CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2]: %d\r\n", aCcaCfg.mCcaMode);
++        //syslog(LOG_INFO, "CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
++        //syslog(LOG_INFO, "CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
++        //syslog(LOG_INFO, "CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
++
++        // Print value as ot-cli output
++        otCliOutputFormat("CCA Configuration:\r\n");
++        otCliOutputFormat("CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2]: %d\r\n", aCcaCfg.mCcaMode);
++        otCliOutputFormat("CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
++        otCliOutputFormat("CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
++        otCliOutputFormat("CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
++    }
++    else
++    {
++        //syslog(LOG_INFO, "SetTxPowerLimit FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2], NoCCA=4]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++        otCliOutputFormat("SetTxPowerLimit FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=1, CCA2=2, CCA3=3[CCA1 AND CCA2], NoCCA=4]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++    }
++
++    return OT_ERROR_NONE;
++}
++
+ static const otCliCommand kCommands[] = {
+     {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
+     {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
+     {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
+     {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
+-    {"mfgcmd", ProcessMfgCommands} //=> Generic VSC for MFG RF commands
++    {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
++    {"ccacfg", ProcessGetSetCcaCfg} //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+ };
+ } //extern "C"
+ 
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index 46faff8dd..6829ec857 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -947,6 +947,12 @@ otError otPlatRadioMfgCommand(otInstance *aInstance, uint8_t *payload, const uin
+     return sRadioSpinel.MfgCmd(payload, payloadLenIn, *payloadLenOut);
+ }
+ 
++otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aOtCCAModeConfig, uint8_t aSetValue)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return sRadioSpinel.CcaConfigValue(*aOtCCAModeConfig, aSetValue);
++}
++
+ const otRadioSpinelMetrics *otSysGetRadioSpinelMetrics(void) { return sRadioSpinel.GetRadioSpinelMetrics(); }
+ 
+ const otRcpInterfaceMetrics *otSysGetRcpInterfaceMetrics(void)

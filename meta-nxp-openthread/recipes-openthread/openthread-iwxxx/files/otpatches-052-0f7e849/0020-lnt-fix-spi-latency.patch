@@ -1,0 +1,60 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Fix a race condition in ot-host when SPI_INT GPIO changes between
+*                         CheckInterrupt() and FD_SET.
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : SPI transaction requested by the RCP will occasionally be significantly delayed.
+*/
+
+diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
+index 844e28afb..d8c5611b3 100644
+--- a/src/posix/platform/spi_interface.cpp
++++ b/src/posix/platform/spi_interface.cpp
+@@ -663,6 +663,17 @@ void SpiInterface::UpdateFdSet(void *aMainloopContext)
+             // The interrupt pin was not asserted, so we wait for the interrupt pin to be asserted by adding it to the
+             // read set.
+             FD_SET(mIntGpioValueFd, &context->mReadFdSet);
++
++            if (CheckInterrupt())
++            {
++                // Interrupt pin was not asserted before FD_SET
++                // but it is after.
++                // set the timeout to zero else the select will not detect the falling edge
++                // and will wait until the end of the timeout
++                timeout.tv_sec  = 0;
++                timeout.tv_usec = 0;
++                otLogDebgPlat("UpdateFdSet(): Interrupt after FD_SET.");
++            }
+         }
+     }
+     else if (timercmp(&pollingTimeout, &timeout, <))

@@ -1,0 +1,173 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for set TX power limit feature.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : TX power limit feature won't be available.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 4ca02ddb5..c38df1a15 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -1294,6 +1294,12 @@ void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode);
+  */
+ otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeeeEui64);
+ 
++/**
++ * @}
++ *
++ */
++otError otPlatRadioSetTxPowerLimit(otInstance *aInstance, uint8_t txPowerLimit);
++
+ #ifdef __cplusplus
+ } // end of extern "C"
+ #endif
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index a23c51194..e2c88d603 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -183,6 +183,18 @@ public:
+      */
+     otError SetIeeeEui64(const otExtAddress &aIeeeEui64);
+ 
++    /**
++     * @brief Set the Tx Power Limit for 15.4
++     *
++     * @param txPowerLimit
++     * txPowerLimit (0 or higher than 22), No power backoff is applied
++     * txPowerLimit = 1 to 44, force TX power back off to txPowerLimit
++     * (txPowerLimit = 0.5dBm step, TX power back off : 0.5dBm step )
++     *
++     * @return otError
++     */
++    otError SetTxPowerLimit(uint8_t txPowerLimit);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index ad3de1df8..9d5b29140 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1057,6 +1057,16 @@ exit:
+     return error;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::SetTxPowerLimit(uint8_t txPowerLimit)
++{
++    otError error;
++    SuccessOrExit(error = Set(SPINEL_PROP_VENDOR_NXP_SET_TXPOWERLIMIT_CMD, SPINEL_DATATYPE_UINT8_S, txPowerLimit));
++
++exit:
++    return error;
++}
++
+ template <typename InterfaceType>
+ otError RadioSpinel<InterfaceType>::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index a13bacdd5..7ceae572d 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4870,6 +4870,7 @@ enum
+     SPINEL_PROP_VENDOR_NXP_IR_CONFIG     = (SPINEL_PROP_VENDOR__BEGIN + 0x100),
+     SPINEL_PROP_VENDOR_NXP_IR_CMD        = (SPINEL_PROP_VENDOR__BEGIN + 0x101),
+     SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10A),
++    SPINEL_PROP_VENDOR_NXP_SET_TXPOWERLIMIT_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10B),
+ 
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+ 
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 4656acee4..3ad3ddf45 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -454,6 +454,33 @@ static otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[
+     return error;
+ }
+ 
++static otError ProcessSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++
++    otError error = OT_ERROR_INVALID_ARGS;
++
++    syslog(LOG_INFO, "SetTxPowerLimit");
++
++    if( aArgsLength == 1 )
++    {
++        uint8_t txPowerLimit = (uint8_t)atoi(aArgs[0]);
++        if((txPowerLimit>=1)&&(txPowerLimit<=22)){
++            syslog(LOG_INFO, "-> txPowerLimit : %d", txPowerLimit);
++        }else{
++            syslog(LOG_INFO, "-> txPowerLimit : default value");
++        }
++        otPlatRadioSetTxPowerLimit(aContext, txPowerLimit);
++        syslog(LOG_INFO, "SetTxPowerLimit DONE");
++        error = OT_ERROR_NONE;
++    }
++    else
++    {
++        syslog(LOG_INFO, "SetTxPowerLimit FAILED! Invalid input arg");
++    }
++
++    return error;
++}
++
+ static const otCliCommand kCommands[] = {
+ #if !OPENTHREAD_POSIX_CONFIG_DAEMON_ENABLE
+     {"exit", ProcessExit},
+@@ -462,6 +489,7 @@ static const otCliCommand kCommands[] = {
+     {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
+     {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
+     {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
++    {"txpwrlimit", ProcessSetTxPowerLimit}, //=> Set TX power limit for 15.4
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index 6d133c252..f121300ec 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -929,6 +929,12 @@ otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeee
+     return sRadioSpinel.SetIeeeEui64(*aIeeeEui64);
+ }
+ 
++otError otPlatRadioSetTxPowerLimit(otInstance *aInstance, uint8_t txPowerLimit)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return sRadioSpinel.SetTxPowerLimit(txPowerLimit);
++}
++
+ const otRadioSpinelMetrics *otSysGetRadioSpinelMetrics(void) { return sRadioSpinel.GetRadioSpinelMetrics(); }
+ 
+ const otRcpInterfaceMetrics *otSysGetRcpInterfaceMetrics(void)

@@ -1,0 +1,182 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for reading the current independant reset configuration.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : Current independant reset feature configuration can't be read.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index b4da54b54..8fbb3a0fa 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -2,6 +2,8 @@
+  *  Copyright (c) 2016, The OpenThread Authors.
+  *  All rights reserved.
+  *
++ *  Copyright 2021-2024 NXP.
++ *
+  *  Redistribution and use in source and binary forms, with or without
+  *  modification, are permitted provided that the following conditions are met:
+  *  1. Redistributions of source code must retain the above copyright
+@@ -1340,6 +1342,12 @@ void otPlatRadioSetIRCmd(otInstance *aInstance);
+  */
+ void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode);
+ 
++/**
++ * @}
++ *
++ */
++void otPlatRadioGetIRConfig(otInstance *aInstance, uint8_t* mode);
++
+ /**
+  * @}
+  *
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index 18ce33ee2..fa1c24ff4 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -206,6 +206,28 @@ public:
+      */
+     otError GetTxPowerLimit(uint8_t &txPowerLimit);
+ 
++     /**
++     * @brief Set the Independent Reset configuration
++     *
++     * @param &mode
++     * will contain the value set in IWx12
++     * (0, 1, 2)
++     *
++     * @return otError
++     */
++    otError SetIRConfig(uint8_t mode);
++
++     /**
++     * @brief Get the Independent Reset configuration
++     *
++     * @param &mode
++     * will contain the value set in IWx12
++     * (0, 1, 2)
++     *
++     * @return otError
++     */
++    otError GetIRConfig(uint8_t &mode);
++
+     /**
+      * @brief GetMfgChannel
+      * @param channel
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index 31b7a0ae5..0aa63493b 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1074,6 +1074,20 @@ otError RadioSpinel<InterfaceType>::GetTxPowerLimit(uint8_t &txPowerLimit)
+     return error;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::SetIRConfig(uint8_t mode)
++{
++    otError error = Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT8_S, mode);
++    return error;
++}
++
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::GetIRConfig(uint8_t &mode)
++{
++    otError error = Get(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT8_S, &mode);
++    return error;
++}
++
+ #define MAXBUFFERSIZE 16
+ 
+ template <typename InterfaceType>
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index ba06b4732..4fe32635e 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -104,23 +104,32 @@ static uint8_t mfgEnable = 0;
+ otError ProcessIRConfig(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ {
+     //syslog(LOG_INFO, "ProcessIRConfig");
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t mode = 0;
+ 
+     if( aArgsLength == 1 )
+     {
+-        uint16_t mode = (uint16_t)atoi(aArgs[0]);
++        mode = (uint8_t)atoi(aArgs[0]);
+         //syslog(LOG_INFO, "-> mode %s", mode==0 ? "Disable IR":mode==3 ? "OOB IR 15.4":(mode==1 ?("OOB IR"):"InBand IR"));
+         if( mode < 4 )
+         {
+             otPlatRadioSetIRConfig((otInstance*)aContext, mode);
+             //syslog(LOG_INFO, "ProcessIRConfig DONE");
++            error = OT_ERROR_NONE;
+         }
+     }
+     else
+     {
+         //syslog(LOG_INFO, "ProcessIRConfig FAILED!");
++        otPlatRadioGetIRConfig((otInstance*)aContext, &mode);
++
++        // Print value as ot-cli output
++        otCliOutputFormat("%d\r\n", mode);
++
++        error = OT_ERROR_NONE;
+     }
+ 
+-    return OT_ERROR_NONE;
++    return error;
+ }
+ 
+ otError ProcessIRCmd(void *aContext, uint8_t aArgsLength, char *aArgs[])
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index 9dd3733ac..985d24f61 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -913,7 +913,13 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
+ void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode)
+ {
+     OT_UNUSED_VARIABLE(aInstance);
+-    SuccessOrDie(sRadioSpinel.Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT16_S, mode));
++    SuccessOrDie(sRadioSpinel.SetIRConfig(mode));
++}
++
++void otPlatRadioGetIRConfig(otInstance *aInstance, uint8_t* mode)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(sRadioSpinel.GetIRConfig(*mode));
+ }
+ 
+ void otPlatRadioSetIRCmd(otInstance *aInstance)
+-- 
+2.25.1
+
