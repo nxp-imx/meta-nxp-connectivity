@@ -128,8 +128,8 @@ do_configure() {
     cd ${S}/examples/energy-management-app/linux
     common_configure
 
-    #cd ${S}/examples/bridge-app/nxp/linux-imx
-    #common_configure
+    cd ${S}/examples/bridge-app/nxp/linux-imx
+    common_configure
 
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
@@ -197,8 +197,8 @@ do_compile() {
     cd ${S}/examples/energy-management-app/linux
     ninja -C out/aarch64
 
-    #cd ${S}/examples/bridge-app/nxp/linux-imx
-    #ninja -C out/aarch64
+    cd ${S}/examples/bridge-app/nxp/linux-imx
+    ninja -C out/aarch64
 
     # Build chip-tool-web
     cd ${S}/examples/chip-tool
@@ -237,7 +237,7 @@ do_install() {
     install ${S}/examples/ota-requestor-app/linux/out/aarch64/chip-ota-requestor-app ${D}${bindir}
     install ${S}/examples/bridge-app/linux/out/aarch64/chip-bridge-app ${D}${bindir}
     install ${S}/examples/energy-management-app/linux/out/aarch64/chip-energy-management-app ${D}${bindir}
-    #install ${S}/examples/bridge-app/nxp/linux-imx/out/aarch64/imx-chip-bridge-app ${D}${bindir}
+    install ${S}/examples/bridge-app/nxp/linux-imx/out/aarch64/imx-chip-bridge-app ${D}${bindir}
 
     # Install chip-tool-web
     install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
