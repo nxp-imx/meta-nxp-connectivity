@@ -113,7 +113,7 @@ do_configure() {
     cd ${S}/examples/chip-tool
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
-    gn gen out/aarch64-web --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" enable_rtti=true enable_exceptions=true chip_with_web=1 build_without_pw=true chip_code_pre_generated_directory="${S}/zzz_pregencodes"
+    gn gen out/aarch64-web --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" enable_rtti=true enable_exceptions=true chip_with_web=1 chip_with_web2=1 build_without_pw=true chip_code_pre_generated_directory="${S}/zzz_pregencodes"
         import("//build_overrides/build.gni")
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
@@ -158,7 +158,7 @@ do_compile() {
     cd ${S}/examples/bridge-app/nxp/linux-imx
     ninja -C out/aarch64
 
-    # Build chip-tool-web
+    # Build chip-tool-web and chip-tool-web2
     cd ${S}/examples/chip-tool
     ninja -C out/aarch64-web
 
@@ -182,6 +182,11 @@ do_install() {
     install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web ${D}${bindir}
     install -d -m 755 ${D}/usr/share/chip-tool-web/
     cp -r ${S}/examples/chip-tool/webui/frontend ${D}/usr/share/chip-tool-web/
+
+    # Install chip-tool-web2
+    install ${S}/examples/chip-tool/out/aarch64-web/chip-tool-web2 ${D}${bindir}
+    cp -r ${S}/examples/chip-tool/webui-2_0/frontend2 ${D}/usr/share/chip-tool-web/
+
 }
 
 INSANE_SKIP_${PN} = "ldflags"
