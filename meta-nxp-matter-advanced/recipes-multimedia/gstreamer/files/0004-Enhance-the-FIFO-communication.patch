@@ -1,0 +1,29 @@
+From 131572a6ce8cf5fe5c8917b67502133d9edfdf3b Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Tue, 18 Jun 2024 16:49:19 +0800
+Subject: [PATCH] Enhance the FIFO communication
+
+Add 1 second delay to make sure the fifo message transfer.
+This is a workaround for make the nxp-media-app demo stable.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+Change-Id: I25ce159abfab7d8770a64df38fa664524e219010
+---
+ tools/gplay2/gplay2.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
+index 31cfd98..72a373a 100755
+--- a/tools/gplay2/gplay2.c
++++ b/tools/gplay2/gplay2.c
+@@ -124,6 +124,7 @@ ack_matter(const gchar * ack)
+ {
+   int fd = open(media_fifo_ack, O_WRONLY);
+   write(fd, ack, strlen(ack)+1);
++  sleep(1);
+   close(fd);
+ }
+ #endif
+-- 
+2.34.1
+
