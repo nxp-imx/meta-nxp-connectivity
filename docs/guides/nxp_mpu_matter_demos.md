@@ -6,7 +6,7 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
  [**Software requirements**](#software-requirements)
 
- [**Running Matter demos with OTBR on the i.MX MPU platform**](#matter-demos-with-otbr)
+ [**Running Matter demos with OTBR and OpenThread on the i.MX MPU platform**](#matter-demos-with-otbr)
 
  [**Running other Matter demos on the i.MX MPU platform**](#other-matter-demos)
 
@@ -30,9 +30,9 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
    A K32W061 dongle is required to run the [OpenThread Radio Co-Processor](https://openthread.io/platforms/co-processor) firmware.
 
-- K32W DK6 board → Role: Matter lighting-app device
+- K32W DK6 main board with K32W061 daughter board → Role: Matter Thread lighting-app device
 
-    More information about the details of the K32W DK6 can be found at [NXP Matter Thread Platform](https://www.nxp.com/products/wireless/multiprotocol-mcus/end-node-matter-with-thread-development-platform:END-NODE-MATTER-THREAD).
+    More information about the details of the K32W DK6 main board with K32W061 daughter board can be found at [NXP Matter Thread Platform](https://www.nxp.com/products/wireless/multiprotocol-mcus/end-node-matter-with-thread-development-platform:END-NODE-MATTER-THREAD).
 
 - Linux host computer
 
@@ -47,9 +47,9 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
 <a name="matter-demos-with-otbr"></a>
 
-## Running Matter demos with OTBR on the i.MX MPU platform
+## Running Matter demos with OTBR and OpenThread on the i.MX MPU platform
 
-For devices that support the Thread protocol, this guide uses the NXP K32W running lighting application as an example. The i.MX MPU platform can perform Matter networking with end devices using OTBR. Matter with OTBR on i.MX devices network topology diagram as shown below.
+For devices that support the Thread protocol, this guide uses the NXP K32W DK6 main board with K32W061 daughter board running lighting application as an example. The i.MX MPU platform can perform Matter networking with end devices using OTBR. Matter with OTBR on i.MX devices network topology diagram as shown below.
 
  <img src="../images/matter_demos/imx93-otbr.png" width = "500"/>
 
@@ -98,8 +98,8 @@ Step2. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         ipset create -exist otbr-ingress-allow-dst-swap hash:net family inet6
         sleep 1
 
-        otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&
-        spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &   #These two lines are one command
+        otbr-agent-iwxxx-spi -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
+        #These two lines are one command
 
         sleep 2
         iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
@@ -188,6 +188,30 @@ Then, you should get thread network credentials information.
 
     $ ot-ctl dataset active -x
     # Then you will get a dataset like "0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8"
+
+***Note: please use the ot-ctl-iwxxx-spi instead of ot-ctl on i.MX93 device.***
+
+### Setup ot-daemon on i.MX MPU platform
+
+Please use below commands to setup ot-daemon:
+
+    #For i.MX8M Mini EVK + 88W8987, i.MX8ULP EVK and i.MX6ULL EVK + 88W8987 with K32W RCP platform:
+
+    $ ot-daemon 'spinel+hdlc+uart:///dev/ttyUSB0?uart-baudrate=1000000' &
+
+    #For i.MX93 EVK platform:
+
+    $ modprobe moal mod_para=nxp/wifi_mod_para.conf
+    $ ot-daemon-iwxxx-spi 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
+
+You can form the Openthread network manually by following steps:
+
+    $ ot-client-ctl dataset init new
+    $ ot-client-ctl dataset commit active
+    $ ot-client-ctl ifconfig up
+    $ ot-client-ctl thread start
+
+***Note: please use the ot-client-iwxxx-spi instead of ot-client-ctl on i.MX93 device.***
 
 ### Factory reset lighting application on K32W DK6
 
@@ -281,7 +305,7 @@ Load the Wi-Fi/BT firmware and set up BT. For i.MX93 EVK, i.MX8M Mini EVK and i.
 
 After setting up the network on both side platforms, run the example application on the end device.
 
-___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX93 EVK since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, etc. on i.MX93 EVK, you need to run "$ service nvm_daemon start" to enable ELE (only need to run once after each power-up), and then run example applications.___
+___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX93 EVK since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, etc. on i.MX93 EVK, you need to run "$ systemctl start nvm_daemon" to enable ELE (only need to run once after each power-up), and then run example applications.___
 
     # to run chip-lighting-app
     $ chip-lighting-app --wifi --ble-device 0
@@ -298,14 +322,23 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     # to run nxp-meida-app
     $ nxp-media-app --wifi --ble-device 0
 
+    # to run chip-energy-management-app
+    $ chip-energy-management-app --wifi --ble-device 0
+
 #### Finally, commission and control the end devices on the controller device.
 
-    # commission the end devices
+##### commission the end devices
+
     $ chip-tool pairing ble-wifi 8888 ${SSID} ${PASSWORD} 20202021 3840
 
-    # control the lighting app / chip-all-clusters-app
+##### control the chip-lighting-app / chip-all-clusters-app
+
+    $ chip-tool onoff on 8888 1
+    $ chip-tool onoff off 8888 1
     $ chip-tool onoff toggle 8888 1
     $ chip-tool onoff read on-off 8888 1
+
+##### control the nxp-thermostat-app
 
     # read the local temperature from nxp-thermostat-app.
     $ chip-tool thermostat read local-temperature 8888 1
@@ -332,12 +365,14 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     # check if occupied-heating-setpoint equal to 1900.
     $ chip-tool thermostat read occupied-heating-setpoint 8888 1
 
-    # to test chip-bridge-app
+##### control the chip-bridge-app
+
     $ chip-tool actions read setup-url 8888 1          # read setup-url
     $ chip-tool actions read endpoint-lists 8888 1     # read endpoint-lists
     $ chip-tool actions read action-list 8888 1        # read action-list
     $ chip-tool actions instant-action 0x1001 8888 1   # the room 1 LED1 LED2 will be ON on the bridge end.
 
+##### control the nxp-media-app
 Before playing media, you need to put the __media__ in the `/home/root/media` folder and select the output audio cards.
 
     # list all audio outputs
@@ -355,9 +390,9 @@ Before playing media, you need to put the __media__ in the `/home/root/media` fo
 Then you should launch the app, and when you don't need it, you can stop it.
 
     # launch the nxp-media-app
-    $ chip-tool applicationlauncher launch-app '{"catalogVendorID": 123, "applicationID": "exampleid"}' 8888 1
+    $ chip-tool applicationlauncher launch-app 8888 1 --Application '{"catalogVendorID": 123, "applicationID": "exampleid"}'
     # stop the nxp-media-app
-    $ chip-tool applicationlauncher stop-app '{"catalogVendorID": 123, "applicationID": "exampleid"}' 8888 1
+    $ chip-tool applicationlauncher stop-app 8888 1 --Application '{"catalogVendorID": 123, "applicationID": "exampleid"}'
 
 Control and read status for nxp-meida-app:
 
@@ -394,7 +429,26 @@ Control and read status for nxp-meida-app:
     # the playback speed of currently playing media
     $ chip-tool mediaplayback read playback-speed 8888 1
 
-Currently, applications with trusty are supported on the i.MX8M Mini EVK, such as chip-tool-trusty, chip-lighting-app-trusty, and nxp-thermostat-app-trusty. Before running these example applications, you must execute the following commands to enable the secure storage service (only need to execute once after initial boot), and the the following commissioning steps are consistent with the above.
+###### control the nxp-media-app
+
+    # read the attributes' value of the cluster electricalenergymeasurement
+    $ chip-tool electricalenergymeasurement read accuracy 8888 1
+    $ chip-tool electricalenergymeasurement read cumulative-energy-imported 8888 1
+    $ chip-tool electricalenergymeasurement read cumulative-energy-exported 8888 1
+    $ chip-tool electricalenergymeasurement read periodic-energy-imported 8888 1
+    $ chip-tool electricalenergymeasurement read periodic-energy-exported 8888 1
+    $ chip-tool electricalenergymeasurement read cumulative-energy-reset 8888 1
+    # read and set some attributes' value of the cluster energyevse
+    $ chip-tool energyevse read state 8888 1
+    $ chip-tool energyevse read minimum-charge-current 8888 1
+    $ chip-tool energyevse read maximum-charge-current 8888 1
+    $ chip-tool energyevse write user-maximum-charge-current 30000 8888 1
+    $ chip-tool energyevse read user-maximum-charge-current 8888 1
+    $ chip-tool energyevse write randomization-delay-window 600 8888 1
+    $ chip-tool energyevse write approximate-evefficiency 3500 8888 1
+    $ chip-tool energyevse read approximate-evefficiency 8888 1
+
+Currently, applications with trusty are supported on the i.MX8M Mini EVK, such as chip-tool-trusty, chip-lighting-app-trusty, nxp-thermostat-app-trusty and nxp-media-app-trusty. Before running these trusty example applications, you must execute the following commands to enable the secure storage service (only need to execute once after initial boot), and the the following commissioning steps are consistent with the above.
 
 <a name="enable-the-secure-storage-service"></a>
 
@@ -430,6 +484,9 @@ Then, run example applications on another i.MX device that acts as the end devic
 
     # to run chip-bridge-app
     $ chip-bridge-app
+
+    # to run chip-energy-management-app
+    $ chip-energy-management-app
 
 Final, commission and control the end device on the controller device.
 

@@ -4,11 +4,13 @@
 
 [**i.MX MPU Matter platform**](#imx-mpu-platform)
 
+[**What's new**](#new-feature)
+
 [**How to build the Yocto image with integrated OpenThread Border Router**](#How-to-build-the-Yocto-image)
 
-[**How to build OpenThread Border Router with Yocto SDK**](#How-to-build-OTBR)
+[**How to build OpenThread Border Router and OpenThread Daemon with Yocto SDK**](#How-to-build-OTBR-OT)
 
-[**How to setup OpenThread Border Router environment within the Yocto**](#How-to-setup-OTBR)
+[**How to setup OpenThread Border Router and OpenThread Daemon environment within the Yocto**](#How-to-setup-OTBR-OT)
 
 [**How to build Matter application**](#How-to-build-Matter-application)
 
@@ -24,7 +26,7 @@ This repository contains the i.MX MPU project Matter related Yocto recipes. The 
  - OpenThread Daemon: https://github.com/openthread/openthread
  - OpenThread Border Router: https://github.com/openthread/ot-br-posix
 
-All the software components revisions are based on [project Matter 2024 January revision on master tree](https://github.com/project-chip/connectedhomeip).
+All the software components revisions are based on [Matter v1.3](https://github.com/project-chip/connectedhomeip/tree/v1.3-branch)
 
 The Following Matter related binaries will be installed into the Yocto image root filesystem by this Yocto layer recipes:
  - chip-lighting-app: Matter lighting app demo
@@ -37,13 +39,21 @@ The Following Matter related binaries will be installed into the Yocto image roo
  - imx-chip-bridge-app: NXP customized Zigbee bridge application
  - nxp-media-app: NXP customized media application
  - nxp-media-app-trusty: NXP customized media application with enhanced security on i.MX8M Mini
+ - chip-energy-management-app: Matter energy management app demo
  - chip-tool: Matter Controller tool
  - chip-tool-trusty: Matter Controller tool with enhanced security for i.MX8M Mini
  - chip-tool-web: Matter Web Controller tool
+ - chip-tool-web2: Matter Web Controller tool2 alpha version with new Angular Material UI
+ - chip-ota-provider-app: Matter ota provider app demo
+ - chip-ota-requestor-app: Matter ota requestor app demo
  - ot-daemon: OpenThread Daemon for OpenThread client
  - ot-client-ctl: OpenThread ctrl tool for OpenThread client
  - otbr-agent: OpenThread Border Router agent
  - ot-ctl: OpenThread Border Router ctrl tool
+ - ot-daemon-iwxxx-spi: OpenThread Daemon for OpenThread client of the IW612 chipset
+ - ot-client-iwxxx-spi: OpenThread ctrl tool for OpenThread client of the IW612 chipset
+ - otbr-agent-iwxxx-spi: OpenThread Border Router agent of the IW612 chipset
+ - ot-ctl-iwxxx-spi: OpenThread Border Router ctrl tool of the IW612 chipset
  - otbr-web: OpenThread Border Router web management daemon
 
 <a name="imx-mpu-platform"></a>
@@ -53,6 +63,15 @@ The Following Matter related binaries will be installed into the Yocto image roo
 We currently support 4 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M Mini EVK, the i.MX6ULL EVK and the i.MX8ULP EVK. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 <a name="How-to-build-the-Yocto-image"></a>
+
+<a name="new-feature">
+
+# What's new
+
+- Upgraded the Matter software component revisions to [Matter v1.3](https://github.com/project-chip/connectedhomeip/tree/v1.3-branch)
+- Added the Energy Management, including the Energy Management Cluster and the Energy EVSE Cluster support
+- Introduced chip-tool-web2 alpha with Angular Material based UI, chip-tool-web2 is similar to chip-tool-web and currently supports onnetwork / ble-wifi/ ble-thread pairing and onoff read / on / off / toggle / subscribe features
+- Integrated Linux L6.6.3_2.0.0 and Yocto scarthgap
 
 # How to build the Yocto image with integrated OpenThread Border Router
 
@@ -89,9 +108,9 @@ Run the commands below to download this release:
 Then integrate the meta-nxp-connectivity recipes into the Yocto code base
 
     $ cd ${MY_YOCTO}/sources/
-    $ git clone https://github.com/nxp-imx/meta-matter.git meta-nxp-connectivity
+    $ git clone https://github.com/nxp-imx/meta-nxp-connectivity.git meta-nxp-connectivity
     $ cd meta-nxp-connectivity
-    $ git checkout imx_matter_2024_q1
+    $ git checkout imx_matter_2024_q2
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
@@ -178,11 +197,12 @@ ___Before flashing the image, follow the prompts on the board to put the board i
 
 The prebuilt images for i.MX8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
-<a name="How-to-build-OTBR"></a>
+<a name="How-to-build-OTBR-OT"></a>
 
-# How to build OpenThread Border Router with the Yocto SDK
+# How to build OpenThread Border Router and OpenThread Daemon with Yocto SDK
 
-There are 3 modules for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web. The otbr-web module requires liboost static and jsoncpp packages, which are not included in the default Yocto images.
+There are 3 modules for OpenThread Border Router (OTBR): otbr-agent, ot-ctl and otbr-web.
+There are 2 modules for OpenThread: ot-daemon, ot-client-ctl.
 
 To build these binaries, we need to use the Yocto SDK toolchain with meta-nxp-connectivity included.
 This SDK can be generated with below commands:
@@ -221,7 +241,7 @@ User needs to import Yocto build environment, by sourcing this script each time 
     $ For i.MX6ULL EVK
     $ . /opt/fsl-imx-wayland/6.6-nanbield-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
-Fetch the latest otbr source code and execute the build:
+Fetch the latest otbr source code and execute the build for OTBR:
 
     $ mkdir ${MY_OTBR}  # this directory will be the top directory of the OTBR source code
     $ cd ${MY_OTBR}
@@ -269,9 +289,33 @@ __The OTBR does not support incremental compilation. If an error occurs during c
     $ cd ${MY_OTBR}
     $ rm -rf build/
 
-<a name="How-to-setup-OTBR"></a>
+Fetch the latest openthread source code and execute the build for OpenThread:
 
-# How to setup OpenThread Border Router on the target
+    $ mkdir ${MY_OPENTHREAD}  # this directory will be the top directory of the Open Thread source code
+    $ cd ${MY_OPENTHREAD}
+    $ git clone https://github.com/openthread/openthread
+    $ cd openthread
+    $ git checkout 5beae143700db54c6e9bd4b15a568abe2f305723
+
+    # For i.MX8M Mini EVK, i.MX8ULP EVK and i.MX6ULL EVK
+    $ cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DOT_COMPILE_WARNING_AS_ERROR=OFF -DOT_PLATFORM=posix -DOT_SLAAC=ON \
+      -DOT_BORDER_AGENT=ON -DOT_BORDER_ROUTER=ON -DOT_COAP=ON -DOT_COAP_BLOCK=ON -DOT_COAP_OBSERVE=ON -DOT_COAPS=ON -DOT_COMMISSIONER=ON \
+      -DOT_CHANNEL_MANAGER=ON -DOT_CHANNEL_MONITOR=ON -DOT_CHILD_SUPERVISION=ON -DOT_DATASET_UPDATER=ON -DOT_DHCP6_CLIENT=ON \
+      -DOT_DHCP6_SERVER=ON -DOT_DIAGNOSTIC=ON -DOT_DNS_CLIENT=ON -DOT_ECDSA=ON -DOT_IP6_FRAGM=ON -DOT_JAM_DETECTION=ON -DOT_JOINER=ON \
+      -DOT_LEGACY=ON -DOT_MAC_FILTER=ON -DOT_NETDIAG_CLIENT=ON -DOT_NEIGHBOR_DISCOVERY_AGENT=ON -DOT_PING_SENDER=ON \
+      -DOT_REFERENCE_DEVICE=ON -DOT_SERVICE=ON -DOT_SNTP_CLIENT=ON -DOT_SRP_CLIENT=ON -DOT_COVERAGE=OFF -DOT_LOG_LEVEL_DYNAMIC=ON \
+      -DOT_RCP_RESTORATION_MAX_COUNT=2 -DOT_LOG_OUTPUT=PLATFORM_DEFINED -DOT_POSIX_MAX_POWER_TABLE=ON -DOT_DAEMON=ON \
+      -DOT_THREAD_VERSION=1.3 -DCMAKE_BUILD_TYPE=Release -DOT_RCP_RESTORATION_MAX_COUNT=10 -DOT_POSIX_CONFIG_RCP_BUS=UART
+    $ ninjia
+
+The ot-daemon is built in \${MY_OPENTHREAD}/src/posix/otbr-agent.
+The ot-ctl for ot-daemon is built in \${MY_OPENTHREAD}/src/posix/ot-ctl.
+
+Please rename the ot-ctl to ot-client-ctl and then copy ot-daemon and ot-client-ctl into target /usr/sbin/ directory.
+
+<a name="How-to-setup-OTBR-OT"></a>
+
+# How to setup OpenThread Border Router and Openther Deamon on the target
 
 Use below commands to connect the OTBR to the Wi-Fi access point:
 
@@ -280,7 +324,7 @@ Use below commands to connect the OTBR to the Wi-Fi access point:
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
     $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
     $ udhcpc -i mlan0
-    $ service otbr_fwcfg start  #if no systemd installed, please use /usr/bin/otbr_fwcfg.sh instead
+    $ systemctl start otbr_fwcfg  #if no systemd installed, please use /usr/bin/otbr_fwcfg.sh instead
 
 Then configure the Thread device:
 
@@ -301,13 +345,13 @@ When using the RCP module, programmed with OpenThread Spinel firmware image, exe
 
 For __i.MX93 EVK__, we will use IW612 as Thread device:
 
-    $ otbr-agent -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&
+    $ otbr-agent-iwxxx-spi -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     $ iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $ iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
     $ otbr-web &
 
-A document explaining how to use Matter with OTBR on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md).
+A document explaining how to use Matter with OTBR and OpenThread on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md).
 
 <a name="How-to-build-Matter-application"></a>
 
@@ -319,7 +363,7 @@ The Matter application has been installed into the Yocto image by default. If yo
     $ cd ${MY_Matter_Apps}
     $ git clone https://github.com/NXP/matter.git
     $ cd matter
-    $ git checkout origin/v1.2.1-branch-nxp_imx_2024_q1
+    $ git checkout origin/v1.3-branch-nxp_imx_2024_q2
     $ git submodule update --init
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
@@ -336,26 +380,29 @@ The Matter application has been installed into the Yocto image by default. If yo
     # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp
 
-User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the build_examples.py script. Please refer to below examples.
+User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the imxlinux_example.sh script. Please refer to below examples.
 
 Assuming that the working directory is changed to the top level directory of this project.
 
     $ source scripts/activate.sh
 
     # Build the all-clusters example with below command
-    $ ./scripts/build/build_examples.py --target imx-all-clusters-app build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/all-clusters-app/linux/ -o out/all-clusters -d
 
     # Build the lighting example with below command
-    $ ./scripts/build/build_examples.py --target imx-lighting-app  build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/lighting-app/linux/ -o out/lighting -d
 
     # Build the thermostat example with below command
-    $ ./scripts/build/build_examples.py  --target imx-thermostat build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/thermostat/linux/ -o out/thermostat -d
 
     # Build the chip-tool example with below command
-    $ ./scripts/build/build_examples.py  --target imx-chip-tool build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool -d
 
     # Build the ota-provider example with below command
-    $ ./scripts/build/build_examples.py  --target imx-ota-provider-app build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/ota-provider-app/linux/ -o out/ota-provider -d
+
+    # Build the ota-requestor-app example with below command
+    $ ./scripts/examples/imxlinux_example.sh -s examples/ota-requestor-app/linux/ -o out/ota-requestor -d
 
     # Build the nxp-thermostat-app for certification device reference
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux/ -o out/nxp-thermostat -d
@@ -366,11 +413,14 @@ Assuming that the working directory is changed to the top level directory of thi
     # Build the nxp-media-app example with below command
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-media-app/linux/ -o out/nxp-media -d
 
-    # Build the Matter Controller tool with enhanced security using build_examples.py, by adding "-trusty" to the target. For example:
-    $ ./scripts/build/build_examples.py  --target imx-chip-tool-trusty build
+    # Build the chip-energy-management-app example with below command
+    $ ./scripts/examples/imxlinux_example.sh -s examples/energy-management-app/linux/ -o out/energy-management-app -d
 
-    # Build the Matter lighting app with enhanced security using build_examples.py, by adding "-trusty" to the target. For example:
-    $ ./scripts/build/build_examples.py  --target imx-lighting-app-trusty build
+    # Build the Matter Controller tool with enhanced security using imxlinux_example.sh, by adding "-t" to the target. For example:
+    $ ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/imx-chip-tool-trusty -t
+
+    # Build the Matter lighting app with enhanced security using imxlinux_example.sh, by adding "-t" to the target. For example:
+    $ ./scripts/examples/imxlinux_example.sh -s examples/lighting-app/linux -o out/imx-lighting-app-trusty -t
 
     # Build the NXP customized thermostat application with enhanced security using imxlinux_example.sh, by adding "-t" to the command. For example:
     $ ./scripts/examples/imxlinux_example.sh -s examples/nxp-thermostat/linux -o out/nxp-thermostat-trusty -t
@@ -381,21 +431,24 @@ Assuming that the working directory is changed to the top level directory of thi
     # Build the chip-tool-web application using imxlinux_example.sh, by adding "NXP_CHIPTOOL_WITH_WEB=1" to the command. For example:
     $ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web -d
 
+    # Build the chip-tool-web2 application using imxlinux_example.sh, by adding "NXP_CHIPTOOL_WITH_WEB2=1" to the command. For example:
+    $ NXP_CHIPTOOL_WITH_WEB2=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web2 -d
+
     # Build the NXP customized Zigbee bridge application with below command
     $ ./scripts/examples/imxlinux_example.sh -s examples/bridge-app/nxp/linux-imx -o out/zigbee-bridge/
 
-The applications are built in out/ subdirectories; the subdirectory name is specified with --target option, when building the examples. For example, the imx-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/imx-all-clusters-app/.
+The applications are built in out/ subdirectories; the subdirectory name is specified with -o option, when building the examples. For example, the chip-all-clusters-app executable files can found in \${MY_Matter_Apps}/connectedhomeip/out/all-clusters/.
 
 ___Make sure the subdirectories do not exist before building an application with the same name.___
-If an application needs to be built for several boards (both i.MX8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK), user can specify a board dedicated directory with --out-prefix option; for example:
+If an application needs to be built for several boards (both i.MX8M Mini EVK, i.MX6ULL EVK and i.MX93 EVK), user can specify a board dedicated directory with -o option; for example:
 
-    $./scripts/build/build_examples.py  --target imx-chip-tool --out-prefix ./out/imx8mm build
+    $ ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/imx8mm-chip-tool -d
 
-After executing the above command, the chip-tool executable files will be found in ${MY_Matter_Apps}/out/imx8mm/imx-chip-tool/.
+After executing the above command, the chip-tool executable files will be found in ${MY_Matter_Apps}/out/imx8mm-chip-tool/.
 
 An official Matter document explaining how to use chip-tool as a Matter controller can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md).
 
-A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md). A document explaining how to use chip-tool-web application can be found in the [NXP chip-tool-web guide](docs/guides/nxp_chip_tool_web_guide.md). A document explaining how to use NXP customized Zigbee bridge application imx-chip-bridge-app application can be found in the [NXP imx-chip-bridge-app guide](https://github.com/NXP/matter/blob/v1.2.1-branch-nxp_imx_2024_q1/examples/bridge-app/nxp/linux-imx/README.md).
+A document explaining how to use Matter applications on the i.MX MPU platform can be found in the [NXP Matter demos guide](docs/guides/nxp_mpu_matter_demos.md). A document explaining how to use chip-tool-web application can be found in the [NXP chip-tool-web guide](docs/guides/nxp_chip_tool_web_guide.md). A document explaining how to use NXP customized Zigbee bridge application imx-chip-bridge-app application can be found in the [NXP imx-chip-bridge-app guide](https://github.com/NXP/matter/blob/v1.3-branch-nxp_imx_2024_q2/examples/bridge-app/nxp/linux-imx/README.md).
 
 <a name="Security-configuration-for-Matter"></a>
 
@@ -453,7 +506,7 @@ The Trusty OS, which contains the Trusted Application (TA) for i.MX Matter, is m
 
 Since the i.MX Matter 2023 Q3 release, the built-in security subsystem [ELE (EdgeLock Secure Enclave)](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) is integrated to enhance the security of Matter on __i.MX93__. To enable ELE, please start the nvm_daemon service on the i.MX93 Linux shell after each power-up.
 
-    $ service nvm_daemon start
+    $ systemctl start nvm_daemon
 
 <a name="FAQ"></a>
 
@@ -491,11 +544,12 @@ Another way is to add a suffix when executing the command, as shown below:
 
 >  **Note** If you are using the official PAA files, the end Matter device must have the official DAC and PAI installed.
 
-Q4 : What should do when encountering the log "Avahi client collision detected: Local name collision" during OTBR setup with K32W RCP on i.MX8M Mini EVK?
+Q4 : How to save the commission information so that the board does not need a commission process after a reboot?
 
-A : Please run the following commands to clear the Avahi cache and then setup the OTBR.
+A : You can save the commission information by below command:
 
-    $ sudo systemctl stop avahi-daemon
-    $ sudo rm -rf /var/run/avahi-daemon/*
-    $ sudo systemd-resolve --flush-caches
-    $ sudo systemctl start avahi-daemon
+    $ mkdir -p /etc/matter && export TMPDIR=/etc/matter
+
+    After rebooting the device, re-export the `TMPDIR` environment by below command:
+
+    $ export TMPDIR=/etc/matter

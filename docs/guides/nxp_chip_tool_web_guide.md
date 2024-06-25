@@ -15,6 +15,7 @@ With the chip-tool-web, you can easily configure, manage and monitor Matter devi
 -   [Getting status for a commmissioned Matter device](#getstatus)
 -   [Binding for light and switch Matter device](#binding)
 -   [Controlling a Matter device mediaplayback cluster](#media)
+-   [Controlling a Matter device Energy EVSE Cluster](#eevse)
 -   [Additional Notes](#note)
 <hr>
 
@@ -35,11 +36,7 @@ Before using the chip-tool-web, you must compile it from source on Linux (armv71
 
 ### Building the chip-tool-web
 
-The steps to compile the chip-tool-web are the same as [How to build Matter application](https://github.com/nxp-imx/meta-matter/blob/master/README.md#how-to-build-matter-application), the only difference is the compilation command:
-```
-# Build the chip-tool-web example with the following command
-$ NXP_CHIPTOOL_WITH_WEB=1 ./scripts/examples/imxlinux_example.sh -s examples/chip-tool/ -o out/chip-tool-web -d
-```
+The steps to compile the chip-tool-web are the same as [How to build Matter application](https://github.com/nxp-imx/meta-nxp-connectivity/blob/master/README.md#how-to-build-matter-application)
 
 After compilation, you will find two binaries, chip-tool and chip-tool-web, in the ${matter}/out/chip-tool-web/ folder. However, please note that the chip-tool binary in this folder may not work as expected. Therefore, it is recommended not to use the chip-tool binary located in the out/chip-tool-web directory.
 
@@ -51,7 +48,7 @@ Before using `chip-tool-web`, make sure that the i.MX board is properly connecte
 
 #### Default Setup
 
-The image built by `meta-matter` includes the `chip-tool` binary in the i.MX SOC `/usr/bin` directory, and all frontend files are already copied to `/usr/share/chip-tool-web/`. Therefore, to use `chip-tool-web`, you only need to copy the newly compiled `chip-tool-web` binary to the `/usr/bin` directory.
+The image built by `meta-nxp-connectivity` includes the `chip-tool` binary in the i.MX SOC `/usr/bin` directory, and all frontend files are already copied to `/usr/share/chip-tool-web/`. Therefore, to use `chip-tool-web`, you only need to copy the newly compiled `chip-tool-web` binary to the `/usr/bin` directory.
 
 #### Custom Setup
 
@@ -381,7 +378,7 @@ To access the `Binding` function in the chip-tool-web, first open the navigation
 
 First, the light_switch_combo application should run properly on the K32W Matter device, and then use the chip-tool-web ble-thread pairing method to pair with two light_switch_combo devices separately.
 
-Two light-switch_combo devices, one used as the switch device and the other used as the light device. Before binding, the access control list must be written. Therefore, in the `Light Node Alias` section, select the node alias that you want to use as the light device. In the `Switch Node Alias` section, select the node alias you want to use as the switch device, and they corresponding node IDs will be filled in automatically. `ACL EndPoint ID` is recommended to use endpoint `0`. Then click the `WRITE ACL` button to trigger write acl command like bellow.
+Two light-switch_combo devices, one used as the switch device and the other used as the light device. Before binding, the access control list must be written. Therefore, in the `Light Node Alias` section, select the node alias that you want to use as the light device. In the `Switch Node Alias` section, select the node alias you want to use as the switch device, and they corresponding node IDs will be filled in automatically. `ACL EndPoint ID` is recommended to use endpoint `0`. Then click the `WRITE ACL` button to trigger write acl command like below.
 ```
 chip-tool accesscontrol write acl <acl_data> <node_id> <endpoint_id>
 ```
@@ -415,25 +412,8 @@ After the binding command is successfully executed, press SW2 two times on the d
 
 ## Controlling a Matter device mediaplayback cluster
 
-The i.MX Matter supports nxp-media-app in the 2023 q4 release, you can control the media player and read information through the chip-tool-web.
-Before controlling media app, you need to place meida in the `/home/root/media` folder of the nxp-media-app device, and you need also change to the correct audio card.
-
-```
-# start PulseAudio services
-$ pulseaudio --start
-# list audio cards information
-$ pacmd list-cards
-
-# set to the correct audio card
-# for i.MX8M Mini EVK and i.MX8ULP EVK
-$ pacmd set-default-sink alsa_output.platform-sound-wm8524.stereo-fallback
-
-# for i.MX93 EVK
-$ pacmd set-default-sink alsa_output.platform-sound-wm8962.stereo-fallback
-
-# for i.MX6ULL EVK
-$ pacmd set-default-sink alsa_output.platform-sound-wm8960.stereo-fallback
-```
+The i.MX Matter supports nxp-media-app from the 2023 q4 release, you can control the media player and read information through the chip-tool-web.
+Before controlling media app, you need to place media files in the `/home/root/media` folder of the nxp-media-app device.
 
 To access the `MediaControl` function in the chip-tool-web, first open the navigation bar and select `MediaControl`. The following interface will be displayed:
 
@@ -441,7 +421,7 @@ To access the `MediaControl` function in the chip-tool-web, first open the navig
 
 ### Launch or Stop app
 
-Select the node alias of the paired Matter nxp-media-app device, and the page will automatically fill in the corresponding node ID. Then enter the Endpoint ID and click the `LAUNCH APP` or `STOP APP` button to launch or stop the app by bellow commands.
+Select the node alias of the paired Matter nxp-media-app device, and the page will automatically fill in the corresponding node ID. Then enter the Endpoint ID and click the `LAUNCH APP` or `STOP APP` button to launch or stop the app by below commands.
 ```
 $ chip-tool applicationlauncher launch-app <launcher_data> <node_id> <endpoint_id>
 $ chip-tool applicationlauncher stop-app <launcher_data> <node_id> <endpoint_id>
@@ -536,6 +516,117 @@ In the structure above,
 - ${cluster}: The cluster name to which the device belongs.
 - ${attribute}: The name of the attribute being reported. In this case, the default attributes are  `CurrentState`, `StartTime`, `Duration`, `PlatbackSpeed`.
 - ${value}: The value of the attribute. There are three possible values for `CurrentState`: `Play`, `Pause`, `Stop`. The value of start time always be `0`. The value of `Duration` is currently playing media's duration. There are five possible values for `PlatbackSpeed`: `1.000000`, `2.000000`, `4.000000`, `8.000000`, `10.000000`.
+
+<a name="eevse"></a>
+
+## Controlling a Matter device Energy EVSE Cluster
+
+***Note: To perform EEVSE control related operations on the chip-tool-web, relevant parameters must be added. For example, run the application with the command "$chip-energy-management-app -- enable-key 000102030405070708090a0b0c0d0e0f", and then perform the onnetwork pairing operation on the chip-tool-web.***
+
+Once the pairing process is complete, the Matter device is successfully commissioned to the network. For the chip-energy-management-app, the EEVSE clusters are implemented in chip-tool-web, allowing you to control the end devices using the `energyevse` cluster commands.
+
+To access the `energyevse` function in the chip-tool-web, first open the navigation bar and select `EevseControl`. The following interface will be displayed:
+
+<img src="../images/chip_tool_web/chip-tool-web_eevse.jpg" alt="Alt text" width="500"/>
+
+### Event Trigger
+
+Select the node alias of the paired Matter chip-energy-management-app device, and the page will automatically fill in the corresponding node ID. Then enter the Endpoint ID and click the `TRIGGER` or `CLEAR` button to trigger or clear the simulated event. 
+
+- The `START TRIGGER EVENT` button is used to simulate a start event as the basis for triggering subsequent simulated events.
+- The `TRIGGER PLUGGEDIN` button is used to simulate a plugged-in event. Indicates that electric vehicles is connected to the charging station. This event must be triggered after a start event has-been triggered.
+- The `TRIGGER CHARGING DEMAND` button is used to simulate a charging demand event. Indicates that electric vehicles have a charging requirement. This event must be triggered after a plugged-in event has-been triggered.
+- The `CLEAR TRIGGER EVENT` button is used to clear the simulated start event.
+- The `CLEAR PLUGGEDIN` button is used to clear the simulated pluggedin event.
+- The `CLEAR CHARGING DEMAND` button is used to clear the simulated charging demand event.
+
+When simulating events, the principle of "last trigger, first clear" should be used, e.g. the order should be: `START TRIGGER EVENT` -- `TRIGGER PLUGGEDIN` -- `TRIGGER CHARGING DEMAND` -- `CLEAR CHARGING DEMAND` -- `CLEAR PLUGGEDIN` -- `CLEAR TRIGGER EVENT`
+
+### Charging Enable
+
+<img src="../images/chip_tool_web/chip-tool-web_eevseset.jpg" alt="Alt text" width="500"/>
+
+After the simulated charging demand event is triggered. Enter the value of minimum charge current and maximum charge current, and click the `ENABLE CHARGING` button to start charging by below commands.
+
+```
+$ chip-tool energyevse enable-charging null <minimum_charge_current> <maximum_charge_current> <node_id> <endpoint_id> --timedInteractionTimeoutMs 3000
+```
+In this command:
+- _<minimum_charge_current\>_ is the minimum charge current(mA).
+- _<maximum_charge_current\>_ is the maximum charge current(mA).
+- _<node_id\>_ is the user-defined ID of the commissioned node.
+- _<endpoint_id\>_ is the ID of the endpoint with energyevse cluster implemented.
+
+### EEVSE Write
+
+Enter the value of user maximum charge current and click the `WRITE USER MAXIMUM CHARGE CURRENT` button to set user-maximum-charge-current sttribute value by below commands.
+```
+chip-tool energyevse write <user_maximum_charge_current> <node_id> <endpoint_id>
+```
+In this command:
+- _<user_maximum_charge_current>_ is the user-defined maximum charge current(mA).
+
+### EEVSE Charging Disable
+
+Click the `DISABLE CHARGING` button to disable charging value by below commands.
+```
+chip-tool energyevse disable <node_id> <endpoint_id> --timedInteractionTimeoutMs 3000
+```
+
+### EEVSE Status
+
+Use the following buttons to read the status of the `energyevse` attribute in the `EEVSE Status` section. The page and results are shown below:
+
+<img src="../images/chip_tool_web/chip-tool-web_eevsestatus.jpg" alt="Alt text" width="500"/>
+
+-   Use the `STATE` button to trigger the following command to read the state of energyevse:
+    ```
+    $ chip-tool energyevse read state <node_id> <endpoint_id>
+    ```
+-   Use the `SUPPLY STATE` button to trigger the following command to read the supply-state of energyevse:
+    ```
+    $ chip-tool energyevse read supply-state <node_id> <endpoint_id>
+    ```
+-   Use the `FAULT STATE` button to trigger the following command to read the fault-state of energyevse:
+    ```
+    $ chip-tool energyevse read fault-state <node_id> <endpoint_id>
+    ```
+-   Use the `CHARGING ENABLED UNTIL` button to trigger the following command to read the charging-enabled-until of tenergyevse:
+    ```
+    $ chip-tool energyevse read charging-enabled-until <node_id> <endpoint_id>
+    ```
+-   Use the `MINIMUM CHARGE CURRENT` button to trigger the following command to read the minimum-charge-current of energyevse:
+    ```
+    $ chip-tool energyevse read minimum-charge-current <node_id> <endpoint_id>
+    ```
+-   Use the `MAXIMUM CHARGE CURRENT` button to trigger the following command to read the maximum-charge-current of energyevse:
+    ```
+    $ chip-tool energyevse read maximum-charge-current <node_id> <endpoint_id>
+    ```
+-   Use the `SESSION ID` button to trigger the following command to read the session-id of energyevse:
+    ```
+    $ chip-tool energyevse read session-id <node_id> <endpoint_id>
+    ```
+-   Use the `SESSION DURATION` button to trigger the following command to read the session-duration of energyevse:
+    ```
+    $ chip-tool energyevse read session-duration <node_id> <endpoint_id>
+    ```
+
+#### Report Format
+
+The EEVSE read report is output in text format with the following structure:
+```
+Report from ${nodealias} ${nodeid}:${endpoint}. Cluster:${cluster}
+${attribute}:${value}
+```
+In the structure above,
+
+- ${nodealias}: The node alias of the device.
+- ${nodeid}: The nodeid of the device.
+- ${endpoint}: The endpoint of the device.
+- ${cluster}: The cluster name to which the device belongs.
+- ${attribute}: The name of the attribute being reported. In this case, the default attributes are `state`, `supplystate`, `faultstate`, `chargingenableduntil`, `minimumchargecurrent`, `maximumchargecurrent`, `sessionid`, `sessionduration`.
+- ${value}: The value of the attribute.
 
 <a name="note"></a>
 
