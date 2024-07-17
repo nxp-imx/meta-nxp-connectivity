@@ -71,7 +71,7 @@ We currently support 4 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M 
 - Upgraded the Matter software component revisions to [Matter v1.3](https://github.com/project-chip/connectedhomeip/tree/v1.3-branch)
 - Added the Energy Management, including the Energy Management Cluster and the Energy EVSE Cluster support
 - Introduced chip-tool-web2 alpha with Angular Material based UI, chip-tool-web2 is similar to chip-tool-web and currently supports onnetwork / ble-wifi/ ble-thread pairing and onoff read / on / off / toggle / subscribe features
-- Integrated Linux L6.6.3_2.0.0 and Yocto scarthgap
+- Integrated Linux L6.6.23_2.0.0 and Yocto scarthgap
 
 # How to build the Yocto image with integrated OpenThread Border Router
 
@@ -102,7 +102,7 @@ Run the commands below to download this release:
 
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-nanbield -m imx-6.6.3-1.0.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-scarthgap -m imx-6.6.23-2.0.0.xml
     $ repo sync
 
 Then integrate the meta-nxp-connectivity recipes into the Yocto code base
@@ -220,26 +220,26 @@ This SDK can be generated with below commands:
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
     # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK:
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8n9-sdk-toolchain-6.6-nanbield.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-armv8a-imx8n9-sdk-toolchain-6.6-scarthgap.sh
 
     # For i.MX6ULL EVK
-    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.6-nanbield.sh
+    $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.6-scarthgap.sh
 
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.6-nanbield-imx8n9 for i.MX8M Mini EVK SDK, i.MX93 EVK SDK and i.MX8ULP EVK, /opt/fsl-imx-xwayland/6.6-nanbield-imx6ull for i.MX6ULL EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.6-scarthgap-imx8n9 for i.MX8M Mini EVK SDK, i.MX93 EVK SDK and i.MX8ULP EVK, /opt/fsl-imx-xwayland/6.6-scarthgap-imx6ull for i.MX6ULL EVK.___
 
-    NXP i.MX Release Distro SDK installer version 6.6-nanbield
+    NXP i.MX Release Distro SDK installer version 6.6-scarthgap
     ============================================================
-    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.6-nanbield):
+    Enter target directory for SDK (default: /opt/fsl-imx-xwayland/6.6-scarthgap):
 
 After the Yocto SDK is installed on the host machine, an SDK environment setup script is also generated.
 User needs to import Yocto build environment, by sourcing this script each time the SDK is used in a new shell; for example:
 
     # For i.MX8M Mini EVK, i.MX93 EVK and i.MX8ULP EVK
-    $ . /opt/fsl-imx-xwayland/6.6-nanbield-imx8n9/environment-setup-armv8a-poky-linux
+    $ . /opt/fsl-imx-xwayland/6.6-scarthgap-imx8n9/environment-setup-armv8a-poky-linux
 
     $ For i.MX6ULL EVK
-    $ . /opt/fsl-imx-wayland/6.6-nanbield-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
+    $ . /opt/fsl-imx-wayland/6.6-scarthgap-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
 Fetch the latest otbr source code and execute the build for OTBR:
 
@@ -368,17 +368,17 @@ The Matter application has been installed into the Yocto image by default. If yo
 
  ___Make sure the shell isn't in Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx8mm
+    # For i.MX8M Mini EVK  #/opt/fsl-imx-xwayland/6.6-scarthgap-imx8mm is ${IMX8MM_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-scarthgap-imx8mm
 
-    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.6-nanbield-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx6ull
+    # For i.MX6ULL EVK     #/opt/fsl-imx-xwayland/6.6-scarthgap-imx6ull is ${IMX6ULL_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-scarthgap-imx6ull
 
-    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx93 is ${IMX93_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx93
+    # For i.MX93 EVK  #/opt/fsl-imx-xwayland/6.6-scarthgap-imx93 is ${IMX93_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-scarthgap-imx93
 
-    # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
-    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-nanbield-imx8ulp
+    # For i.MX8ULP EVK  #/opt/fsl-imx-xwayland/6.6-scarthgap-imx8ulp is ${IMX8ULP_SDK_INSTALLED_PATH}
+    $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.6-scarthgap-imx8ulp
 
 User can build Matter applications (with the Yocto SDK specified by the IMX_SDK_ROOT) with the imxlinux_example.sh script. Please refer to below examples.
 
