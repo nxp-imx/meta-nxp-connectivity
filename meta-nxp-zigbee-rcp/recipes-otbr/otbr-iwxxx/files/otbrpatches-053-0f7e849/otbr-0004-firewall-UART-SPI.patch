@@ -1,0 +1,102 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+diff --git a/script/README_firewall.txt b/script/README_firewall.txt
+new file mode 100644
+index 0000000000..12a82a5932
+--- /dev/null
++++ b/script/README_firewall.txt
+@@ -0,0 +1,45 @@
++                         OTBR FIREWALL
++
++Installation:
++
++
++1- copy all files on target, in:
++
++    /etc/init.d/otbr-firewall
++
++2- configure the target by running the following commands:
++
++It should be done only 1 time after flashing the IMX target, so first check the content of these files
++
++instructions comes from ot-br-posix/script/_ipforward: function ipforward_install().
++
++    echo "net.ipv6.conf.all.forwarding = 1" >  /etc/sysctl.d/60-otbr-ip-forward.conf
++    echo "net.ipv4.ip_forward = 1"          >> /etc/sysctl.d/60-otbr-ip-forward.conf
++
++instructions comes from ot-br-posix/script/_rt_tables: function rt_tables_install().
++
++    echo "88 openthread"                 >> /etc/iproute2/rt_tables
++
++    echo ""                              >> /etc/sysctl.conf
++    echo "# OpenThread configuration"    >> /etc/sysctl.conf
++    echo "net.core.optmem_max=65536"     >> /etc/sysctl.conf
++
++    sysctl -p /etc/sysctl.conf
++
++Execution:
++
++
++-for otbr-agent:
++
++    systemctl enable otbr-agent
++    systemctl start otbr-agent
++#To check if otbr is running
++    systemctl status otbr-agent
++
++-for otbr-firewall:
++
++    systemctl enable otbr-firewall
++    # => May show error, just ignore it since ot-br-posix does not provide otbr-firewall.service file
++    systemctl start otbr-firewall
++    systemctl status otbr-firewall
++
+diff --git a/script/otbr-firewall b/script/otbr-firewall
+index 52cef42dd0..afbf20904e 100644
+--- a/script/otbr-firewall
++++ b/script/otbr-firewall
+@@ -41,8 +41,12 @@
+ THREAD_IF="wpan0"
+ OTBR_FORWARD_INGRESS_CHAIN="OTBR_FORWARD_INGRESS"
+ 
+-. /lib/lsb/init-functions
+-. /lib/init/vars.sh
++if [ -f /lib/lsb/init-functions ]; then
++ . /lib/lsb/init-functions
++fi
++if [ -f /lib/init/vars.sh ]; then
++ . /lib/init/vars.sh
++fi
+ 
+ set -euxo pipefail
+ 
+-- 
+2.34.1
+

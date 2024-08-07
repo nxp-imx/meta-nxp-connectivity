@@ -1,0 +1,286 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands for the Independent Reset &
+*                         the set EUI-64 MAC address features.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : Independant Reset and Set EUI-64 functionalities won't be available.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index bb7ef0c3d..4ca02ddb5 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -1280,11 +1280,19 @@ extern otError otPlatRadioGetRawPowerSetting(otInstance *aInstance,
+  * @}
+  *
+  */
++void otPlatRadioSetIRCmd(otInstance *aInstance);
+ 
+ /**
+  * @}
+  *
+  */
++void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode);
++
++/**
++ * @}
++ *
++ */
++otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeeeEui64);
+ 
+ #ifdef __cplusplus
+ } // end of extern "C"
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index 7c32dbe07..a23c51194 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -171,6 +171,18 @@ public:
+      */
+     otError GetIeeeEui64(uint8_t *aIeeeEui64);
+ 
++    /**
++     * This method sets the factory-assigned IEEE EUI-64 for this transceiver.
++     *
++     * @param[in]  aInstance   The OpenThread instance structure.
++     * @param[out] aIeeeEui64  A pointer to the factory-assigned IEEE EUI-64.
++     *
++     * @retval  OT_ERROR_NONE               Succeeded.
++     * @retval  OT_ERROR_INVALID_STATE      Failed EUI64 is set by factory only except if OTP is not supported.
++     *
++     */
++    otError SetIeeeEui64(const otExtAddress &aIeeeEui64);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/radio_spinel_impl.hpp b/src/lib/spinel/radio_spinel_impl.hpp
+index 399002201..ad3de1df8 100644
+--- a/src/lib/spinel/radio_spinel_impl.hpp
++++ b/src/lib/spinel/radio_spinel_impl.hpp
+@@ -1040,6 +1040,23 @@ template <typename InterfaceType> otError RadioSpinel<InterfaceType>::GetIeeeEui
+     return OT_ERROR_NONE;
+ }
+ 
++template <typename InterfaceType>
++otError RadioSpinel<InterfaceType>::SetIeeeEui64(const otExtAddress &aIeeeEui64)
++{
++    otExtAddress addr;
++    otError      error;
++
++    for (size_t i = 0; i < sizeof(addr); i++)
++    {
++        addr.m8[i] = aIeeeEui64.m8[sizeof(addr) - 1 - i];
++    }
++
++    SuccessOrExit(error = Set(SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD, SPINEL_DATATYPE_EUI64_S, addr.m8));
++    mIeeeEui64 = aIeeeEui64;
++exit:
++    return error;
++}
++
+ template <typename InterfaceType>
+ otError RadioSpinel<InterfaceType>::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index c251eb1db..a13bacdd5 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4866,6 +4866,11 @@ enum
+     SPINEL_PROP_NEST__END = 0x3C00,
+ 
+     SPINEL_PROP_VENDOR__BEGIN = 0x3C00,
++
++    SPINEL_PROP_VENDOR_NXP_IR_CONFIG     = (SPINEL_PROP_VENDOR__BEGIN + 0x100),
++    SPINEL_PROP_VENDOR_NXP_IR_CMD        = (SPINEL_PROP_VENDOR__BEGIN + 0x101),
++    SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10A),
++
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+ 
+     SPINEL_PROP_VENDOR_ESP__BEGIN = (SPINEL_PROP_VENDOR__BEGIN + 0),
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 0f989dfb5..4656acee4 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -352,11 +352,116 @@ static otError ProcessExit(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ }
+ #endif
+ 
++// 15.4_INDEPENDENT_RESET
++static otError ProcessIRConfig(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    syslog(LOG_INFO, "ProcessIRConfig");
++
++    if( aArgsLength == 1 )
++    {
++        uint16_t mode = (uint16_t)atoi(aArgs[0]);
++        syslog(LOG_INFO, "-> mode %s", mode==0 ? "Disable IR":(mode==1 ?("OOB IR"):"InBand IR"));
++        if( mode < 3 )
++        {
++            otPlatRadioSetIRConfig(aContext, mode);
++            syslog(LOG_INFO, "ProcessIRConfig DONE");
++        }
++    }
++    else
++    {
++        syslog(LOG_INFO, "ProcessIRConfig FAILED!");
++    }
++
++    return OT_ERROR_NONE;
++}
++
++static otError ProcessIRCmd(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    OT_UNUSED_VARIABLE(aArgsLength);
++    OT_UNUSED_VARIABLE(aArgs);
++    syslog(LOG_INFO, "ProcessIRCmd");
++    otPlatRadioSetIRCmd(aContext);
++    syslog(LOG_INFO, "ProcessIRCmd DONE");
++
++    return OT_ERROR_NONE;
++}
++
++static otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otError error = OT_ERROR_INVALID_ARGS;
++
++    if( aArgsLength == 1 )
++    {
++        otExtAddress addr;
++        char        *hex  = *aArgs;
++
++        syslog(LOG_INFO, "+ SetEui64 %s (len %d)", *aArgs, (uint32_t)strlen(*aArgs));
++
++        if( (hex[1] == 'x') && (strlen(*aArgs) == 18) )
++        {
++            error = OT_ERROR_NONE;
++
++            hex = hex + 2;
++
++            for(uint32_t i = 0; (i < 8) && (error == OT_ERROR_NONE); i++)
++            {
++                addr.m8[i] = 0;
++                for(uint32_t k = 0; k < 2; k++)
++                {
++                    // get current character then increment
++                    uint8_t byte = *hex++;
++                    // transform hex character to the 4bit equivalent number, using the ascii table indexes
++                    if (byte >= '0' && byte <= '9')
++                        byte = byte - '0';
++                    else if (byte >= 'a' && byte <='f')
++                        byte = byte - 'a' + 10;
++                    else if (byte >= 'A' && byte <='F')
++                        byte = byte - 'A' + 10;
++                    else
++                    {
++                        error = OT_ERROR_FAILED;
++                        break;
++                    }
++                    // shift 4 to make space for new digit, and add the 4 bits of the new digit
++                    addr.m8[i] = (addr.m8[i] << 4) | (byte & 0xF);
++                }
++            }
++
++            if( error == OT_ERROR_NONE )
++            {
++                error = otPlatRadioSetIeeeEui64(aContext, (const otExtAddress*)&addr);
++            }
++
++            if( error != OT_ERROR_NONE )
++            {
++                syslog(LOG_INFO, "- SetEui64 Failed (%#x)", error);
++            }
++            else
++            {
++                syslog(LOG_INFO, "- SetEui64 SUCCESS");
++            }
++        }
++        else
++        {
++            syslog(LOG_INFO, "- SetEui64 invalid input arg (0x....?) !");
++        }
++    }
++    else
++    {
++        syslog(LOG_INFO, "- SetEui64 FAILED !");
++    }
++
++    return error;
++}
++
+ static const otCliCommand kCommands[] = {
+ #if !OPENTHREAD_POSIX_CONFIG_DAEMON_ENABLE
+     {"exit", ProcessExit},
+ #endif
+     {"netif", ProcessNetif},
++    {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
++    {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
++    {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index c9d613395..6d133c252 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -904,6 +904,31 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
+     return OT_ERROR_NOT_IMPLEMENTED;
+ }
+ 
++void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(sRadioSpinel.Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT16_S, mode));
++}
++
++void otPlatRadioSetIRCmd(otInstance *aInstance)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(sRadioSpinel.Set(SPINEL_PROP_VENDOR_NXP_IR_CMD, SPINEL_DATATYPE_UINT16_S));
++}
++
++otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeeeEui64)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    otExtAddress addr;
++
++    for (size_t i = 0; i < sizeof(addr); i++)
++    {
++        addr.m8[i] = aIeeeEui64->m8[sizeof(addr) - 1 - i];
++    }
++
++    return sRadioSpinel.SetIeeeEui64(*aIeeeEui64);
++}
++
+ const otRadioSpinelMetrics *otSysGetRadioSpinelMetrics(void) { return sRadioSpinel.GetRadioSpinelMetrics(); }
+ 
+ const otRcpInterfaceMetrics *otSysGetRcpInterfaceMetrics(void)

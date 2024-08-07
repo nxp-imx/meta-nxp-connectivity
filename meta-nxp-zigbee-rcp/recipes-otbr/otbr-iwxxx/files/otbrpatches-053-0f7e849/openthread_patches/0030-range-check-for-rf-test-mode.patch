@@ -1,0 +1,107 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Fix Range check for vendor specific RF test mode commands.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : Out of range inputs won't return an error on some RF test mode commands.
+*/
+
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index 425c442b4..0ac183783 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -372,8 +372,7 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             break;
+ 
+         case MFG_CMD_GET_SET_PAYLOAD_SIZE + 1: // set
+-            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength, aArgs, 0, 127);
+-            // actual limits are set in MFG function and error is return in case of wrong parameter
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength, aArgs, 17, 116);
+             break;
+ 
+         case MFG_CMD_GET_RX_RESULT:
+@@ -412,15 +411,16 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ 
+         case MFG_CMD_BURST_TX:
+         {
+-            uint8_t mode = 0;
++            uint8_t mode = 0, gap = 0;
+             if(aArgsLength == 3)
+             {
+                 mode = (uint8_t)atoi(aArgs[1]);
+-                if(mode < 8)
++                gap = (uint8_t)atoi(aArgs[2]);
++                if((mode < 8) && (gap > 5))
+                 {
+                     payload[1] = MFG_CMD_BURST_TX;
+                     payload[4] = mode;
+-                    payload[5] = (uint8_t)atoi(aArgs[2]);
++                    payload[5] = gap;
+                     otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
+                     error = OT_ERROR_NONE;
+                 }
+@@ -446,15 +446,18 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             {
+                 payload[1] = MFG_CMD_CONTINOUS_CCA_TEST;
+                 payload[2] = MFG_CMD_ACTION_SET;
+-                payload[4] = (uint8_t)atoi(aArgs[1]);
+-                payload[5] = (uint8_t)atoi(aArgs[2]);
+-                otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
+-                if((outputLen >= 4) && (payload[3] == 0))
++                payload[4] = (uint8_t)atoi(aArgs[1]); // enable
++                payload[5] = (uint8_t)atoi(aArgs[2]); // CCA Mode
++                if((payload[4] < 2) && (payload[5] < 4))
+                 {
+-                    error = OT_ERROR_NONE;
+-                }
+-                else{
+-                    error = OT_ERROR_FAILED;
++                    otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                    if((outputLen >= 4) && (payload[3] == 0))
++                    {
++                        error = OT_ERROR_NONE;
++                    }
++                    else{
++                        error = OT_ERROR_FAILED;
++                    }
+                 }
+             }
+         }
+@@ -465,7 +468,7 @@ otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
+             break;
+ 
+         case MFG_CMD_CONTINOUS_ED_TEST:
+-            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINOUS_ED_TEST, aArgsLength, aArgs, -127, 127);
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINOUS_ED_TEST, aArgsLength, aArgs, 0, 1);
+             break;
+ 
+         case MFG_CMD_GET_ED_VALUE:
