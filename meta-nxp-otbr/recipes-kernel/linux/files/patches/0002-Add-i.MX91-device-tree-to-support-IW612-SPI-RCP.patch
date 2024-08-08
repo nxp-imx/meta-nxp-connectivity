@@ -1,0 +1,25 @@
+From 0901194dff126d5c7e16a0c8f3393be29f2ed51c Mon Sep 17 00:00:00 2001
+From: LiJunmeng <junmeng.li_1@nxp.com>
+Date: Wed, 7 Aug 2024 18:38:23 +0530
+Subject: [PATCH 2/2] Add i.MX91 device tree to support IW612 SPI RCP
+
+Signed-off-by: LiJunmeng <junmeng.li_1@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 8db629e8b13b..9c4ec5cbae59 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -395,6 +395,7 @@ dtb-$(CONFIG_ARCH_MXC) += imx91-11x11-evk.dtb \
+ 			  imx91-11x11-evk-mt9m114.dtb \
+ 			  imx91-11x11-evk-ld.dtb \
+ 			  imx91-11x11-evk-i2c-spi-slave.dtb \
++			  imx93-11x11-evk-iw612-otbr.dtb \
+ 			  imx91-11x11-evk-i3c.dtb
+ 
+ imx93-11x11-evk-pmic-pf0900-dtbs := imx93-11x11-evk.dtb imx93-11x11-evk-pmic-pf0900.dtbo
+-- 
+2.25.1
+

@@ -3,7 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 #SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx6ullevk imx8ulpevk", 'file://patches/0002-Enable-otbr-and-firewall-configs-for-imx6-7.patch', '', d)}"
 SRC_URI += "file://patches/0002-Enable-otbr-and-firewall-configs-for-imx6-7.patch"
 SRC_URI += "file://patches/0001-Add-imx8mm-evk-iw612-otbr-dtb-support.patch"
-SRC_URI += "file://patches/0002-Add-i.MX93-device-tree-to-support-IW612-SPI-RCP.patch"
+SRC_URI += "file://patches/0002-Add-i.MX91-device-tree-to-support-IW612-SPI-RCP.patch"
 SRC_URI += "file://kernel-config/0001-Add-Matter-and-OTBR-configs.cfg"
 
 # patch Makefile for dtb
