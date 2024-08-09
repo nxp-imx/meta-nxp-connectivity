@@ -1,0 +1,429 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Changes required by our SPI driver in order to reach up to 10MHz
+*                         SPI clock speed (dynamic configuration, default packet size...).
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 27fd80b34..441f0e7f9 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -754,6 +754,18 @@ uint64_t otPlatRadioGetNow(otInstance *aInstance);
+  */
+ uint32_t otPlatRadioGetBusSpeed(otInstance *aInstance);
+ 
++/**
++ * Set the bus speed in bits/second between the host and the radio chip.
++ *
++ * @param[in]   aInstance    A pointer to an OpenThread instance.
++ * @param[in]   aSpeed       The SPI Bus Speed request.
++ *
++ * @returns The bus speed in bits/second between the host and the radio chip.
++ *          Return 0 when the MAC and above layer and Radio layer resides on the same chip.
++ *
++ */
++otError otPlatRadioSetBusSpeed(otInstance *aInstance, uint32_t aSpeed);
++
+ /**
+  * @}
+  *
+diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
+index 15650f64b..62a31699d 100644
+--- a/src/lib/spinel/radio_spinel.cpp
++++ b/src/lib/spinel/radio_spinel.cpp
+@@ -1976,7 +1976,39 @@ uint64_t RadioSpinel::GetNow(void)
+    return (mIsTimeSynced) ? (otPlatTimeGet() + mRadioTimeOffset) : UINT64_MAX;
+ }
+ 
+-uint32_t RadioSpinel::GetBusSpeed(void) const { return mSpinelInterface->GetBusSpeed(); }
++uint32_t RadioSpinel::GetBusSpeed(void)
++{
++    uint32_t  speed  = 0;
++    Get(SPINEL_PROP_VENDOR_NXP_GET_SET_RCP_FREQUENCY_CMD, SPINEL_DATATYPE_UINT32_S, &speed);
++    return speed;
++}
++
++#ifndef MIN
++#define MIN( x, y ) ( ( x ) < ( y ) ? ( x ) : ( y ) )
++#endif
++
++otError RadioSpinel::SetBusSpeed(uint32_t speed)
++{
++    uint32_t current = mSpinelInterface->GetBusSpeed();
++    otError  error = OT_ERROR_NONE;
++
++    mSpinelInterface->SetBusSpeed(MIN(current, speed));
++
++    error = Set(SPINEL_PROP_VENDOR_NXP_GET_SET_RCP_FREQUENCY_CMD, SPINEL_DATATYPE_UINT32_S, speed);
++
++    if( error == OT_ERROR_NONE )
++    {
++        // Apply new frequency
++        mSpinelInterface->SetBusSpeed(speed);
++    }
++    else
++    {
++        // Back to old frequency
++        mSpinelInterface->SetBusSpeed(current);
++    }
++
++    return error;
++}
+ 
+ void RadioSpinel::HandleRcpUnexpectedReset(spinel_status_t aStatus)
+ {
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index c11fe9d0e..49ab7559e 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -932,7 +932,16 @@ public:
+      * @returns   bus speed in bits/second.
+      *
+      */
+-    uint32_t GetBusSpeed(void) const;
++    uint32_t GetBusSpeed(void);
++
++    /**
++     * This method sets the bus speed between the host and the radio.
++     *
++     * @retval  OT_ERROR_NONE           Successfully set the spi frequency.
++     * @retval  OT_ERROR_INVALID_ARGS   frequency is not in valid range.
++     *
++     */
++    otError SetBusSpeed(uint32_t aSpeed);
+ 
+     /**
+      * Returns the co-processor sw version string.
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index f4b95b76f..d7df0b58b 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4917,6 +4917,7 @@ enum
+     SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10B),
+     SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10C),
+     SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10D),
++    SPINEL_PROP_VENDOR_NXP_GET_SET_RCP_FREQUENCY_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10E),
+     SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD = (SPINEL_PROP_VENDOR__BEGIN + 0x10F),
+     SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
+ 
+diff --git a/src/lib/spinel/spinel_interface.hpp b/src/lib/spinel/spinel_interface.hpp
+index 10d0c9637..b44be2ab5 100644
+--- a/src/lib/spinel/spinel_interface.hpp
++++ b/src/lib/spinel/spinel_interface.hpp
+@@ -130,7 +130,15 @@ public:
+      * @returns   Bus speed in bits/second.
+      *
+      */
+-    virtual uint32_t GetBusSpeed(void) const = 0;
++    virtual uint32_t GetBusSpeed(void) = 0;
++
++     /**
++     * This method returns the bus speed between the host and the radio.
++     *
++     * @returns   Bus speed in bits/second.
++     *
++     */
++    virtual void SetBusSpeed(uint32_t aSpeed) = 0;
+ 
+     /**
+      * Hardware resets the RCP.
+@@ -139,6 +147,7 @@ public:
+      * @retval OT_ERROR_NOT_IMPLEMENT   The hardware reset is not implemented.
+      *
+      */
++
+     virtual otError HardwareReset(void) = 0;
+ 
+     /**
+diff --git a/src/ncp/ncp_spi.cpp b/src/ncp/ncp_spi.cpp
+index c6d105156..871a78985 100644
+--- a/src/ncp/ncp_spi.cpp
++++ b/src/ncp/ncp_spi.cpp
+@@ -340,9 +340,11 @@ void NcpSpi::PrepareTxFrame(void)
+     }
+ }
+ 
++#define OT_PLATFORM_RING_BUFFER_TAG (0xAA)
++
+ void NcpSpi::HandleRxFrame(void)
+ {
+-    SpiFrame recvFrame(mReceiveFrame);
++    SpiFrame recvFrame( (mReceiveFrame[4] == OT_PLATFORM_RING_BUFFER_TAG) ? (uint8_t*)(*(uint32_t*)mReceiveFrame) : mReceiveFrame );
+     SpiFrame sendFrame(mSendFrame);
+ 
+     // Pass the received frame to base class to process.
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 781b0c5e0..a86829068 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -76,6 +76,7 @@ extern otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, ch
+ extern otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ extern otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ /**
+  * Initializes NCP app.
+@@ -371,6 +372,7 @@ static const otCliCommand kCommands[] = {
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+     {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+     {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
++    {"spifreq", ProcessGetSetSpiFrequency},  //=> Get/Set SPI frequency supported by RCP
+     {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
+ };
+ 
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index 5a15a8f90..15edc3df4 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -43,6 +43,7 @@
+ #include <unistd.h>
+ 
+ #include <openthread/cli.h>
++#include <openthread/thread.h>
+ 
+ #include "cli/cli_config.h"
+ #include "common/code_utils.hpp"
+@@ -646,6 +647,58 @@ otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[])
+     return OT_ERROR_NONE;
+ }
+ 
++otError ProcessGetSetSpiFrequency(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    OT_UNUSED_VARIABLE(aArgs);
++
++    if ( aArgsLength == 0 )
++    {
++        uint32_t speed = otPlatRadioGetBusSpeed((otInstance*)aContext);
++
++        switch(speed)
++        {
++            case 1: //OT_RADIO_HIGH_BUS_SPEED
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 10MHz\r\n");
++            break;
++            case 2: //OT_RADIO_FULL_BUS_SPEED
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed > 10MHz\r\n");
++            break;
++            case 0: //OT_RADIO_DEFAULT_BUS_SPEED
++            default:
++                otCliOutputFormat("Get => RCP supports SPI Bus Speed until 4MHz\r\n");
++            break;
++        }
++    }
++    else if ( aArgsLength == 1 )
++    {
++        uint32_t speed = (uint32_t)atoi(aArgs[0]);
++
++        if( (speed >= 10000) && (speed <= 10000000) )
++        {
++            if( otThreadGetDeviceRole((otInstance*)aContext) == OT_DEVICE_ROLE_DISABLED )
++            {
++                if( otPlatRadioSetBusSpeed((otInstance*)aContext, speed) != OT_ERROR_NONE )
++                {
++                    otCliOutputFormat("Get/Set SpiFrequency FAILED! Invalid input <speed %d>\n", speed);
++                }
++            }
++            else
++            {
++                otCliOutputFormat("Get/Set SpiFrequency FAILED! Invalid STATE - %s -\n", otThreadDeviceRoleToString(otThreadGetDeviceRole((otInstance*)aContext)));
++            }
++        }
++        else
++        {
++            otCliOutputFormat("Set SpiFrequency FAILED! Invalid speed range - required [10000 (10kHz) : 10000000 (10MHz)]>\n");
++        }
++    }
++    else
++    {
++        otCliOutputFormat("Get/Set SpiFrequency FAILED! Invalid input <speed>\n");
++    }
++    return OT_ERROR_NONE;
++}
++
+ otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[])
+ {
+     otIRConfig aIRConfig;
+@@ -689,6 +742,7 @@ static const otCliCommand kCommands[] = {
+     {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
+     {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
+     {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
++    {"spifreq", ProcessGetSetSpiFrequency},  //=> Get/Set SPI frequency supported by RCP
+     {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
+ };
+ } //extern "C"
+diff --git a/src/posix/platform/hdlc_interface.hpp b/src/posix/platform/hdlc_interface.hpp
+index c6e01c7b2..36eee3492 100644
+--- a/src/posix/platform/hdlc_interface.hpp
++++ b/src/posix/platform/hdlc_interface.hpp
+@@ -139,7 +139,13 @@ public:
+      * @returns   Bus speed in bits/second.
+      *
+      */
+-    uint32_t GetBusSpeed(void) const { return mBaudRate; }
++    uint32_t GetBusSpeed(void) { return mBaudRate; }
++
++    /**
++     * This method sets the bus speed between the host and the radio.
++     *
++     */
++    void SetBusSpeed(uint32_t aSpeed) { OT_UNUSED_VARIABLE(aSpeed); }
+ 
+     /**
+      * Hardware resets the RCP.
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index 5ef6cd53e..b715981da 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -934,6 +934,12 @@ uint32_t otPlatRadioGetBusSpeed(otInstance *aInstance)
+     return GetRadioSpinel().GetBusSpeed();
+ }
+ 
++otError otPlatRadioSetBusSpeed(otInstance *aInstance, uint32_t aSpeed)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().SetBusSpeed(aSpeed);
++}
++
+ #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+ uint8_t otPlatRadioGetCslAccuracy(otInstance *aInstance)
+ {
+diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
+index c74299ecb..31e7e284a 100644
+--- a/src/posix/platform/spi_interface.cpp
++++ b/src/posix/platform/spi_interface.cpp
+@@ -81,6 +81,7 @@ SpiInterface::SpiInterface(const Url::Url &aRadioUrl)
+     , mDidPrintRateLimitLog(false)
+     , mSpiSlaveDataLen(0)
+     , mDidRxFrame(false)
++    , mSpiRxDiscard(0)
+ {
+ }
+ 
+@@ -91,6 +92,7 @@ void SpiInterface::ResetStates(void)
+     mSpiTxPayloadSize     = 0;
+     mDidPrintRateLimitLog = false;
+     mSpiSlaveDataLen      = 0;
++    mSpiRxDiscard    = 0;
+     memset(mSpiTxFrameBuffer, 0, sizeof(mSpiTxFrameBuffer));
+     memset(&mInterfaceMetrics, 0, sizeof(mInterfaceMetrics));
+     mInterfaceMetrics.mRcpInterfaceType = kSpinelInterfaceTypeSpi;
+@@ -521,6 +523,7 @@ otError SpiInterface::PushPullSpi(void)
+             mInterfaceMetrics.mTransferredGarbageFrameCount++;
+             mSpiTxRefusedCount++;
+             mSpiSlaveDataLen = 0;
++            mSpiRxDiscard    = 0;
+ 
+             LogWarn("Garbage in header : %02X %02X %02X %02X %02X", spiRxFrame[0], spiRxFrame[1], spiRxFrame[2],
+                     spiRxFrame[3], spiRxFrame[4]);
+@@ -543,21 +546,35 @@ otError SpiInterface::PushPullSpi(void)
+         // Handle received packet, if any.
+         if ((mSpiSlaveDataLen != 0) && (mSpiSlaveDataLen <= txFrame.GetHeaderAcceptLen()))
+         {
+-            mInterfaceMetrics.mRxFrameByteCount += mSpiSlaveDataLen;
+-            mSpiSlaveDataLen = 0;
+-            mInterfaceMetrics.mRxFrameCount++;
+-            successfulExchanges++;
+-
+-            // Set the skip length to skip align bytes and SPI frame header.
+-            SuccessOrExit(error = mRxFrameBuffer->SetSkipLength(skipAlignAllowanceLength + kSpiFrameHeaderSize));
+-            // Set the received frame length.
+-            SuccessOrExit(error = mRxFrameBuffer->SetLength(rxFrame.GetHeaderDataLen()));
+-
+-            // Upper layer will free the frame buffer.
+-            discardRxFrame = false;
+-
+-            mDidRxFrame = true;
+-            mReceiveFrameCallback(mReceiveFrameContext);
++            // WAR - Discard first transaction which as transaction greater than 32 bytes with RX data available (as RCP truncated it)
++            if( (mSpiRxDiscard == 0) && (txFrame.GetHeaderAcceptLen() > mSpiSmallPacketSize) && (txFrame.GetHeaderDataLen() == txFrame.GetHeaderAcceptLen()) )
++            {
++                otLogWarnPlat("WAR RX Frame length (0x%02X) truncated (Header was 0x%02X )", txFrame.GetHeaderAcceptLen(), mSpiSlaveDataLen);
++                mSpiRxDiscard++;
++            }
++            else
++            {
++                mInterfaceMetrics.mRxFrameByteCount += mSpiSlaveDataLen;
++                mSpiSlaveDataLen = 0;
++                mInterfaceMetrics.mRxFrameCount++;
++                successfulExchanges++;
++                mSpiRxDiscard    = 0;
++
++                // Set the skip length to skip align bytes and SPI frame header.
++                SuccessOrExit(error = mRxFrameBuffer->SetSkipLength(skipAlignAllowanceLength + kSpiFrameHeaderSize));
++                // Set the received frame length.
++                SuccessOrExit(error = mRxFrameBuffer->SetLength(rxFrame.GetHeaderDataLen()));
++
++                // Upper layer will free the frame buffer.
++                discardRxFrame = false;
++
++                mDidRxFrame = true;
++                mReceiveFrameCallback(mReceiveFrameContext);
++            }
++        }
++        else if( mSpiSlaveDataLen != 0 )
++        {
++            mSpiRxDiscard++;
+         }
+     }
+ 
+diff --git a/src/posix/platform/spi_interface.hpp b/src/posix/platform/spi_interface.hpp
+index 94b55074a..ad96d29af 100644
+--- a/src/posix/platform/spi_interface.hpp
++++ b/src/posix/platform/spi_interface.hpp
+@@ -140,7 +140,15 @@ public:
+      * @returns   Bus speed in bits/second.
+      *
+      */
+-    uint32_t GetBusSpeed(void) const { return ((mSpiDevFd >= 0) ? mSpiSpeedHz : 0); }
++    uint32_t GetBusSpeed(void) { return ((mSpiDevFd >= 0) ? mSpiSpeedHz : 0); }
++
++    /**
++     * This method returns the bus speed between the host and the radio.
++     *
++     * @returns   Bus speed in bits/second.
++     *
++     */
++    void SetBusSpeed(uint32_t aSpeed) { ((mSpiDevFd >= 0) ? mSpiSpeedHz = aSpeed : mSpiSpeedHz = 0); }
+ 
+     /**
+      * Hardware resets the RCP.
+@@ -250,6 +258,7 @@ private:
+     uint16_t mSpiSlaveDataLen;
+ 
+     bool mDidRxFrame;
++    uint32_t mSpiRxDiscard;
+ 
+     otRcpInterfaceMetrics mInterfaceMetrics;
+ 

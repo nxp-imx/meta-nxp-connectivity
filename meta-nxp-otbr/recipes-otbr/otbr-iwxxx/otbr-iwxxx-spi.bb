@@ -22,5 +22,5 @@ inherit cmake
 include iw612_otbr_src_rev_opts_patches.inc
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
 
-EXTRA_OECMAKE += " -DOT_POSIX_CONFIG_RCP_BUS=SPI -DOTBR_WEB=ON "
+EXTRA_OECMAKE += " -DOT_POSIX_RCP_SPI_BUS=ON -DOTBR_WEB=ON "
 BIN_NAME_PATTERN="-iwxxx-spi"

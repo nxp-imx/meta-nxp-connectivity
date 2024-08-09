@@ -1,0 +1,1137 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Add Vendor specific commands.
+*                       : Add Vendor specific commands for the Independent Reset & the set
+*                         EUI-64 MAC address features.
+*                       : Add Vendor specific commands for set and get  TX power limit feature.
+*                       : Add Vendor specific commands for RF test mode (MFG commands).
+*                       : Add Vendor specific commands for configuring CCA mode and threshold at run time.
+*                       : Add Vendor specific commands for Reading the FW version.
+*                       : Add Vendor specific commands for upgrading the independant reset feature for OOB
+*                         GPIO soft reset.
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : VSC commands won't be available.
+*/
+
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 9f6bd31a6..27fd80b34 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -2,6 +2,8 @@
+  *  Copyright (c) 2016, The OpenThread Authors.
+  *  All rights reserved.
+  *
++ *  Copyright 2021-2024 NXP.
++ *
+  *  Redistribution and use in source and binary forms, with or without
+  *  modification, are permitted provided that the following conditions are met:
+  *  1. Redistributions of source code must retain the above copyright
+@@ -435,6 +437,25 @@ typedef struct otLinkMetrics
+     bool mReserved : 1;   ///< Reserved, this is for reference device.
+ } otLinkMetrics;
+ 
++/**
++ * This structure represents different CCA mode configurations before Tx.
++ */
++typedef struct otCCAModeConfig
++{
++    uint8_t mCcaMode;          ///< CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF.
++    uint8_t mCca1Threshold;    ///< Energy threshold for CCA Mode1.
++    uint8_t mCca2CorrThreshold;    ///< CCA Mode 2 Correlation Threshold.
++    uint8_t mCca2MinNumOfCorrTh;    ///< CCA Mode 2 Threshold Number of Correlation Peaks.
++} otCCAModeConfig;
++
++/**
++* This structure represents threshold time for OOB 15.4 soft reset.
++*/
++typedef struct otIRConfig
++{
++    uint16_t mIRThreshold;    ///< threshold time in ms at which OOB toggle will trigger an IR
++} otIRConfig;
++
+ /**
+  * @}
+  *
+@@ -1384,11 +1405,60 @@ extern otError otPlatRadioGetRawPowerSetting(otInstance *aInstance,
+  * @}
+  *
+  */
++void otPlatRadioSetIRCmd(otInstance *aInstance);
++
++/**
++ * @}
++ *
++ */
++void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode);
++
++/**
++ * @}
++ *
++ */
++void otPlatRadioGetIRConfig(otInstance *aInstance, uint8_t* mode);
++
++/**
++ * @}
++ *
++ */
++otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeeeEui64);
+ 
+ /**
+  * @}
+  *
+  */
++otError otPlatRadioSetTxPowerLimit(otInstance *aInstance, uint8_t txPowerLimit);
++/**
++ * @}
++ *
++ */
++otError otPlatRadioGetTxPowerLimit(otInstance *aInstance, uint8_t* txPowerLimit);
++
++/**
++ * @}
++ *
++ */
++otError otPlatRadioMfgCommand(otInstance *aInstance, uint8_t *payload, const uint8_t payloadLenIn, uint8_t *payloadLenOut);
++
++/**
++ * @}
++ *
++ */
++otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aCcaConfig, uint8_t aSetValue);
++
++/**
++ * @}
++ *
++ */
++otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersion, uint8_t fwVersionLen);
++
++/**
++ * @}
++ *
++*/
++otError otPlatRadioIRThresholdConfig(otInstance *aInstance, otIRConfig *aIRConfig, uint8_t aSetValue);
+ 
+ #ifdef __cplusplus
+ } // end of extern "C"
+diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
+index cbb3331bf..15650f64b 100644
+--- a/src/lib/spinel/radio_spinel.cpp
++++ b/src/lib/spinel/radio_spinel.cpp
+@@ -919,6 +919,111 @@ otError RadioSpinel::GetIeeeEui64(uint8_t *aIeeeEui64)
+     return OT_ERROR_NONE;
+ }
+ 
++otError RadioSpinel::SetIeeeEui64(const otExtAddress &aIeeeEui64)
++{
++    otExtAddress addr;
++    otError      error;
++
++    for (size_t i = 0; i < sizeof(addr); i++)
++    {
++        addr.m8[i] = aIeeeEui64.m8[sizeof(addr) - 1 - i];
++    }
++
++    SuccessOrExit(error = Set(SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD, SPINEL_DATATYPE_EUI64_S, addr.m8));
++    sIeeeEui64 = aIeeeEui64;
++exit:
++    return error;
++}
++
++otError RadioSpinel::SetTxPowerLimit(uint8_t txPowerLimit)
++{
++    otError error;
++    SuccessOrExit(error = Set(SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD, SPINEL_DATATYPE_UINT8_S, txPowerLimit));
++
++exit:
++    return error;
++}
++
++otError RadioSpinel::GetTxPowerLimit(uint8_t &txPowerLimit)
++{
++    otError error = Get(SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD, SPINEL_DATATYPE_UINT8_S, &txPowerLimit);
++    return error;
++}
++
++otError RadioSpinel::SetIRConfig(uint8_t mode)
++{
++    otError error = Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT8_S, mode);
++    return error;
++}
++
++otError RadioSpinel::GetIRConfig(uint8_t &mode)
++{
++    otError error = Get(SPINEL_PROP_VENDOR_NXP_IR_CONFIG, SPINEL_DATATYPE_UINT8_S, &mode);
++    return error;
++}
++
++#define MAXBUFFERSIZE 16
++
++otError RadioSpinel::MfgCmd(uint8_t *payload, const uint8_t payloadLenIn, uint8_t &payloadLenOut)
++{
++    otError error;
++    uint8_t buffer[MAXBUFFERSIZE]; //temporary buffer used to be passed as arg of GetWithParam
++    spinel_ssize_t packed;
++
++    packed = spinel_datatype_pack(buffer, sizeof(buffer), SPINEL_DATATYPE_DATA_S, payload, payloadLenIn);
++    error = GetWithParam(SPINEL_CMD_VENDOR_NXP_MFG, buffer, static_cast<spinel_size_t>(packed), SPINEL_DATATYPE_DATA_S, payload, &payloadLenOut);
++
++    return error;
++}
++
++otError RadioSpinel::CcaConfigValue(otCCAModeConfig &aCcaConfig, uint8_t aSetValue)
++{
++    otError error;
++    uint8_t aCcaMode, aCca1Threshold, aCca2CorrThreshold, aCca2MinNumOfCorrTh;
++
++    if(aSetValue)
++    {
++        error = Set(SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT8_S
++                    SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S), (&aCcaConfig)->mCcaMode,
++                    (&aCcaConfig)->mCca1Threshold, (&aCcaConfig)->mCca2CorrThreshold, (&aCcaConfig)->mCca2MinNumOfCorrTh);
++    }
++    else
++    {
++        error = Get(SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT8_S
++                    SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT8_S), &aCcaMode, &aCca1Threshold,
++                    &aCca2CorrThreshold, &aCca2MinNumOfCorrTh);
++        (&aCcaConfig)->mCcaMode = aCcaMode;
++        (&aCcaConfig)->mCca1Threshold = aCca1Threshold;
++        (&aCcaConfig)->mCca2CorrThreshold = aCca2CorrThreshold;
++        (&aCcaConfig)->mCca2MinNumOfCorrTh = aCca2MinNumOfCorrTh;
++    }
++
++    return error;
++}
++
++otError RadioSpinel::IRThresholdConfig(otIRConfig &aIRConfig, uint8_t aSetValue)
++{
++   otError error;
++   uint16_t aIRThreshold;
++
++   if(aSetValue)
++   {
++       error = Set(SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT16_S), (&aIRConfig)->mIRThreshold);
++   }
++   else
++   {
++       error = Get(SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD, SPINEL_DATATYPE_STRUCT_S(SPINEL_DATATYPE_UINT16_S), &aIRThreshold);
++       (&aIRConfig)->mIRThreshold = aIRThreshold;
++   }
++   return error;
++}
++
++otError RadioSpinel::GetFwVersion(const char *fwVersion, uint8_t fwVersionLen)
++{
++    otError error = Get(SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD, SPINEL_DATATYPE_UTF8_S, fwVersion, fwVersionLen);
++    return error;
++}
++
+ otError RadioSpinel::SetExtendedAddress(const otExtAddress &aExtAddress)
+ {
+     otError error;
+diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
+index d053a9296..c11fe9d0e 100644
+--- a/src/lib/spinel/radio_spinel.hpp
++++ b/src/lib/spinel/radio_spinel.hpp
+@@ -244,6 +244,99 @@ public:
+      */
+     otError GetIeeeEui64(uint8_t *aIeeeEui64);
+ 
++    /**
++     * This method sets the factory-assigned IEEE EUI-64 for this transceiver.
++     *
++     * @param[in]  aInstance   The OpenThread instance structure.
++     * @param[out] aIeeeEui64  A pointer to the factory-assigned IEEE EUI-64.
++     *
++     * @retval  OT_ERROR_NONE               Succeeded.
++     * @retval  OT_ERROR_INVALID_STATE      Failed EUI64 is set by factory only except if OTP is not supported.
++     *
++     */
++    otError SetIeeeEui64(const otExtAddress &aIeeeEui64);
++
++    /**
++     * @brief Set the Tx Power Limit for 15.4
++     *
++     * @param txPowerLimit
++     * txPowerLimit (0 or higher than 22), No power backoff is applied
++     * txPowerLimit = 1 to 44, force TX power back off to txPowerLimit
++     * (txPowerLimit = 0.5dBm step, TX power back off : 0.5dBm step )
++     *
++     * @return otError
++     */
++    otError SetTxPowerLimit(uint8_t txPowerLimit);
++
++    /**
++     * @brief Get the Tx Power Limit for 15.4
++     *
++     * @param &txPowerLimit
++     * will contain the value set in IWx12
++     * (txPowerLimit = 0.5dBm step, TX power back off : 0.5dBm step )
++     *
++     * @return otError
++     */
++    otError GetTxPowerLimit(uint8_t &txPowerLimit);
++
++     /**
++     * @brief Set the Independent Reset configuration
++     *
++     * @param &mode
++     * will contain the value set in IWx12
++     * (0, 1, 2)
++     *
++     * @return otError
++     */
++    otError SetIRConfig(uint8_t mode);
++
++     /**
++     * @brief Get the Independent Reset configuration
++     *
++     * @param &mode
++     * will contain the value set in IWx12
++     * (0, 1, 2)
++     *
++     * @return otError
++     */
++    otError GetIRConfig(uint8_t &mode);
++
++    /**
++     * @brief GetMfgChannel
++     * @param channel
++     * @return otError
++     */
++    otError MfgCmd(uint8_t *payload, const uint8_t payloadLenIn, uint8_t &payloadLenOut);
++
++    /**
++     * @brief Set / Get the CCA Mode Configuration Values
++     *
++     * @param &aCcaConfig
++     * will contain the CCA Configuration values of datatype otCCAModeConfig.
++     *
++     * @return otError
++     */
++    otError CcaConfigValue(otCCAModeConfig &aCcaConfig, uint8_t aSetValue);
++
++   /**
++    * This method returns the fw version string.
++    *
++    * @param[out] fwVersion
++    *
++    * @returns otError
++    */
++    otError GetFwVersion(const char *fwVersion, uint8_t fwVersionLen);
++
++    /**
++    * This method sets the threshold time at which OOB toggle will trigger an IR
++    *
++    * @param &aIRConfig
++    * will contain the IR trigger Configuration values of datatype otIRConfig.
++    *
++    * @returns otError
++    */
++    otError IRThresholdConfig(otIRConfig &aIRConfig, uint8_t aSetValue);
++
+     /**
+      * Sets the Extended Address for address filtering.
+      *
+diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
+index c1865f373..f4b95b76f 100644
+--- a/src/lib/spinel/spinel.h
++++ b/src/lib/spinel/spinel.h
+@@ -4910,6 +4910,16 @@ enum
+     SPINEL_PROP_NEST__END = 0x3C00,
+ 
+     SPINEL_PROP_VENDOR__BEGIN = 0x3C00,
++
++    SPINEL_PROP_VENDOR_NXP_IR_CONFIG     = (SPINEL_PROP_VENDOR__BEGIN + 0x100),
++    SPINEL_PROP_VENDOR_NXP_IR_CMD        = (SPINEL_PROP_VENDOR__BEGIN + 0x101),
++    SPINEL_PROP_VENDOR_NXP_SET_EUI64_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10A),
++    SPINEL_PROP_VENDOR_NXP_GET_SET_TXPOWERLIMIT_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10B),
++    SPINEL_PROP_VENDOR_NXP_GET_SET_CCA_CONFIGURE_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10C),
++    SPINEL_PROP_VENDOR_NXP_GET_FW_VERSION_CMD = (SPINEL_PROP_VENDOR__BEGIN + 0x10D),
++    SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD = (SPINEL_PROP_VENDOR__BEGIN + 0x10F),
++    SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
++
+     SPINEL_PROP_VENDOR__END   = 0x4000,
+ 
+     SPINEL_PROP_VENDOR_ESP__BEGIN = (SPINEL_PROP_VENDOR__BEGIN + 0),
+diff --git a/src/posix/main.c b/src/posix/main.c
+index 026c6c6eb..781b0c5e0 100644
+--- a/src/posix/main.c
++++ b/src/posix/main.c
+@@ -69,6 +69,14 @@
+ 
+ #include "lib/platform/reset_util.h"
+ 
++extern otError ProcessIRConfig(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessIRCmd(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[]);
++extern otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[]);
+ /**
+  * Initializes NCP app.
+  *
+@@ -356,6 +364,14 @@ static const otCliCommand kCommands[] = {
+     {"exit", ProcessExit},
+ #endif
+     {"netif", ProcessNetif},
++    {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
++    {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
++    {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
++    {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
++    {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
++    {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
++    {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
+ };
+ 
+ int main(int argc, char *argv[])
+diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
+index dad11a743..5a15a8f90 100644
+--- a/src/posix/platform/daemon.cpp
++++ b/src/posix/platform/daemon.cpp
+@@ -75,6 +75,624 @@ void GetFilename(Filename &aFilename, const char *aPattern)
+ 
+ } // namespace
+ 
++//Vendor Specific commands
++extern "C"
++{
++#define MFG_CMD_ACTION_GET 0
++#define MFG_CMD_ACTION_SET 1
++
++#define MFG_CMD_GET_SET_CHANNEL 0x0b      // 11
++#define MFG_CMD_GET_SET_TXPOWER 0x0f      // 15
++#define MFG_CMD_CONTINUOUS_TX 0x11        // 17
++#define MFG_CMD_GET_SET_PAYLOAD_SIZE 0x14 // 20
++#define MFG_CMD_GET_RX_RESULT 0x1f        // 31
++#define MFG_CMD_START_RX_TEST 0x20        // 32
++#define MFG_CMD_BURST_TX 0x21             // 33
++#define MFG_CMD_DUTY_CYCLE_TX 0x23        // 35
++#define MFG_CMD_GET_SET_CCA_THRESHOLD  0x2F   // 47
++#define MFG_CMD_CONTINOUS_CCA_TEST 0X31   //49
++#define MFG_CMD_GET_CCA_STATUS 0x32       //50
++#define MFG_CMD_CONTINOUS_ED_TEST 0x37    //55
++#define MFG_CMD_GET_ED_VALUE    0x38      //56
++#define MFG_CMD_PHY_TX_TEST_PSDU 0x39     //57
++#define MFG_CMD_PHY_RX_TX_ACK_TEST 0x3A   //58
++#define MFG_CMD_SET_GENERIC_PARAM 0x3B    //59
++
++#define MAX_VERSION_STRING_SIZE 128 //< Max size of version string
++
++static uint8_t mfgEnable = 0;
++
++// 15.4_INDEPENDENT_RESET
++otError ProcessIRConfig(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    //syslog(LOG_INFO, "ProcessIRConfig");
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t mode = 0;
++
++    if( aArgsLength == 1 )
++    {
++        mode = (uint8_t)atoi(aArgs[0]);
++        //syslog(LOG_INFO, "-> mode %s", mode==0 ? "Disable IR":mode==3 ? "OOB IR 15.4":(mode==1 ?("OOB IR"):"InBand IR"));
++        if( mode < 4 )
++        {
++            otPlatRadioSetIRConfig((otInstance*)aContext, mode);
++            //syslog(LOG_INFO, "ProcessIRConfig DONE");
++            error = OT_ERROR_NONE;
++        }
++    }
++    else
++    {
++        //syslog(LOG_INFO, "ProcessIRConfig FAILED!");
++        otPlatRadioGetIRConfig((otInstance*)aContext, &mode);
++
++        // Print value as ot-cli output
++        otCliOutputFormat("%d\r\n", mode);
++
++        error = OT_ERROR_NONE;
++    }
++
++    return error;
++}
++
++otError ProcessIRCmd(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    OT_UNUSED_VARIABLE(aArgsLength);
++    OT_UNUSED_VARIABLE(aArgs);
++    //syslog(LOG_INFO, "ProcessIRCmd");
++    otPlatRadioSetIRCmd((otInstance*)aContext);
++    //syslog(LOG_INFO, "ProcessIRCmd DONE");
++
++    return OT_ERROR_NONE;
++}
++
++otError ProcessSetEui64(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otError error = OT_ERROR_INVALID_ARGS;
++
++    if( aArgsLength == 1 )
++    {
++        otExtAddress addr;
++        char        *hex  = *aArgs;
++
++        //syslog(LOG_INFO, "+ SetEui64 %s (len %d)", *aArgs, (uint32_t)strlen(*aArgs));
++
++        if( (hex[1] == 'x') && (strlen(*aArgs) == 18) )
++        {
++            error = OT_ERROR_NONE;
++
++            hex = hex + 2;
++
++            for(uint32_t i = 0; (i < 8) && (error == OT_ERROR_NONE); i++)
++            {
++                addr.m8[i] = 0;
++                for(uint32_t k = 0; k < 2; k++)
++                {
++                    // get current character then increment
++                    uint8_t byte = *hex++;
++                    // transform hex character to the 4bit equivalent number, using the ascii table indexes
++                    if (byte >= '0' && byte <= '9')
++                        byte = byte - '0';
++                    else if (byte >= 'a' && byte <='f')
++                        byte = byte - 'a' + 10;
++                    else if (byte >= 'A' && byte <='F')
++                        byte = byte - 'A' + 10;
++                    else
++                    {
++                        error = OT_ERROR_FAILED;
++                        break;
++                    }
++                    // shift 4 to make space for new digit, and add the 4 bits of the new digit
++                    addr.m8[i] = (addr.m8[i] << 4) | (byte & 0xF);
++                }
++            }
++
++            if( error == OT_ERROR_NONE )
++            {
++                error = otPlatRadioSetIeeeEui64((otInstance*)aContext, (const otExtAddress*)&addr);
++            }
++
++            if( error != OT_ERROR_NONE )
++            {
++                //syslog(LOG_INFO, "- SetEui64 Failed (%#x)", error);
++            }
++            else
++            {
++                //syslog(LOG_INFO, "- SetEui64 SUCCESS");
++            }
++        }
++        else
++        {
++            //syslog(LOG_INFO, "- SetEui64 invalid input arg (0x....?) !");
++        }
++    }
++    else
++    {
++        //syslog(LOG_INFO, "- SetEui64 FAILED !");
++    }
++
++    return error;
++}
++
++otError ProcessGetSetTxPowerLimit(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t txPowerLimit = 0;
++
++    //syslog(LOG_INFO, "SetTxPowerLimit");
++
++    if( aArgsLength == 1 ) // set tx power limit
++    {
++        txPowerLimit = (uint8_t)atoi(aArgs[0]);
++        if((txPowerLimit>=1)&&(txPowerLimit<=44)){
++            //syslog(LOG_INFO, "-> txPowerLimit : %d", txPowerLimit);
++        }else{
++            //syslog(LOG_INFO, "-> txPowerLimit : default value");
++        }
++        otPlatRadioSetTxPowerLimit((otInstance*)aContext, txPowerLimit);
++        //syslog(LOG_INFO, "SetTxPowerLimit DONE");
++        error = OT_ERROR_NONE;
++    }
++    else if ( aArgsLength == 0 ) // get tx power limit
++    {
++        otPlatRadioGetTxPowerLimit((otInstance*)aContext, &txPowerLimit);
++
++        // Add value in syslog
++        //syslog(LOG_INFO, "TX power Value value : %d", txPowerLimit);
++
++        // Print value as ot-cli output
++        otCliOutputFormat("%d\r\n", txPowerLimit);
++        error = OT_ERROR_NONE;
++    }
++    else
++    {
++        //syslog(LOG_INFO, "SetTxPowerLimit FAILED! Invalid input arg");
++    }
++
++    return error;
++}
++
++ otError ProcessMfgGetInt8(void *aContext, uint8_t cmdId, uint8_t aArgsLength)
++{
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t outputLen = 0;
++    uint8_t payload[12] = {11};
++    uint8_t payloadLen = 12;
++
++    if(aArgsLength == 1)
++    {
++        payload[1] = cmdId;
++        payload[2] = MFG_CMD_ACTION_GET;
++
++        otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++
++        if((outputLen >= 5) && (payload[3] == 0))
++        {
++            if(cmdId == MFG_CMD_GET_SET_TXPOWER)
++            {
++                otCliOutputFormat("%d\r\n", ((int8_t)payload[4])/2);
++            }
++            else
++            {
++                otCliOutputFormat("%d\r\n", (int8_t)payload[4]);
++            }
++            error = OT_ERROR_NONE;
++        }
++        else{
++            error = OT_ERROR_FAILED;
++        }
++    }
++
++    return error;
++}
++
++ otError ProcessMfgSetInt8(void *aContext, uint8_t cmdId, uint8_t aArgsLength, char *aArgs[], int8_t min, int8_t max)
++{
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t outputLen = 0;
++    uint8_t payload[12] = {11};
++    uint8_t payloadLen = 12;
++    int8_t setValue = 0;
++
++    if(aArgsLength == 2)
++    {
++        setValue = (int8_t)atoi(aArgs[1]);
++        if((setValue >= min) && (setValue <= max))
++        {
++            payload[1] = cmdId;
++            payload[2] = MFG_CMD_ACTION_SET;
++            if(cmdId == MFG_CMD_GET_SET_TXPOWER)
++            {
++                payload[4] = ((uint8_t)setValue) << 1; // convert dBm to half dBm
++            }
++            else
++            {
++                payload[4] = (uint8_t)setValue;
++            }
++
++            otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++
++            if((outputLen >= 4) && (payload[3] == 0))
++            {
++                error = OT_ERROR_NONE;
++            }
++            else
++            {
++                error = OT_ERROR_FAILED;
++            }
++        }
++    }
++
++    return error;
++}
++
++otError ProcessMfgCommands(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    uint8_t payload[12] = {11};
++    uint8_t payloadLen = 12;
++    uint8_t outputLen = 0;
++    otError error = OT_ERROR_INVALID_ARGS;
++    uint8_t cmdId, idx;
++
++    if(aArgsLength == 1)
++    {
++        cmdId = (uint8_t)atoi(aArgs[0]);
++        if((cmdId == 0)||(cmdId == 1))
++        {
++            mfgEnable = cmdId;
++            //syslog(LOG_INFO, "MFG command SUCCESS");
++            return OT_ERROR_NONE;
++        }
++    }
++
++    if(mfgEnable == 0)
++    {
++        //syslog(LOG_INFO, "MFG command not enabled");
++        otCliOutputFormat("MFG command not enabled. to enable it : mfgcmd 1\r\n");
++        return OT_ERROR_NONE;
++    }
++
++    if ((aArgsLength > 0) && (mfgEnable == 1))
++    {
++        cmdId = (uint8_t)atoi(aArgs[0]);
++
++        switch (cmdId)
++        {
++        case MFG_CMD_GET_SET_CHANNEL: // get channel
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_SET_CHANNEL, aArgsLength);
++            break;
++
++        case MFG_CMD_GET_SET_CHANNEL + 1: // set channel
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_CHANNEL, aArgsLength, aArgs, 11, 26);
++            break;
++
++        case MFG_CMD_GET_SET_TXPOWER: // get txpower
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_SET_TXPOWER, aArgsLength);
++            break;
++
++        case MFG_CMD_GET_SET_TXPOWER + 1: // set txpower
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_TXPOWER, aArgsLength, aArgs, -20, 22);
++            break;
++
++        case MFG_CMD_CONTINUOUS_TX:
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINUOUS_TX, aArgsLength, aArgs, 0, 1);
++            break;
++
++        case MFG_CMD_GET_SET_PAYLOAD_SIZE: // get
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength);
++            break;
++
++        case MFG_CMD_GET_SET_PAYLOAD_SIZE + 1: // set
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_PAYLOAD_SIZE, aArgsLength, aArgs, 17, 116);
++            break;
++
++        case MFG_CMD_GET_RX_RESULT:
++        {
++            if(aArgsLength == 1)
++            {
++                payload[1] = MFG_CMD_GET_RX_RESULT;
++                payload[2] = MFG_CMD_ACTION_GET;
++                otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                if(outputLen >= 11)
++                {
++                    otCliOutputFormat("status : %d\r\n", payload[4]);
++                    otCliOutputFormat("rx_pkt_count : %d\r\n", payload[5]|(payload[6]<<8));
++                    otCliOutputFormat("total_pkt_count : %d\r\n", payload[7]|(payload[8]<<8));
++                    otCliOutputFormat("rssi : %d\r\n",(int8_t)payload[9]);
++                    otCliOutputFormat("lqi : %d\r\n", payload[10]);
++                    error = OT_ERROR_NONE;
++                }
++                else{
++                    error = OT_ERROR_FAILED;
++                }
++            }
++        }
++        break;
++
++        case MFG_CMD_START_RX_TEST:
++        {
++            if(aArgsLength == 1)
++            {
++                payload[1] = MFG_CMD_START_RX_TEST;
++                otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                error = OT_ERROR_NONE;
++            }
++        }
++        break;
++
++        case MFG_CMD_BURST_TX:
++        {
++            uint8_t mode = 0, gap = 0;
++            if(aArgsLength == 3)
++            {
++                mode = (uint8_t)atoi(aArgs[1]);
++                gap = (uint8_t)atoi(aArgs[2]);
++                if((mode < 8) && (gap > 5))
++                {
++                    payload[1] = MFG_CMD_BURST_TX;
++                    payload[4] = mode;
++                    payload[5] = gap;
++                    otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                    error = OT_ERROR_NONE;
++                }
++            }
++        }
++        break;
++
++        case MFG_CMD_DUTY_CYCLE_TX:
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_DUTY_CYCLE_TX, aArgsLength, aArgs, 0, 1);
++            break;
++
++        case MFG_CMD_GET_SET_CCA_THRESHOLD: // get
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_SET_CCA_THRESHOLD, aArgsLength);
++            break;
++
++        case MFG_CMD_GET_SET_CCA_THRESHOLD + 1: // set
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_GET_SET_CCA_THRESHOLD, aArgsLength, aArgs, -110, 0);
++            break;
++
++        case MFG_CMD_CONTINOUS_CCA_TEST:
++        {
++            if(aArgsLength == 3)
++            {
++                payload[1] = MFG_CMD_CONTINOUS_CCA_TEST;
++                payload[2] = MFG_CMD_ACTION_SET;
++                payload[4] = (uint8_t)atoi(aArgs[1]); // enable
++                payload[5] = (uint8_t)atoi(aArgs[2]); // CCA Mode
++                if((payload[4] < 2) && (payload[5] < 4))
++                {
++                    otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                    if((outputLen >= 4) && (payload[3] == 0))
++                    {
++                        error = OT_ERROR_NONE;
++                    }
++                    else{
++                        error = OT_ERROR_FAILED;
++                    }
++                }
++            }
++        }
++        break;
++
++        case MFG_CMD_GET_CCA_STATUS: // get
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_CCA_STATUS, aArgsLength);
++            break;
++
++        case MFG_CMD_CONTINOUS_ED_TEST:
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_CONTINOUS_ED_TEST, aArgsLength, aArgs, 0, 1);
++            break;
++
++        case MFG_CMD_GET_ED_VALUE:
++            error = ProcessMfgGetInt8((otInstance*)aContext, MFG_CMD_GET_ED_VALUE, aArgsLength);
++            break;
++
++        case MFG_CMD_PHY_TX_TEST_PSDU:
++        {
++            uint8_t count_opt, gap, ackEnable;
++            if(aArgsLength == 4)
++            {
++                payload[1]  = MFG_CMD_PHY_TX_TEST_PSDU;
++                payload[2]  = MFG_CMD_ACTION_SET;
++
++                count_opt = (uint8_t)atoi(aArgs[1]);
++                gap       = (uint8_t)atoi(aArgs[2]);
++                ackEnable = (uint8_t)atoi(aArgs[3]);
++                if((count_opt < 8) && (gap > 5) && (ackEnable < 2))
++                {
++                    payload[4]  = count_opt;
++                    payload[5]  = gap;
++                    payload[6]  = ackEnable;
++                    otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                    error = OT_ERROR_NONE;
++                }
++            }
++        }
++        break;
++
++        case MFG_CMD_PHY_RX_TX_ACK_TEST:
++            error = ProcessMfgSetInt8((otInstance*)aContext, MFG_CMD_PHY_RX_TX_ACK_TEST, aArgsLength, aArgs, 0, 1);
++            break;
++
++        case MFG_CMD_SET_GENERIC_PARAM:
++        {
++            uint16_t panid, destaddr, srcaddr;
++            if(aArgsLength == 5)
++            {
++                panid       = (uint16_t)strtol(aArgs[2], NULL, 16);
++                destaddr    = (uint16_t)strtol(aArgs[3], NULL, 16);
++                srcaddr     = (uint16_t)strtol(aArgs[4], NULL, 16);
++
++                payload[1]  = MFG_CMD_SET_GENERIC_PARAM;
++                payload[2]  = MFG_CMD_ACTION_SET;
++                payload[4]  = (uint8_t) atoi(aArgs[1]); // SEQ_NUM
++                payload[5]  = (uint8_t) (panid & 0xFF); // PAN ID LSB
++                payload[6]  = (uint8_t) ((panid >> 8) & 0xFF); // PAN ID MSB
++                payload[7]  = (uint8_t) (destaddr & 0xFF); // DEST ADDR LSB
++                payload[8]  = (uint8_t) ((destaddr >> 8) & 0xFF); // DEST ADDR MSB
++                payload[9]  = (uint8_t) (srcaddr & 0xFF); // SRC ADDR LSB
++                payload[10] = (uint8_t) ((srcaddr >> 8) & 0xFF); // SRC ADDR MSB
++
++                otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t*)payload, payloadLen, &outputLen);
++                error = OT_ERROR_NONE;
++            }
++        }
++        break;
++
++        default:
++            error = OT_ERROR_NOT_IMPLEMENTED;
++            break;
++        }
++    }
++
++    //HANDLE ERRORS
++    if(error == OT_ERROR_NONE)
++    {
++        //syslog(LOG_INFO, "MFG command SUCCESS");
++    }
++    else if(aArgsLength == payloadLen)
++    {
++        // If user passed all the payload, this means this is a direct message for the RCP.
++        // Send it and print the return results.
++        for(idx = 0; idx < payloadLen; idx++)
++        {
++            payload[idx] = (uint8_t)atoi(aArgs[idx]);
++        }
++        otPlatRadioMfgCommand((otInstance*)aContext, (uint8_t *)payload, payloadLen, &outputLen);
++        for(idx = 0; idx < outputLen; idx++)
++        {
++            otCliOutputFormat("%d ", payload[idx]);
++        }
++        otCliOutputFormat("\r\n");
++        error = OT_ERROR_NONE;
++        //syslog(LOG_INFO, "MFG command SUCCESS");
++    }
++    else if(error == OT_ERROR_INVALID_ARGS)
++    {
++        //syslog(LOG_INFO, "MFG command Invalid parameter");
++        //otCliOutputFormat("INVALID PARAMETER\r\n");
++    }
++    else if(error == OT_ERROR_NOT_IMPLEMENTED)
++    {
++        //syslog(LOG_INFO, "MFG command not implemented");
++        otCliOutputFormat("NOT IMPLEMENTED\r\n");
++    }
++    else
++    {
++        //syslog(LOG_INFO, "MFG command FAILED");
++        otCliOutputFormat("FAILED\r\n");
++    }
++
++    return error;
++}
++
++otError ProcessGetSetCcaCfg(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otCCAModeConfig aCcaCfg;
++    //syslog(LOG_INFO, "SetCcaConfig");
++
++    if( aArgsLength == 4 ) // set cca configuration
++    {
++        aCcaCfg.mCcaMode            = (uint8_t)strtol(aArgs[0], NULL, 16);
++        aCcaCfg.mCca1Threshold      = (uint8_t)strtol(aArgs[1], NULL, 16);
++        aCcaCfg.mCca2CorrThreshold  = (uint8_t)strtol(aArgs[2], NULL, 16);
++        aCcaCfg.mCca2MinNumOfCorrTh = (uint8_t)strtol(aArgs[3], NULL, 16);
++        if ((((aCcaCfg.mCcaMode >= 1) && (aCcaCfg.mCcaMode <= 4)) || (aCcaCfg.mCcaMode == 0xFF)) &&
++           (aCcaCfg.mCca2MinNumOfCorrTh <= 6) ){
++            otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x1);
++            //syslog(LOG_INFO, "SetCcaConfig DONE");
++        }
++    }
++    else if ( aArgsLength == 0 ) // get cca configuration
++    {
++        otPlatRadioCcaConfigValue((otInstance*)aContext, &aCcaCfg, 0x0);
++
++        // Add value in syslog
++        //syslog(LOG_INFO, "CCA Configuration:\r\n");
++        //syslog(LOG_INFO, "CCA Mode type: CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF: 0x%x\r\n", aCcaCfg.mCcaMode);
++        //syslog(LOG_INFO, "CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
++        //syslog(LOG_INFO, "CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
++        //syslog(LOG_INFO, "CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
++
++        // Print value as ot-cli output
++        otCliOutputFormat("CCA Configuration:\r\n");
++        otCliOutputFormat("CCA Mode type: CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF: 0x%x\r\n", aCcaCfg.mCcaMode);
++        otCliOutputFormat("CCA1 Threshold Value : 0x%x\r\n", aCcaCfg.mCca1Threshold);
++        otCliOutputFormat("CCA2 Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2CorrThreshold);
++        otCliOutputFormat("CCA2 Minimim Number of Correlation Threshold Value : 0x%x\r\n", aCcaCfg.mCca2MinNumOfCorrTh);
++    }
++    else
++    {
++        //syslog(LOG_INFO, "ccacfg FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++        otCliOutputFormat("ccacfg FAILED! Invalid input arg\r\nFormat: ccacfg <CcaMode> <Cca1Threshold> <Cca2CorrThreshold> <Cca2MinNumOfCorrTh>\r\nCcaMode: CCA Mode type [CCA1=0x01, CCA2=0x02, CCA3=0x03[CCA1 AND CCA2], CCA3=0x04[CCA1 OR CCA2], NoCCA=0xFF]\r\nCca1Threshold[1Byte Hex value]: Energy threshold for CCA Mode1\r\nCca2CorrThreshold[1Byte Hex value]: CCA Mode 2 Correlation Threshold\r\nCca2MinNumOfCorrTh: [0 to 6]\r\n");
++    }
++
++    return OT_ERROR_NONE;
++}
++
++otError ProcessGetFwVersion(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    OT_UNUSED_VARIABLE(aArgs);
++
++    if ( aArgsLength == 0 )
++    {
++        const char version[MAX_VERSION_STRING_SIZE] = {0};
++        otPlatRadioGetFwVersionString((otInstance*)aContext, version, MAX_VERSION_STRING_SIZE);
++        otCliOutputFormat("%s\r\n", version);
++    }
++    else
++    {
++        //syslog(LOG_INFO, "GetFwVersion FAILED! Invalid input arg");
++    }
++    return OT_ERROR_NONE;
++}
++
++otError ProcessGetSetIRThreshold(void *aContext, uint8_t aArgsLength, char *aArgs[])
++{
++    otIRConfig aIRConfig;
++    //syslog(LOG_INFO, "ProcessGetSetIRThreshold");
++
++    if( aArgsLength == 1 )      // Set IR threshold
++    {
++        aIRConfig.mIRThreshold = (uint16_t)atoi(aArgs[0]);
++        if( ( aIRConfig.mIRThreshold >= 100 ) && ( aIRConfig.mIRThreshold<= 1000 ) )
++        {
++           otPlatRadioIRThresholdConfig((otInstance*)aContext, &aIRConfig, 0x01);
++           //syslog(LOG_INFO, "OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++        }
++        else
++        {
++           //syslog(LOG_INFO, "OOB IR Threshold FAILED! Invalid Threshold Time - Required[100 to 1000\r\n");
++           otCliOutputFormat("OOB IR Threshold FAILED! Invalid Threshold Time - Required[100 to 1000\r\n");
++        }
++    }
++
++    else if ( aArgsLength == 0 ) // get IR threshold
++    {
++        otPlatRadioIRThresholdConfig((otInstance*)aContext, &aIRConfig, 0x00);
++        //syslog(LOG_INFO, "OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++        otCliOutputFormat("OOB IR Threshold: %d\r\n", aIRConfig.mIRThreshold);
++    }
++
++    else
++    {
++        //syslog(LOG_INFO, "OOB IR Threshold FAILED! Invalid input arg\r\nFormat: irthold <Threshold Time>\r\nThreshold Time : 100 to 1000\r\n");
++        otCliOutputFormat("OOB IR Threshold FAILED! Invalid input arg\r\nFormat: irthold <Threshold Time>\r\nThreshold Time : 100 to 1000\r\n");
++    }
++    return OT_ERROR_NONE;
++}
++
++static const otCliCommand kCommands[] = {
++    {"ircfg", ProcessIRConfig},    //=> OutOfBand Independent Reset Configuration ircfg <1> means OOB mode
++    {"ircmd", ProcessIRCmd},       //=> InBand Independent Reset command
++    {"seteui64", ProcessSetEui64}, //=> Set ieee.802.15.4 MAC Address
++    {"txpwrlimit", ProcessGetSetTxPowerLimit}, //=> Set TX power limit for 15.4
++    {"mfgcmd", ProcessMfgCommands}, //=> Generic VSC for MFG RF commands
++    {"ccacfg", ProcessGetSetCcaCfg}, //=> Set/Get CCA configuration for 15.4 CCA Before Tx operation
++    {"fwversion", ProcessGetFwVersion}, //=> Get firmware version for 15.4
++    {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
++};
++} //extern "C"
++
+ const char Daemon::kLogModuleName[] = "Daemon";
+ 
+ int Daemon::OutputFormat(const char *aFormat, ...)
+@@ -292,6 +910,8 @@ exit:
+     otSysCliInitUsingDaemon(gInstance);
+ #endif
+ 
++    otCliSetUserCommands(kCommands, OT_ARRAY_LENGTH(kCommands), gInstance);
++
+     Mainloop::Manager::Get().Add(*this);
+ 
+     return;
+diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
+index f5eb17cc2..5ef6cd53e 100644
+--- a/src/posix/platform/radio.cpp
++++ b/src/posix/platform/radio.cpp
+@@ -1044,6 +1044,73 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
+     return OT_ERROR_NOT_IMPLEMENTED;
+ }
+ 
++void otPlatRadioSetIRConfig(otInstance *aInstance, uint8_t mode)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(GetRadioSpinel().SetIRConfig(mode));
++}
++
++void otPlatRadioGetIRConfig(otInstance *aInstance, uint8_t* mode)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(GetRadioSpinel().GetIRConfig(*mode));
++}
++
++void otPlatRadioSetIRCmd(otInstance *aInstance)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    SuccessOrDie(GetRadioSpinel().Set(SPINEL_PROP_VENDOR_NXP_IR_CMD, SPINEL_DATATYPE_UINT16_S));
++}
++
++otError otPlatRadioSetIeeeEui64(otInstance *aInstance, const otExtAddress *aIeeeEui64)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    otExtAddress addr;
++
++    for (size_t i = 0; i < sizeof(addr); i++)
++    {
++        addr.m8[i] = aIeeeEui64->m8[sizeof(addr) - 1 - i];
++    }
++
++    return GetRadioSpinel().SetIeeeEui64(*aIeeeEui64);
++}
++
++otError otPlatRadioSetTxPowerLimit(otInstance *aInstance, uint8_t txPowerLimit)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().SetTxPowerLimit(txPowerLimit);
++}
++
++otError otPlatRadioGetTxPowerLimit(otInstance *aInstance, uint8_t* txPowerLimit)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().GetTxPowerLimit(*txPowerLimit);
++}
++
++otError otPlatRadioMfgCommand(otInstance *aInstance, uint8_t *payload, const uint8_t payloadLenIn, uint8_t *payloadLenOut)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().MfgCmd(payload, payloadLenIn, *payloadLenOut);
++}
++
++otError otPlatRadioCcaConfigValue(otInstance *aInstance, otCCAModeConfig *aOtCCAModeConfig, uint8_t aSetValue)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().CcaConfigValue(*aOtCCAModeConfig, aSetValue);
++}
++
++otError otPlatRadioGetFwVersionString(otInstance *aInstance, const char *fwVersion, uint8_t fwVersionLen)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().GetFwVersion(fwVersion, fwVersionLen);
++}
++
++otError otPlatRadioIRThresholdConfig(otInstance *aInstance, otIRConfig *aotIRConfig, uint8_t aSetValue)
++{
++    OT_UNUSED_VARIABLE(aInstance);
++    return GetRadioSpinel().IRThresholdConfig(*aotIRConfig, aSetValue);
++}
++
+ #if OPENTHREAD_CONFIG_PLATFORM_BOOTLOADER_MODE_ENABLE
+ otError otPlatResetToBootloader(otInstance *aInstance)
+ {

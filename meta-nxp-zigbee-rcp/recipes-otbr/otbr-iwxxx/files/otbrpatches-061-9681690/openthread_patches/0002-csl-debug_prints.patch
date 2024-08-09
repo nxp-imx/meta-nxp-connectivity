@@ -1,0 +1,67 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Added debug prints related to CSL timestamp for debug purpose.
+* Version               : v002
+* Mandatory/Optional    : Optional
+* Impact if not applied : CSL timestamps won't be logged. Limited debug capabilities.
+*/
+
+diff --git a/src/core/thread/csl_tx_scheduler.cpp b/src/core/thread/csl_tx_scheduler.cpp
+index 35a070c1e..15a201b9d 100644
+--- a/src/core/thread/csl_tx_scheduler.cpp
++++ b/src/core/thread/csl_tx_scheduler.cpp
+@@ -170,6 +170,7 @@ uint32_t CslTxScheduler::GetNextCslTransmissionDelay(const Child &aChild,
+ 
+     aDelayFromLastRx = static_cast<uint32_t>(nextTxWindow - aChild.GetLastRxTimestamp());
+ 
++    otLogInfoPlat("CSL radioNow = %lu, periodInUS = %hu,firstTXWindow = %lu, nextTxWindow = %lu, aDelayFromLastRx = %u, lastRxTimeStamp = %lu", radioNow, periodInUs, firstTxWindow, nextTxWindow, aDelayFromLastRx,aChild.GetLastRxTimestamp());
+     return static_cast<uint32_t>(nextTxWindow - radioNow - aAheadUs);
+ }
+ 
+diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
+index f17e3c70d..327344fc6 100644
+--- a/src/lib/spinel/radio_spinel.cpp
++++ b/src/lib/spinel/radio_spinel.cpp
+@@ -1864,7 +1864,12 @@ exit:
+ #endif // OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
+ }
+ 
+-uint64_t RadioSpinel::GetNow(void) { return (mIsTimeSynced) ? (otPlatTimeGet() + mRadioTimeOffset) : UINT64_MAX; }
++uint64_t RadioSpinel::GetNow(void)
++{
++   otLogDebgPlat("mIsTimeSynced = %d, otPlatTimeGet = %llu, mRadioTimeOffset = %llu",mIsTimeSynced, static_cast<long long unsigned int>(otPlatTimeGet()), static_cast<long long unsigned int>(mRadioTimeOffset));
++
++   return (mIsTimeSynced) ? (otPlatTimeGet() + mRadioTimeOffset) : UINT64_MAX;
++}
+ 
+ uint32_t RadioSpinel::GetBusSpeed(void) const { return mSpinelInterface->GetBusSpeed(); }
+ 

@@ -1,0 +1,163 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Changes required by our SPI driver in order to reach up to 10MHz
+*                         SPI clock speed (dynamic configuration, default packet size...).
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
+*/
+
+diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
+index 441f0e7f9..57a455dad 100644
+--- a/include/openthread/platform/radio.h
++++ b/include/openthread/platform/radio.h
+@@ -67,6 +67,7 @@ extern "C" {
+  * @{
+  *
+  */
++#define BACKWARD_COMPATIBILITY_FLAG (1U << 31)
+ 
+ enum
+ {
+@@ -87,6 +88,7 @@ enum
+     OT_RADIO_LQI_NONE      = 0,   ///< LQI measurement not supported
+     OT_RADIO_RSSI_INVALID  = 127, ///< Invalid or unknown RSSI value
+     OT_RADIO_POWER_INVALID = 127, ///< Invalid or unknown power value
++    OT_RADIO_BACKWARD_COMPATIBILITY_VERSION = BACKWARD_COMPATIBILITY_FLAG | 1U, ///< Backward Compatibility field - data send to RCP on reset
+ };
+ 
+ /**
+@@ -766,6 +768,15 @@ uint32_t otPlatRadioGetBusSpeed(otInstance *aInstance);
+  */
+ otError otPlatRadioSetBusSpeed(otInstance *aInstance, uint32_t aSpeed);
+ 
++/**
++ * Set the bus speed in bits/second between the host and the radio chip.
++ *
++ * @param[in]   aInstance    A pointer to an OpenThread instance.
++ * @param[in]   flags        Backward compatibility flags uses by RCP to enable/disable dynamically fixes
++ *
++ */
++void otPlatRadioSetHostBackwardCompatibilityFlags(otInstance *aInstance, uint32_t flags);
++
+ /**
+  * @}
+  *
+diff --git a/src/lib/spinel/spinel_driver.cpp b/src/lib/spinel/spinel_driver.cpp
+index dcf244531..037916013 100644
+--- a/src/lib/spinel/spinel_driver.cpp
++++ b/src/lib/spinel/spinel_driver.cpp
+@@ -31,6 +31,7 @@
+ #include <assert.h>
+ 
+ #include <openthread/platform/time.h>
++#include <openthread/platform/radio.h>
+ 
+ #include "common/code_utils.hpp"
+ #include "common/new.hpp"
+@@ -96,8 +97,8 @@ otError SpinelDriver::SendReset(uint8_t aResetType)
+     spinel_ssize_t packed;
+ 
+     // Pack the header, command and key
+-    packed = spinel_datatype_pack(buffer, sizeof(buffer), SPINEL_DATATYPE_COMMAND_S SPINEL_DATATYPE_UINT8_S,
+-                                  SPINEL_HEADER_FLAG | SPINEL_HEADER_IID(mIid), SPINEL_CMD_RESET, aResetType);
++    packed = spinel_datatype_pack(buffer, sizeof(buffer), SPINEL_DATATYPE_COMMAND_S SPINEL_DATATYPE_UINT8_S SPINEL_DATATYPE_UINT32_S,
++                                  SPINEL_HEADER_FLAG | SPINEL_HEADER_IID(mIid), SPINEL_CMD_RESET, aResetType, OT_RADIO_BACKWARD_COMPATIBILITY_VERSION);
+ 
+     VerifyOrExit(packed > 0 && static_cast<size_t>(packed) <= sizeof(buffer), error = OT_ERROR_NO_BUFS);
+ 
+diff --git a/src/ncp/ncp_base.cpp b/src/ncp/ncp_base.cpp
+index 96e362575..1b034bda6 100644
+--- a/src/ncp/ncp_base.cpp
++++ b/src/ncp/ncp_base.cpp
+@@ -38,6 +38,7 @@
+ #include <openthread/diag.h>
+ #include <openthread/icmp6.h>
+ #include <openthread/link.h>
++
+ #include <openthread/logging.h>
+ #include <openthread/ncp.h>
+ #include <openthread/network_time.h>
+@@ -48,6 +49,7 @@
+ #include "common/debug.hpp"
+ #include "radio/radio.hpp"
+ 
++
+ namespace ot {
+ namespace Ncp {
+ 
+@@ -1268,9 +1270,18 @@ otError NcpBase::CommandHandler_RESET(uint8_t aHeader)
+     otError error      = OT_ERROR_NONE;
+     uint8_t reset_type = SPINEL_RESET_STACK;
+ 
+-    if (mDecoder.GetRemainingLengthInStruct() > 0)
++    if( mDecoder.GetRemainingLengthInStruct() > 0 )
+     {
++        uint32_t flags = BACKWARD_COMPATIBILITY_FLAG;
++
+         SuccessOrAssert(error = mDecoder.ReadUint8(reset_type));
++
++        if( mDecoder.GetRemainingLengthInStruct() >= (sizeof(uint32_t)/sizeof(uint8_t)) )
++        {
++            SuccessOrAssert(error = mDecoder.ReadUint32(flags));
++        }
++
++        otPlatRadioSetHostBackwardCompatibilityFlags(mInstance, flags);
+     }
+ 
+ #if OPENTHREAD_RADIO
+diff --git a/src/posix/platform/include/openthread/openthread-system.h b/src/posix/platform/include/openthread/openthread-system.h
+index 7f113492f..c51033cf2 100644
+--- a/src/posix/platform/include/openthread/openthread-system.h
++++ b/src/posix/platform/include/openthread/openthread-system.h
+@@ -64,7 +64,7 @@ enum
+     OT_PLATFORM_CONFIG_SPI_DEFAULT_ALIGN_ALLOWANCE =
+         16, ///< Default maximum number of 0xFF bytes to clip from start of MISO frame.
+     OT_PLATFORM_CONFIG_SPI_DEFAULT_SMALL_PACKET_SIZE =
+-        32,                                ///< Default smallest SPI packet size we can receive in a single transaction.
++        48,                                ///< Default smallest SPI packet size we can receive in a single transaction.
+     OT_PLATFORM_CONFIG_MAX_RADIO_URLS = 2, ///< Max number of Radio URLs.
+ };
+ 
+diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
+index 31e7e284a..4caa97769 100644
+--- a/src/posix/platform/spi_interface.cpp
++++ b/src/posix/platform/spi_interface.cpp
+@@ -547,7 +547,7 @@ otError SpiInterface::PushPullSpi(void)
+         if ((mSpiSlaveDataLen != 0) && (mSpiSlaveDataLen <= txFrame.GetHeaderAcceptLen()))
+         {
+             // WAR - Discard first transaction which as transaction greater than 32 bytes with RX data available (as RCP truncated it)
+-            if( (mSpiRxDiscard == 0) && (txFrame.GetHeaderAcceptLen() > mSpiSmallPacketSize) && (txFrame.GetHeaderDataLen() == txFrame.GetHeaderAcceptLen()) )
++            if( (mSpiRxDiscard == 0) && (txFrame.GetHeaderAcceptLen() > mSpiSmallPacketSize) && (txFrame.GetHeaderDataLen() == txFrame.GetHeaderAcceptLen()) && (rxFrame.GetHeaderDataLen() > mSpiSmallPacketSize) )
+             {
+                 otLogWarnPlat("WAR RX Frame length (0x%02X) truncated (Header was 0x%02X )", txFrame.GetHeaderAcceptLen(), mSpiSlaveDataLen);
+                 mSpiRxDiscard++;

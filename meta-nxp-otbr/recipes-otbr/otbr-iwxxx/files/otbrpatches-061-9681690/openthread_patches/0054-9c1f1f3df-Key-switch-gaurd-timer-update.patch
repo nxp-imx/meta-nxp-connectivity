@@ -1,0 +1,244 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Temporary patch cherry-picked from Openthead. updates the resetting of the Key Switch Guard Timer.
+* Version               : v001
+* Mandatory/Optional    : Mandatory
+* Impact if not applied : Thread harness test cases v1.1 6.6.2 and 5.8.3 fails.
+*/
+
+commit: 9c1f1f3dfb99d8700df6319f20fc9363d4957b3d
+Author: Abtin Keshavarzian <abtink@google.com>
+Date:   Wed Jun 5 11:22:46 2024 -0700
+
+    [key-manager] update how the "Key Switch Guard Timer" is reset (#10347)
+    
+    This commit updates the resetting of the Key Switch Guard Timer. It is
+    now reset under two conditions:
+    
+    - The device itself triggers a key rotation and moves to the next key
+      sequence after the rotation time has passed since the last switch.
+    - The device receives a MAC or MLE message with an incoming key index
+      matching the next key index. Regarding MLE messages, this rule is
+      applied regardless of the message being classified as Authoritative
+      or Peer.
+
+diff --git a/src/core/api/thread_api.cpp b/src/core/api/thread_api.cpp
+index 97e5508f0..b5661df64 100644
+--- a/src/core/api/thread_api.cpp
++++ b/src/core/api/thread_api.cpp
+@@ -275,7 +275,8 @@ uint32_t otThreadGetKeySequenceCounter(otInstance *aInstance)
+ 
+ void otThreadSetKeySequenceCounter(otInstance *aInstance, uint32_t aKeySequenceCounter)
+ {
+-    AsCoreType(aInstance).Get<KeyManager>().SetCurrentKeySequence(aKeySequenceCounter, KeyManager::kForceUpdate);
++    AsCoreType(aInstance).Get<KeyManager>().SetCurrentKeySequence(
++        aKeySequenceCounter, KeyManager::kForceUpdate | KeyManager::kGuardTimerUnchanged);
+ }
+ 
+ uint16_t otThreadGetKeySwitchGuardTime(otInstance *aInstance)
+diff --git a/src/core/mac/mac.cpp b/src/core/mac/mac.cpp
+index e70fc982b..c6d96230a 100644
+--- a/src/core/mac/mac.cpp
++++ b/src/core/mac/mac.cpp
+@@ -1641,7 +1641,7 @@ Error Mac::ProcessReceiveSecurity(RxFrame &aFrame, const Address &aSrcAddr, Neig
+ 
+         if (keySequence > keyManager.GetCurrentKeySequence())
+         {
+-            keyManager.SetCurrentKeySequence(keySequence, KeyManager::kApplyKeySwitchGuard);
++            keyManager.SetCurrentKeySequence(keySequence, KeyManager::kApplySwitchGuard | KeyManager::kResetGuardTimer);
+         }
+     }
+ 
+diff --git a/src/core/thread/key_manager.cpp b/src/core/thread/key_manager.cpp
+index d38fdb8b5..9f40c9ec2 100644
+--- a/src/core/thread/key_manager.cpp
++++ b/src/core/thread/key_manager.cpp
+@@ -368,11 +368,11 @@ void KeyManager::UpdateKeyMaterial(void)
+ #endif
+ }
+ 
+-void KeyManager::SetCurrentKeySequence(uint32_t aKeySequence, KeySequenceUpdateMode aUpdateMode)
++void KeyManager::SetCurrentKeySequence(uint32_t aKeySequence, KeySeqUpdateFlags aFlags)
+ {
+     VerifyOrExit(aKeySequence != mKeySequence, Get<Notifier>().SignalIfFirst(kEventThreadKeySeqCounterChanged));
+ 
+-    if (aUpdateMode == kApplyKeySwitchGuard)
++    if (aFlags & kApplySwitchGuard)
+     {
+         VerifyOrExit(mKeySwitchGuardTimer == 0);
+     }
+@@ -384,7 +384,11 @@ void KeyManager::SetCurrentKeySequence(uint32_t aKeySequence, KeySequenceUpdateM
+     mMleFrameCounter = 0;
+ 
+     ResetKeyRotationTimer();
+-    mKeySwitchGuardTimer = mKeySwitchGuardTime;
++
++    if (aFlags & kResetGuardTimer)
++    {
++        mKeySwitchGuardTimer = mKeySwitchGuardTime;
++    }
+ 
+     Get<Notifier>().Signal(kEventThreadKeySeqCounterChanged);
+ 
+@@ -528,7 +532,7 @@ void KeyManager::CheckForKeyRotation(void)
+ {
+     if (mHoursSinceKeyRotation >= mSecurityPolicy.mRotationTime)
+     {
+-        SetCurrentKeySequence(mKeySequence + 1, kForceUpdate);
++        SetCurrentKeySequence(mKeySequence + 1, kForceUpdate | kResetGuardTimer);
+     }
+ }
+ 
+diff --git a/src/core/thread/key_manager.hpp b/src/core/thread/key_manager.hpp
+index 099854c45..56a64acb3 100644
+--- a/src/core/thread/key_manager.hpp
++++ b/src/core/thread/key_manager.hpp
+@@ -221,17 +221,25 @@ class KeyManager : public InstanceLocator, private NonCopyable
+ {
+ public:
+     /**
+-     * Determines whether to apply or ignore key switch guard when updating the key sequence.
+-     *
+-     * Used as input by `SetCurrentKeySequence()`.
++     * Defines bit-flag constants specifying how to handle key sequence update used in `KeySeqUpdateFlags`.
+      *
+      */
+-    enum KeySequenceUpdateMode : uint8_t
++    enum KeySeqUpdateFlag : uint8_t
+     {
+-        kApplyKeySwitchGuard, ///< Apply key switch guard check before setting the new key sequence.
+-        kForceUpdate,         ///< Ignore key switch guard check and forcibly update the key sequence to new value.
++        kApplySwitchGuard    = (1 << 0), ///< Apply key switch guard check.
++        kForceUpdate         = (0 << 0), ///< Ignore key switch guard check and forcibly update.
++        kResetGuardTimer     = (1 << 1), ///< On key seq change, reset the guard timer.
++        kGuardTimerUnchanged = (0 << 1), ///< On key seq change, leave guard timer unchanged.
+     };
+ 
++    /**
++     * Represents a combination of `KeySeqUpdateFlag` bits.
++     *
++     * Used as input by `SetCurrentKeySequence()`.
++     *
++     */
++    typedef uint8_t KeySeqUpdateFlags;
++
+     /**
+      * Initializes the object.
+      *
+@@ -342,14 +350,12 @@ public:
+     /**
+      * Sets the current key sequence value.
+      *
+-     * If @p aMode is `kApplyKeySwitchGuard`, the current key switch guard timer is checked and only if it is zero, key
+-     * sequence will be updated.
+-     *
+      * @param[in]  aKeySequence    The key sequence value.
+-     * @param[in]  aUpdateMode     Whether or not to apply the key switch guard.
++     * @param[in]  aFlags          Specify behavior when updating the key sequence, i.e., whether or not to apply the
++     *                             key switch guard or reset guard timer upon change.
+      *
+      */
+-    void SetCurrentKeySequence(uint32_t aKeySequence, KeySequenceUpdateMode aUpdateMode);
++    void SetCurrentKeySequence(uint32_t aKeySequence, KeySeqUpdateFlags aFlags);
+ 
+ #if OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
+     /**
+diff --git a/src/core/thread/mle.cpp b/src/core/thread/mle.cpp
+index 85e0039c8..b5b42f421 100644
+--- a/src/core/thread/mle.cpp
++++ b/src/core/thread/mle.cpp
+@@ -378,7 +378,8 @@ void Mle::Restore(void)
+ 
+     SuccessOrExit(Get<Settings>().Read(networkInfo));
+ 
+-    Get<KeyManager>().SetCurrentKeySequence(networkInfo.GetKeySequence(), KeyManager::kForceUpdate);
++    Get<KeyManager>().SetCurrentKeySequence(networkInfo.GetKeySequence(),
++                                            KeyManager::kForceUpdate | KeyManager::kGuardTimerUnchanged);
+     Get<KeyManager>().SetMleFrameCounter(networkInfo.GetMleFrameCounter());
+     Get<KeyManager>().SetAllMacFrameCounters(networkInfo.GetMacFrameCounter(), /* aSetIfLarger */ false);
+ 
+@@ -2731,33 +2732,43 @@ void Mle::ProcessKeySequence(RxInfo &aRxInfo)
+     //                    neighbor.
+     //                 Otherwise larger key seq MUST NOT be adopted.
+ 
++    bool                          isNextKeySeq;
++    KeyManager::KeySeqUpdateFlags flags = 0;
++
+     VerifyOrExit(aRxInfo.mKeySequence > Get<KeyManager>().GetCurrentKeySequence());
+ 
++    isNextKeySeq = (aRxInfo.mKeySequence - Get<KeyManager>().GetCurrentKeySequence() == 1);
++
+     switch (aRxInfo.mClass)
+     {
+     case RxInfo::kAuthoritativeMessage:
+-        Get<KeyManager>().SetCurrentKeySequence(aRxInfo.mKeySequence, KeyManager::kForceUpdate);
++        flags = KeyManager::kForceUpdate;
+         break;
+ 
+     case RxInfo::kPeerMessage:
+-        if ((aRxInfo.mNeighbor != nullptr) && aRxInfo.mNeighbor->IsStateValid())
++        VerifyOrExit(aRxInfo.IsNeighborStateValid());
++
++        if (!isNextKeySeq)
+         {
+-            if (aRxInfo.mKeySequence - Get<KeyManager>().GetCurrentKeySequence() == 1)
+-            {
+-                Get<KeyManager>().SetCurrentKeySequence(aRxInfo.mKeySequence, KeyManager::kApplyKeySwitchGuard);
+-            }
+-            else
+-            {
+-                LogInfo("Large key seq jump in peer class msg from 0x%04x ", aRxInfo.mNeighbor->GetRloc16());
+-                ReestablishLinkWithNeighbor(*aRxInfo.mNeighbor);
+-            }
++            LogInfo("Large key seq jump in peer class msg from 0x%04x ", aRxInfo.mNeighbor->GetRloc16());
++            ReestablishLinkWithNeighbor(*aRxInfo.mNeighbor);
++            ExitNow();
+         }
++
++        flags = KeyManager::kApplySwitchGuard;
+         break;
+ 
+     case RxInfo::kUnknown:
+-        break;
++        ExitNow();
+     }
+ 
++    if (isNextKeySeq)
++    {
++        flags |= KeyManager::kResetGuardTimer;
++    }
++
++    Get<KeyManager>().SetCurrentKeySequence(aRxInfo.mKeySequence, flags);
++
+ exit:
+     return;
+ }

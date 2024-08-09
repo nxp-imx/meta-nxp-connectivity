@@ -16,5 +16,5 @@ TARGET_CFLAGS += " -Wno-error "
 inherit cmake
 
 include iw612_ot_src_rev_opts_patches.inc
-EXTRA_OECMAKE += "-DOT_POSIX_CONFIG_RCP_BUS=SPI"
+EXTRA_OECMAKE += "-DOT_POSIX_RCP_SPI_BUS=ON"
 BIN_NAME_PATTERN="-iwxxx-spi"
