@@ -1,0 +1,137 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2024 NXP
+ */
+
+/dts-v1/;
+#include "imx8mp-evk.dts"
+&uart1 {
+        /delete-node/ bluetooth;
+};
+
+&uart3 {
+        bluetooth {
+                compatible = "nxp,88w8987-bt";
+                fw-init-baudrate = <3000000>;
+        };
+};
+
+&reg_usdhc2_vmmc {
+	compatible = "regulator-fixed";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_reg_usdhc2_vmmc>;
+	regulator-name = "VSD_3V3";
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	gpio = <&gpio3 22 GPIO_ACTIVE_HIGH>;
+	off-on-delay-us = <20000>;
+	enable-active-high;
+};
+
+
+&pinctrl_usdhc2 {
+	fsl,pins = <
+		MX8MP_IOMUXC_SD2_CLK__USDHC2_CLK		0x190
+		MX8MP_IOMUXC_SD2_CMD__USDHC2_CMD		0x1d0
+		MX8MP_IOMUXC_SD2_DATA0__USDHC2_DATA0	0x1d0
+		MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d0
+		MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d0
+		MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d0
+		MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04	0x1d0
+	>;
+};
+
+&pinctrl_usdhc2_100mhz {
+	fsl,pins = <
+		MX8MP_IOMUXC_SD2_CLK__USDHC2_CLK		0x194
+		MX8MP_IOMUXC_SD2_CMD__USDHC2_CMD		0x1d4
+		MX8MP_IOMUXC_SD2_DATA0__USDHC2_DATA0	0x1d4
+		MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d4
+		MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d4
+		MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d4
+		MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04	0x1d0
+	>;
+};
+
+&pinctrl_usdhc2_200mhz {
+	fsl,pins = <
+		MX8MP_IOMUXC_SD2_CLK__USDHC2_CLK		0x196
+		MX8MP_IOMUXC_SD2_CMD__USDHC2_CMD		0x1d6
+		MX8MP_IOMUXC_SD2_DATA0__USDHC2_DATA0	0x1d6
+		MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d6
+		MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d6
+		MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d6
+		MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04	0x1d0
+	>;
+};
+
+&pinctrl_reg_usdhc2_vmmc {
+	fsl,pins = <
+		MX8MP_IOMUXC_SAI5_RXD1__GPIO3_IO22   0x41
+	>;
+};
+
+&usdhc2 {
+	pinctrl-assert-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	/delete-property/ cd-gpios;
+	keep-power-in-suspend;
+	non-removable;
+	wakeup-source;
+	fsl,sdio-async-interrupt-enabled;
+};
+
+&usdhc1 {
+	status = "disabled";
+	/delete-node/ wifi_wake_host;
+};
+
+&micfil {
+   status = "disabled";
+};
+
+&i2c3 {
+	pca6416: gpio@20 {
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pca6416_irq>;
+	};
+};
+
+&ecspi2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	fsl,spi-num-chipselects = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_espi2>;
+	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	spidev0: spi@0 {
+		reg = <0>;
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <500000>;
+	};
+
+};
+
+&iomuxc {
+	pinctrl_pca6416_irq: pca6416irq {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO12__GPIO1_IO12		0x141
+		>;
+	};
+
+	pinctrl_espi2: espi2grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_ECSPI2_SCLK__ECSPI2_SCLK		0x082
+			MX8MP_IOMUXC_ECSPI2_MOSI__ECSPI2_MOSI		0x082
+			MX8MP_IOMUXC_ECSPI2_MISO__ECSPI2_MISO		0x082
+			MX8MP_IOMUXC_ECSPI2_SS0__GPIO5_IO13		0x000
+		>;
+	};
+};
