@@ -4,6 +4,19 @@ SRC_URI += "file://main.conf"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
+common_configure() {
+    PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
+    PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+    gn gen out/aarch64 --script-executable="${MATTER_PY_PATH}" --args='treat_warnings_as_errors=false target_os="linux" target_cpu="${TARGET_CPU}" arm_arch="${TARGET_ARM_ARCH}" arm_cpu="${TARGET_ARM_CPU}" build_without_pw=true chip_with_imx_ele=${USE_ELE} enable_exceptions=true chip_code_pre_generated_directory="${S}/zzz_pregencodes"
+        import("//build_overrides/build.gni")
+        target_cflags=[
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\""
+                       ]
+        custom_toolchain="${build_root}/toolchain/custom"
+        target_cc="${CC}"
+        target_cxx="${CXX}"
+        target_ar="${AR}"'
+}
 trusty_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
     PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
@@ -11,8 +24,7 @@ trusty_configure() {
 
         import("//build_overrides/build.gni")
         target_cflags=[
-                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
-                        "-DCHIP_DEVICE_CONFIG_LINUX_DHCPC_CMD=\"udhcpc -b -i %s \"",
+                        "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\""
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
