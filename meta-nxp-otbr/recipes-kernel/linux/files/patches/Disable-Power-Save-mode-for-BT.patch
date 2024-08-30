@@ -1,0 +1,29 @@
+From d82ee386affc38fe3c9f67b0dc82b969e8e67c9d Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Thu, 29 Aug 2024 16:46:23 +0800
+Subject: [PATCH] Disable Power Save mode for BT
+
+With Power Save mode enabled, the IW612 cannot support 15.4 feature. So
+disable it.
+
+Signed-off-by: Haoran Wang <elven.wang@nxp.com>
+---
+ drivers/bluetooth/btnxpuart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/bluetooth/btnxpuart.c b/drivers/bluetooth/btnxpuart.c
+index 17750fbf03bf..68cbf39c5528 100644
+--- a/drivers/bluetooth/btnxpuart.c
++++ b/drivers/bluetooth/btnxpuart.c
+@@ -310,7 +310,7 @@ static u8 crc8_table[CRC8_TABLE_SIZE];
+ 
+ /* Default configurations */
+ #define DEFAULT_H2C_WAKEUP_MODE	WAKEUP_METHOD_BREAK
+-#define DEFAULT_PS_MODE		PS_MODE_ENABLE
++#define DEFAULT_PS_MODE		PS_MODE_DISABLE
+ #define FW_INIT_BAUDRATE	HCI_NXP_PRI_BAUDRATE
+ 
+ static struct sk_buff *nxp_drv_send_cmd(struct hci_dev *hdev, u16 opcode,
+-- 
+2.34.1
+
