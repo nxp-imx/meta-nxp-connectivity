@@ -7,5 +7,4 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 inherit packagegroup
 
-RDEPENDS:${PN} += "${@bb.utils.contains('MACHINE', "imx8mmevk-matter", ' otbr-iwxxx-uart zigbee-rcp-sdk zigbee-rcp-apps ', '', d)}"
-RDEPENDS:${PN} += "${@bb.utils.contains('MACHINE', "imx93evk-iwxxx-matter", ' otbr-iwxxx-uart zigbee-rcp-sdk zigbee-rcp-apps ', '', d)}"
+RDEPENDS:${PN} += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx8mnddr3levk-matter imx8mnevk-matter imx8mpevk-matter imx93evk-iwxxx-matter ", ' otbr-iwxxx-uart zigbee-rcp-sdk zigbee-rcp-apps ', '', d)}"
