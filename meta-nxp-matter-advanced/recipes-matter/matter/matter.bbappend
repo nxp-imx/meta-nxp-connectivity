@@ -1,6 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:${THISDIR}/files:"
 
 SRC_URI += "file://main.conf"
+SRC_URI += "file://ota.sh"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
@@ -84,4 +85,7 @@ do_install:append() {
     # install bluez config file
     install -d ${D}${sysconfdir}/bluetooth
     install -m 0644 ${WORKDIR}/main.conf ${D}${sysconfdir}/bluetooth/main.conf
+
+    # Install ota.sh
+    install -m 755 ${WORKDIR}/ota.sh ${D}${bindir}
 }
