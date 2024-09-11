@@ -1,0 +1,62 @@
+/*
+*  Copyright (c) 2020, The OpenThread Authors.
+*  Copyright 2023-2024 NXP
+*  All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without
+*  modification, are permitted provided that the following conditions are met:
+*  1. Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*  2. Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in the
+*     documentation and/or other materials provided with the distribution.
+*  3. Neither the name of the copyright holder nor the
+*     names of its contributors may be used to endorse or promote products
+*     derived from this software without specific prior written permission.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+*  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+*  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+*  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+*  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+*  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+*  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+*  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+*  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+* Header for patch information.
+* Description           : Prevent reset pin toggling in case of error recovery. Required when
+*                         Independant Reset from OOB GPIO is enabled as in this case, the GPIO
+*                         passed as parameter to ot-daemon at start-up, will trigger an independant
+*                         reset which then requires to redownload the RCP FW image. (note : IW612 has
+*                         no SW reset input pin for 15.4).
+* Version               : v001
+* Mandatory/Optional    : Optional
+* Impact if not applied : Independant reset from OOB GPIO can't be enabled, unless another available dummy
+*                         pin can be passed as SW reset GPIO when ot-daemon is started.
+*/
+
+diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
+index 752dd44c1..d074cf8f0 100644
+--- a/src/posix/platform/spi_interface.cpp
++++ b/src/posix/platform/spi_interface.cpp
+@@ -265,10 +265,11 @@ int SpiInterface::SetupGpioEvent(int         aFd,
+ 
+ void SpiInterface::SetGpioValue(int aFd, uint8_t aValue)
+ {
+-    struct gpiohandle_data data;
+-
+-    data.values[0] = aValue;
+-    VerifyOrDie(ioctl(aFd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &data) != -1, OT_EXIT_ERROR_ERRNO);
++    OT_UNUSED_VARIABLE(aFd);
++    OT_UNUSED_VARIABLE(aValue);
++    // struct gpiohandle_data data;
++    // data.values[0] = aValue;
++    // VerifyOrDie(ioctl(aFd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &data) != -1, OT_EXIT_ERROR_ERRNO);
+ }
+ 
+ uint8_t SpiInterface::GetGpioValue(int aFd)
