@@ -1,6 +1,5 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:${THISDIR}/files:"
 
-SRC_URI += "file://main.conf"
 SRC_URI += "file://ota.sh"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
@@ -81,10 +80,6 @@ do_install:append() {
         install ${S}/examples/nxp-media-app/linux/out/aarch64-trusty/nxp-media-app ${D}${bindir}/nxp-media-app-trusty
         install ${S}/examples/chip-tool/out/aarch64-trusty/chip-tool ${D}${bindir}/chip-tool-trusty
     fi
-
-    # install bluez config file
-    install -d ${D}${sysconfdir}/bluetooth
-    install -m 0644 ${WORKDIR}/main.conf ${D}${sysconfdir}/bluetooth/main.conf
 
     # Install ota.sh
     install -m 755 ${WORKDIR}/ota.sh ${D}${bindir}
