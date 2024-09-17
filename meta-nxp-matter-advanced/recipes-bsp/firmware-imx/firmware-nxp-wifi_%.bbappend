@@ -5,19 +5,19 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=ca53281cc0caa7e320d4945a896fb837"
 IMX_FIRMWARE_SRC ?= "git://github.com/nxp-imx/imx-firmware.git;protocol=https"
 SRC_URI = "${IMX_FIRMWARE_SRC};branch=${SRCBRANCH}"
 SRCBRANCH = "lf-6.6.36_2.1.0"
-SRCREV = "15418cb858b0cdfbd25359b156fb28e562d350fb"
+SRCREV = "1b26d19284d202b1531837ce37a05afc49ad1d98"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI += "file://IW612-Q3-24-R3/sduart_nw61x_v1.bin.se"
-SRC_URI += "file://IW612-Q3-24-R3/sd_w61x_v1.bin.se"
-SRC_URI += "file://IW612-Q3-24-R3/uartspi_n61x_v1.bin.se"
-SRC_URI += "file://IW612-Q3-24-R3/uartuart_n61x_v1.bin.se"
+SRC_URI += "file://IW612-Q3-24-R4/sduart_nw61x_v1.bin.se"
+SRC_URI += "file://IW612-Q3-24-R4/sd_w61x_v1.bin.se"
+SRC_URI += "file://IW612-Q3-24-R4/uartspi_n61x_v1.bin.se"
+SRC_URI += "file://IW612-Q3-24-R4/uartuart_n61x_v1.bin.se"
 do_install:prepend() {
     rm -f ${S}/nxp/FwImage_IW612_SD/*
-    cp ${WORKDIR}/IW612-Q3-24-R3/sduart_nw61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
-    cp ${WORKDIR}/IW612-Q3-24-R3/sd_w61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
-    cp ${WORKDIR}/IW612-Q3-24-R3/uartspi_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
-    cp ${WORKDIR}/IW612-Q3-24-R3/uartuart_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${WORKDIR}/IW612-Q3-24-R4/sduart_nw61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${WORKDIR}/IW612-Q3-24-R4/sd_w61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${WORKDIR}/IW612-Q3-24-R4/uartspi_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${WORKDIR}/IW612-Q3-24-R4/uartuart_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
 }
 
 do_install() {

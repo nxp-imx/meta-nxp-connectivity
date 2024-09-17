@@ -11,6 +11,6 @@ DEPENDS += "zigbee-rcp-sdk"
 
 SRC_URI = ""
 # Zigbee RCP applications
-SRC_URI += "file://zigbee-rcp-apps-IW612-Q3-24-R3.tar"
+SRC_URI += "file://zigbee-rcp-apps-IW612-Q3-24-R4.tar"
 
 inherit pkgconfig cmake
