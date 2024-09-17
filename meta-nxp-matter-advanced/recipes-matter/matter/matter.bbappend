@@ -1,6 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:${THISDIR}/files:"
 
 SRC_URI += "file://ota.sh"
+DEPENDS += " zigbee-rcp-sdk"
+RDEPENDS_${PN} += " zigbee-rcp-sdk"
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
 
@@ -35,6 +37,8 @@ trusty_configure() {
 do_configure:append() {
     cd ${S}/examples/nxp-media-app/linux
     common_configure
+    cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
+    common_configure
 
     if ${DEPLOY_TRUSTY}; then
         cd ${S}/examples/lighting-app/linux
@@ -56,6 +60,9 @@ do_compile:append() {
     cd ${S}/examples/nxp-media-app/linux
     ninja -C out/aarch64
 
+    cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
+    ninja -C out/aarch64
+
     if ${DEPLOY_TRUSTY}; then
         cd ${S}/examples/lighting-app/linux
         ninja -C out/aarch64-trusty
@@ -73,6 +80,7 @@ do_compile:append() {
 
 do_install:append() {
     install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
+    install ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge/out/aarch64/M2ZigbeeRcp-bridge ${D}${bindir}
 
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
