@@ -1,10 +1,12 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:${THISDIR}/files:"
 
 SRC_URI += "file://ota.sh"
-DEPENDS += " zigbee-rcp-sdk"
-RDEPENDS_${PN} += " zigbee-rcp-sdk"
+DEPENDS += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx8mnddr3levk-matter imx8mnevk-matter imx8mpevk-matter imx93evk-iwxxx-matter ", ' zigbee-rcp-sdk ', '', d)}"
+RDEPENDS:${PN} += "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx8mnddr3levk-matter imx8mnevk-matter imx8mpevk-matter imx93evk-iwxxx-matter ", ' zigbee-rcp-sdk ', '', d)}"
+
 
 DEPLOY_TRUSTY = "${@bb.utils.contains('MACHINE_FEATURES', 'trusty', 'true', 'false', d)}"
+BUILD_M2ZIGBEE = "${@bb.utils.contains_any('MACHINE', "imx8mmevk-matter imx8mnddr3levk-matter imx8mnevk-matter imx8mpevk-matter imx93evk-iwxxx-matter ",'true', 'false', d)}"
 
 common_configure() {
     PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
@@ -37,8 +39,10 @@ trusty_configure() {
 do_configure:append() {
     cd ${S}/examples/nxp-media-app/linux
     common_configure
-    cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
-    common_configure
+    if ${BUILD_M2ZIGBEE}; then
+        cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
+        common_configure
+    fi
 
     if ${DEPLOY_TRUSTY}; then
         cd ${S}/examples/lighting-app/linux
@@ -60,8 +64,10 @@ do_compile:append() {
     cd ${S}/examples/nxp-media-app/linux
     ninja -C out/aarch64
 
-    cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
-    ninja -C out/aarch64
+    if ${BUILD_M2ZIGBEE}; then
+        cd ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge
+        ninja -C out/aarch64
+    fi
 
     if ${DEPLOY_TRUSTY}; then
         cd ${S}/examples/lighting-app/linux
@@ -80,7 +86,9 @@ do_compile:append() {
 
 do_install:append() {
     install ${S}/examples/nxp-media-app/linux/out/aarch64/nxp-media-app ${D}${bindir}
-    install ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge/out/aarch64/M2ZigbeeRcp-bridge ${D}${bindir}
+    if ${BUILD_M2ZIGBEE}; then
+        install ${S}/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge/out/aarch64/M2ZigbeeRcp-bridge ${D}${bindir}
+    fi
 
     if ${DEPLOY_TRUSTY}; then
         install ${S}/examples/lighting-app/linux/out/aarch64-trusty/chip-lighting-app ${D}${bindir}/chip-lighting-app-trusty
