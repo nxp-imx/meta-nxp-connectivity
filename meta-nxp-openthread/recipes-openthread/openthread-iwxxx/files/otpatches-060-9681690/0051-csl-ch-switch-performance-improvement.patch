@@ -41,6 +41,8 @@
 *                         would result in loss of Rx packets on PHY channel degrading dual PAN Performance.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/mac/sub_mac.cpp b/src/core/mac/sub_mac.cpp
 index edeba2e8b..0b6c073db 100644
 --- a/src/core/mac/sub_mac.cpp

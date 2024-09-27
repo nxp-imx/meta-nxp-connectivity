@@ -36,6 +36,8 @@
 *                         resources have not been released before exiting.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/hdlc_interface.cpp b/src/posix/platform/hdlc_interface.cpp
 index 12726fc72..c50a3c580 100644
 --- a/src/posix/platform/hdlc_interface.cpp
@@ -48,6 +50,8 @@ index 12726fc72..c50a3c580 100644
      CloseFile();
  
      mReceiveFrameCallback = nullptr;
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
 index 9d7860b34..5f4421ab5 100644
 --- a/src/posix/platform/spi_interface.cpp
@@ -60,6 +64,8 @@ index 9d7860b34..5f4421ab5 100644
      if (mSpiDevFd >= 0)
      {
          close(mSpiDevFd);
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/system.cpp b/src/posix/platform/system.cpp
 index c209d63aa..bbe9aa5d1 100644
 --- a/src/posix/platform/system.cpp

@@ -35,6 +35,8 @@
 * Impact if not applied : Only up to 64 SEDs can be attached.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/openthread-core-posix-config.h b/src/posix/platform/openthread-core-posix-config.h
 index ebe784f45..f1f819f12 100644
 --- a/src/posix/platform/openthread-core-posix-config.h

@@ -36,6 +36,8 @@
 * Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 441f0e7f9..57a455dad 100644
 --- a/include/openthread/platform/radio.h
@@ -72,6 +74,8 @@ index 441f0e7f9..57a455dad 100644
  /**
   * @}
   *
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel_driver.cpp b/src/lib/spinel/spinel_driver.cpp
 index dcf244531..037916013 100644
 --- a/src/lib/spinel/spinel_driver.cpp
@@ -95,6 +99,8 @@ index dcf244531..037916013 100644
  
      VerifyOrExit(packed > 0 && static_cast<size_t>(packed) <= sizeof(buffer), error = OT_ERROR_NO_BUFS);
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/ncp/ncp_base.cpp b/src/ncp/ncp_base.cpp
 index 96e362575..1b034bda6 100644
 --- a/src/ncp/ncp_base.cpp
@@ -135,6 +141,8 @@ index 96e362575..1b034bda6 100644
      }
  
  #if OPENTHREAD_RADIO
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/include/openthread/openthread-system.h b/src/posix/platform/include/openthread/openthread-system.h
 index 7f113492f..c51033cf2 100644
 --- a/src/posix/platform/include/openthread/openthread-system.h
@@ -148,6 +156,8 @@ index 7f113492f..c51033cf2 100644
      OT_PLATFORM_CONFIG_MAX_RADIO_URLS = 2, ///< Max number of Radio URLs.
  };
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
 index 31e7e284a..4caa97769 100644
 --- a/src/posix/platform/spi_interface.cpp

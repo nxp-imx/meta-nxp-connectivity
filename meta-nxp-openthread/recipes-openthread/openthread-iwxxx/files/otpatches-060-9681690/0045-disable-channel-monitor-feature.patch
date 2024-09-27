@@ -35,6 +35,8 @@
 * Impact if not applied : RF channel monitoring feature can't be disabled at compilation time.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/utils/channel_manager.cpp b/src/core/utils/channel_manager.cpp
 index e0b13e43a..c8b685948 100644
 --- a/src/core/utils/channel_manager.cpp

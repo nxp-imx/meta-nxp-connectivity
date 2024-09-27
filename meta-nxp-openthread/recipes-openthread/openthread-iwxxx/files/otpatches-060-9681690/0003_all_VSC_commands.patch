@@ -44,6 +44,8 @@
 */
 
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 9f6bd31a6..27fd80b34 100644
 --- a/include/openthread/platform/radio.h
@@ -144,6 +146,8 @@ index 9f6bd31a6..27fd80b34 100644
  
  #ifdef __cplusplus
  } // end of extern "C"
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index cbb3331bf..15650f64b 100644
 --- a/src/lib/spinel/radio_spinel.cpp
@@ -260,6 +264,8 @@ index cbb3331bf..15650f64b 100644
  otError RadioSpinel::SetExtendedAddress(const otExtAddress &aExtAddress)
  {
      otError error;
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
 index d053a9296..c11fe9d0e 100644
 --- a/src/lib/spinel/radio_spinel.hpp
@@ -364,6 +370,8 @@ index d053a9296..c11fe9d0e 100644
      /**
       * Sets the Extended Address for address filtering.
       *
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
 index c1865f373..f4b95b76f 100644
 --- a/src/lib/spinel/spinel.h
@@ -385,6 +393,8 @@ index c1865f373..f4b95b76f 100644
      SPINEL_PROP_VENDOR__END   = 0x4000,
  
      SPINEL_PROP_VENDOR_ESP__BEGIN = (SPINEL_PROP_VENDOR__BEGIN + 0),
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/main.c b/src/posix/main.c
 index 026c6c6eb..781b0c5e0 100644
 --- a/src/posix/main.c
@@ -419,6 +429,8 @@ index 026c6c6eb..781b0c5e0 100644
  };
  
  int main(int argc, char *argv[])
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
 index dad11a743..5a15a8f90 100644
 --- a/src/posix/platform/daemon.cpp
@@ -1057,6 +1069,8 @@ index dad11a743..5a15a8f90 100644
      Mainloop::Manager::Get().Add(*this);
  
      return;
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
 index f5eb17cc2..5ef6cd53e 100644
 --- a/src/posix/platform/radio.cpp

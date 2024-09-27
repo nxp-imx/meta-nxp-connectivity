@@ -36,6 +36,8 @@
 * Impact if not applied : Under corner scenario, OT host SW may crash.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index 0347d53e4..43e5624f9 100644
 --- a/src/lib/spinel/radio_spinel.cpp

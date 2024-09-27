@@ -35,6 +35,8 @@
 * Impact if not applied : CSL transmission will occassionally fail to meet the SSED RX ON window.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/config/mac.h b/src/core/config/mac.h
 index d44ff112c..b9936bd69 100644
 --- a/src/core/config/mac.h

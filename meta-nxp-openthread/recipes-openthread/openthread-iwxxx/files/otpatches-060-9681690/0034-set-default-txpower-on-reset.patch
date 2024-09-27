@@ -35,6 +35,8 @@
 * Impact if not applied : Previously configured TX power level remains after factory reset command.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/instance/instance.cpp b/src/core/instance/instance.cpp
 index 3519fd57f..d062cb991 100644
 --- a/src/core/instance/instance.cpp

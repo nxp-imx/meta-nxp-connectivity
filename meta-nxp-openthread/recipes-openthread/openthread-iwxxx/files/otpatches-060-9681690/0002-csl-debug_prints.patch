@@ -35,6 +35,8 @@
 * Impact if not applied : CSL timestamps won't be logged. Limited debug capabilities.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/thread/csl_tx_scheduler.cpp b/src/core/thread/csl_tx_scheduler.cpp
 index 35a070c1e..15a201b9d 100644
 --- a/src/core/thread/csl_tx_scheduler.cpp
@@ -47,6 +49,8 @@ index 35a070c1e..15a201b9d 100644
      return static_cast<uint32_t>(nextTxWindow - radioNow - aAheadUs);
  }
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index f17e3c70d..327344fc6 100644
 --- a/src/lib/spinel/radio_spinel.cpp

@@ -36,6 +36,8 @@
 * Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 27fd80b34..441f0e7f9 100644
 --- a/include/openthread/platform/radio.h
@@ -59,6 +61,8 @@ index 27fd80b34..441f0e7f9 100644
  /**
   * @}
   *
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index 15650f64b..62a31699d 100644
 --- a/src/lib/spinel/radio_spinel.cpp
@@ -104,6 +108,8 @@ index 15650f64b..62a31699d 100644
  
  void RadioSpinel::HandleRcpUnexpectedReset(spinel_status_t aStatus)
  {
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.hpp b/src/lib/spinel/radio_spinel.hpp
 index c11fe9d0e..49ab7559e 100644
 --- a/src/lib/spinel/radio_spinel.hpp
@@ -126,6 +132,8 @@ index c11fe9d0e..49ab7559e 100644
  
      /**
       * Returns the co-processor sw version string.
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel.h b/src/lib/spinel/spinel.h
 index f4b95b76f..d7df0b58b 100644
 --- a/src/lib/spinel/spinel.h
@@ -138,6 +146,8 @@ index f4b95b76f..d7df0b58b 100644
      SPINEL_PROP_VENDOR_NXP_IR_CONFIG_THRESHOLD = (SPINEL_PROP_VENDOR__BEGIN + 0x10F),
      SPINEL_CMD_VENDOR_NXP_MFG  = (SPINEL_CMD_VENDOR__BEGIN + 0x3FF),
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel_interface.hpp b/src/lib/spinel/spinel_interface.hpp
 index 10d0c9637..b44be2ab5 100644
 --- a/src/lib/spinel/spinel_interface.hpp
@@ -167,6 +177,8 @@ index 10d0c9637..b44be2ab5 100644
      virtual otError HardwareReset(void) = 0;
  
      /**
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/ncp/ncp_spi.cpp b/src/ncp/ncp_spi.cpp
 index c6d105156..871a78985 100644
 --- a/src/ncp/ncp_spi.cpp
@@ -184,6 +196,8 @@ index c6d105156..871a78985 100644
      SpiFrame sendFrame(mSendFrame);
  
      // Pass the received frame to base class to process.
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/main.c b/src/posix/main.c
 index 781b0c5e0..a86829068 100644
 --- a/src/posix/main.c
@@ -204,6 +218,8 @@ index 781b0c5e0..a86829068 100644
      {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
  };
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
 index 5a15a8f90..15edc3df4 100644
 --- a/src/posix/platform/daemon.cpp
@@ -283,6 +299,8 @@ index 5a15a8f90..15edc3df4 100644
      {"irthold", ProcessGetSetIRThreshold}   //=> OutOfBand Independent Reset Threshold configuration
  };
  } //extern "C"
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/hdlc_interface.hpp b/src/posix/platform/hdlc_interface.hpp
 index c6e01c7b2..36eee3492 100644
 --- a/src/posix/platform/hdlc_interface.hpp
@@ -302,6 +320,8 @@ index c6e01c7b2..36eee3492 100644
  
      /**
       * Hardware resets the RCP.
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/radio.cpp b/src/posix/platform/radio.cpp
 index 5ef6cd53e..b715981da 100644
 --- a/src/posix/platform/radio.cpp
@@ -319,6 +339,8 @@ index 5ef6cd53e..b715981da 100644
  #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
  uint8_t otPlatRadioGetCslAccuracy(otInstance *aInstance)
  {
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
 index c74299ecb..31e7e284a 100644
 --- a/src/posix/platform/spi_interface.cpp
@@ -398,6 +420,8 @@ index c74299ecb..31e7e284a 100644
          }
      }
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/spi_interface.hpp b/src/posix/platform/spi_interface.hpp
 index 94b55074a..ad96d29af 100644
 --- a/src/posix/platform/spi_interface.hpp

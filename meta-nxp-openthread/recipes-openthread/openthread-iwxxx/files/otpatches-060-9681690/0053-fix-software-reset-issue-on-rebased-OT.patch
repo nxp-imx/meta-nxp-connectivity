@@ -36,6 +36,8 @@
 * Impact if not applied : Host will exit due to failure in software reset.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel_driver.cpp b/src/lib/spinel/spinel_driver.cpp
 index 037916013..20e0ada2b 100644
 --- a/src/lib/spinel/spinel_driver.cpp

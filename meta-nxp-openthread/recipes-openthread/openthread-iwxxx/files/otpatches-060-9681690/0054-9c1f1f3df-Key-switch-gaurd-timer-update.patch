@@ -51,6 +51,8 @@ Date:   Wed Jun 5 11:22:46 2024 -0700
       applied regardless of the message being classified as Authoritative
       or Peer.
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/api/thread_api.cpp b/src/core/api/thread_api.cpp
 index 97e5508f0..b5661df64 100644
 --- a/src/core/api/thread_api.cpp
@@ -65,6 +67,8 @@ index 97e5508f0..b5661df64 100644
  }
  
  uint16_t otThreadGetKeySwitchGuardTime(otInstance *aInstance)
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/mac/mac.cpp b/src/core/mac/mac.cpp
 index e70fc982b..c6d96230a 100644
 --- a/src/core/mac/mac.cpp
@@ -78,6 +82,8 @@ index e70fc982b..c6d96230a 100644
          }
      }
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/thread/key_manager.cpp b/src/core/thread/key_manager.cpp
 index d38fdb8b5..9f40c9ec2 100644
 --- a/src/core/thread/key_manager.cpp
@@ -118,6 +124,8 @@ index d38fdb8b5..9f40c9ec2 100644
      }
  }
  
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/thread/key_manager.hpp b/src/core/thread/key_manager.hpp
 index 099854c45..56a64acb3 100644
 --- a/src/core/thread/key_manager.hpp
@@ -172,6 +180,8 @@ index 099854c45..56a64acb3 100644
  
  #if OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
      /**
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/thread/mle.cpp b/src/core/thread/mle.cpp
 index 85e0039c8..b5b42f421 100644
 --- a/src/core/thread/mle.cpp
