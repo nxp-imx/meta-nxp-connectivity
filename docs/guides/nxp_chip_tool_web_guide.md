@@ -521,7 +521,7 @@ In the structure above,
 
 ## Controlling a Matter device Energy EVSE Cluster
 
-***Note: To perform EEVSE control related operations on the chip-tool-web, relevant parameters must be added. For example, run the application with the command "$chip-energy-management-app -- enable-key 000102030405070708090a0b0c0d0e0f", and then perform the onnetwork pairing operation on the chip-tool-web.***
+***Note: To perform EEVSE control related operations on the chip-tool-web, relevant parameters must be added. For example, run the application with the command "$chip-energy-management-app --enable-key 000102030405060708090a0b0c0d0e0f", and then perform the onnetwork pairing operation on the chip-tool-web.***
 
 Once the pairing process is complete, the Matter device is successfully commissioned to the network. For the chip-energy-management-app, the EEVSE clusters are implemented in chip-tool-web, allowing you to control the end devices using the `energyevse` cluster commands.
 
