@@ -87,15 +87,10 @@ The following packages are required to build the Yocto Project:
     git gcc g++ pkg-config libssl-dev libglib2.0-dev libavahi-client-dev ninja-build \
     python3-venv python3-dev unzip libgirepository1.0-dev libcairo2-dev libreadline-dev
 
-Make sure that your default Python3 version is 3.8:
-
-    $ python3 --version
-      Python 3.8.0
-
 Then, Yocto build environment must be setup.
 
-The Yocto source code is maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.6.3-1.0.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK and i.MX8ULP EVK.
+The Yocto source code and meta-nxp-connectivity recipes are maintained with a manifest file, used by repo tool to download the corresponding source code.
+This document is tested with the i.MX Yocto 6.6.23-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK, i.MX8ULP EVK and i.MX91 EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -107,13 +102,8 @@ Run the commands below to download this release:
     $ cd ${MY_YOCTO}
     $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-scarthgap -m imx-6.6.23-2.1.0.xml
     $ repo sync
-
-Then integrate the meta-nxp-connectivity recipes into the Yocto code base
-
-    $ cd ${MY_YOCTO}/sources/
-    $ git clone https://github.com/nxp-imx/meta-nxp-connectivity.git meta-nxp-connectivity
-    $ cd meta-nxp-connectivity
-    $ git checkout imx_matter_2024_q3
+    $ cd ${MY_YOCTO}/sources/meta-nxp-connectivity
+    $ git remote update
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
