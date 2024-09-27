@@ -5,6 +5,7 @@ Subject: [PATCH] MATTER-2389-4 add se_version.h
 
 update the se_version.h to sync with lf-6.6.23-2.0.0-rc2.
 
+Upstream-Status: Inappropriate  [build generated file only]
 Change-Id: I80d75dc2e71e1a6af471f0c1c9a8cc5e9f1b13e3
 Signed-off-by: Ji Luo <ji.luo@nxp.com>
 ---

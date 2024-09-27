@@ -43,6 +43,8 @@
 * Impact if not applied : VSC commands won't be available.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 45fbe4594..8771f0075 100644
 --- a/include/openthread/platform/radio.h

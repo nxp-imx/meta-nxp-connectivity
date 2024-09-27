@@ -35,6 +35,8 @@
 * Impact if not applied : Sometimes warning occurs when 'ifconfig down' is executed
 */
  
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/core/net/ip6.cpp b/src/core/net/ip6.cpp
 index 6ca08a024..be1de8306 100644
 --- a/src/core/net/ip6.cpp

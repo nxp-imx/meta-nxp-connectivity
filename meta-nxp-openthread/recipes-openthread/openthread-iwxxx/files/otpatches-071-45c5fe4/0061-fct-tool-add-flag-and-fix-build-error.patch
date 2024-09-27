@@ -36,6 +36,8 @@
 * Impact if not applied : ot-fct unable to access file provided by build paramter.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/tools/ot-fct/CMakeLists.txt b/tools/ot-fct/CMakeLists.txt
 index aea348f0f..bfe180724 100644
 --- a/tools/ot-fct/CMakeLists.txt

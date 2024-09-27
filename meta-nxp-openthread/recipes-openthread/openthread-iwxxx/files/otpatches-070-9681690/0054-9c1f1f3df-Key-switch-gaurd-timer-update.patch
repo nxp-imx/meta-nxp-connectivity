@@ -51,6 +51,8 @@ Date:   Wed Jun 5 11:22:46 2024 -0700
       applied regardless of the message being classified as Authoritative
       or Peer.
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/api/thread_api.cpp b/src/core/api/thread_api.cpp
 index 97e5508f0..b5661df64 100644
 --- a/src/core/api/thread_api.cpp

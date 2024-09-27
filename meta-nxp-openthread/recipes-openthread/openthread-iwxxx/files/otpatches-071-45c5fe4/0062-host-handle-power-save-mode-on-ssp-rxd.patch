@@ -36,6 +36,8 @@
 * Impact if not applied : ot application may not be able to wake-up RCP. Recovery will fail.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index ac99a2ddd..d18758d71 100644
 --- a/src/lib/spinel/radio_spinel.cpp

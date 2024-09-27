@@ -35,6 +35,8 @@
 * Impact if not applied : Generic command support will not be there.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/daemon.cpp b/src/posix/platform/daemon.cpp
 index 269a9f8c2..e807364ee 100644
 --- a/src/posix/platform/daemon.cpp

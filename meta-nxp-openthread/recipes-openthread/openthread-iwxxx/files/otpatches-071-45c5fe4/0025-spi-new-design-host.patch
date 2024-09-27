@@ -36,6 +36,8 @@
 * Impact if not applied : OT host won't be able to communicate reliably with IW612 over SPI.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 4d55f87d5..70cc50a8d 100644
 --- a/include/openthread/platform/radio.h

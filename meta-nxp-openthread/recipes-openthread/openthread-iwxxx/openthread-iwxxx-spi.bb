@@ -4,9 +4,15 @@ DESCRIPTION = "OPENTHREAD applications"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=543b6fe90ec5901a683320a36390c65f"
 
-S = "${WORKDIR}/git"
-#FILES_${PN} += "lib/systemd"
-#FILES_${PN} += "usr/share"
+python () {
+    distro_version = d.getVar('DISTRO_VERSION')
+    if "scarthgap" in distro_version:
+        d.setVar('S', '${WORKDIR}/git')
+    elif "nanbield" in distro_version:
+        d.setVar('S', '${WORKDIR}/git')
+    else:
+        d.setVar('S', '${UNPACKDIR}/git')
+}
 
 DEPENDS += " avahi boost readline "
 RDEPENDS_${PN} += " libavahi-client readline "

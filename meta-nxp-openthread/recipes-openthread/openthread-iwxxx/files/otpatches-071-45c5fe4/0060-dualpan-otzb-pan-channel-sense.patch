@@ -37,6 +37,8 @@
 * Impact if not applied : ot application may not be able to sense the side PAN channel.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 57a455dad..db2f92898 100644
 --- a/include/openthread/platform/radio.h

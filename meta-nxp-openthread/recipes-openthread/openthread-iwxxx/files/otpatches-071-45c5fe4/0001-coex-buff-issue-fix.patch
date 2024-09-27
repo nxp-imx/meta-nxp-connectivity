@@ -39,6 +39,8 @@
 *                         involving Wi-Fi and/or BT/BLE concurrently with Thread.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/core/config/misc.h b/src/core/config/misc.h
 index 27a11e806..c1fae385f 100644
 --- a/src/core/config/misc.h

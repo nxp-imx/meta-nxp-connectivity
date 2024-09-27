@@ -35,6 +35,8 @@
 * Impact if not applied : CSL timestamps won't be logged. Limited debug capabilities.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/core/thread/csl_tx_scheduler.cpp b/src/core/thread/csl_tx_scheduler.cpp
 index 0f28c43a0..e0c32e8f5 100644
 --- a/src/core/thread/csl_tx_scheduler.cpp

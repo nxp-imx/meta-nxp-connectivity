@@ -44,6 +44,8 @@
 */
 
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/include/openthread/platform/radio.h b/include/openthread/platform/radio.h
 index 9f6bd31a6..27fd80b34 100644
 --- a/include/openthread/platform/radio.h

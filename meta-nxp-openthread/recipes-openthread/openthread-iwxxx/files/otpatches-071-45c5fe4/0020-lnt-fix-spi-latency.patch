@@ -36,6 +36,8 @@
 * Impact if not applied : SPI transaction requested by the RCP will occasionally be significantly delayed.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/posix/platform/spi_interface.cpp b/src/posix/platform/spi_interface.cpp
 index 844e28afb..d8c5611b3 100644
 --- a/src/posix/platform/spi_interface.cpp

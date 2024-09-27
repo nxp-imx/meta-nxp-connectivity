@@ -35,6 +35,8 @@
 * Impact if not applied : assert !IsOpen(aSocket) in ot::Ip6::Udp::Open(src/core/net/udp6.cpp) on next run ofSrpClient after connect failed (Network is unreachable).
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/core/net/srp_client.cpp b/src/core/net/srp_client.cpp
 index a70589aae..91a8d9aa8 100644
 --- a/src/core/net/srp_client.cpp

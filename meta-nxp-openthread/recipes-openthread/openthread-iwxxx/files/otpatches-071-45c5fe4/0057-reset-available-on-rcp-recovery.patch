@@ -35,6 +35,8 @@
 * Impact if not applied : ot-daemon might not recover
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/lib/spinel/spinel_driver.cpp b/src/lib/spinel/spinel_driver.cpp
 index 695e714e3..93192bf35 100644
 --- a/src/lib/spinel/spinel_driver.cpp

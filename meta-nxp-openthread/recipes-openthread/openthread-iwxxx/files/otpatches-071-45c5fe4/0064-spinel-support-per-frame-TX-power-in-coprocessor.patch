@@ -45,6 +45,8 @@ This commit passes the TX power from host to coprocessor.
  src/lib/spinel/radio_spinel.cpp           |  30 ++++---
  src/ncp/ncp_base_radio.cpp                |   2 +
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index b629d7ed9..c4bc31dc3 100644
 --- a/src/lib/spinel/radio_spinel.cpp

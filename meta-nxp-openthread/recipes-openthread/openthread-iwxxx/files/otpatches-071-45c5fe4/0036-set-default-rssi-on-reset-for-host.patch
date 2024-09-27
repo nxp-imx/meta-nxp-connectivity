@@ -35,6 +35,8 @@
 * Impact if not applied : Previously latched RSSI value will be used even after a reset.
 */
 
+Upstream-Status: Inappropriate [platform specific changes]
+
 diff --git a/src/lib/spinel/radio_spinel.cpp b/src/lib/spinel/radio_spinel.cpp
 index 7418e2372..cc47069be 100644
 --- a/src/lib/spinel/radio_spinel.cpp
