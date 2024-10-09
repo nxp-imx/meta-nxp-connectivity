@@ -8,10 +8,13 @@ python () {
     distro_version = d.getVar('DISTRO_VERSION')
     if "scarthgap" in distro_version:
         d.setVar('S', '${WORKDIR}/git')
+        d.setVar('WORKPATH', '${WORKDIR}/git')
     elif "nanbield" in distro_version:
         d.setVar('S', '${WORKDIR}/git')
+        d.setVar('WORKPATH', '${WORKDIR}/git')
     else:
         d.setVar('S', '${UNPACKDIR}/git')
+        d.setVar('WORKPATH', '${UNPACKDIR}/')
 }
 
 DEPENDS += " avahi boost readline "
@@ -23,8 +26,8 @@ inherit cmake
 
 do_install() {
     install -d -m 755 ${D}${bindir}
-    install ${S}/../build/src/posix/ot-daemon ${D}${bindir}
-    install ${S}/../build/src/posix/ot-ctl ${D}${bindir}/ot-client-ctl
+    install ${WORKPATH}/../build/src/posix/ot-daemon ${D}${bindir}
+    install ${WORKPATH}/../build/src/posix/ot-ctl ${D}${bindir}/ot-client-ctl
 }
 
 SRC_URI = "gitsm://github.com/openthread/openthread.git;branch=main;protocol=https"
