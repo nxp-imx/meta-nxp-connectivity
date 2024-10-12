@@ -94,7 +94,7 @@ Step 2. Mount the new partition to the "~/image" folder and restart the docker s
     root@imx93evk-iwxxx-matter:~# cd /var/lib/
     root@imx93evk-iwxxx-matter:/var/lib# mv docker docker_old
     root@imx93evk-iwxxx-matter:/var/lib# ln -s ~/image/docker/ ./
-    root@imx93evk-iwxxx-matter:systemctl start docker
+    root@imx93evk-iwxxx-matter:/var/lib# systemctl start docker
 
 Step 3. Download and deploy the homeassistant and matter-server docker images.
 
@@ -119,7 +119,7 @@ First, you can use the commands below to connect to the Wi-Fi AP on the i.MX doc
 
     $ ifconfig eth0 down
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
-    $ wpa_supplicant -d -B -i mlan0 -c ./imxrouter.conf
+    $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
     $ sleep 5
     $ modprobe btnxpuart
     $ hciconfig hci0 up
