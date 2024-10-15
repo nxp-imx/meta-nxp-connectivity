@@ -73,7 +73,7 @@ We currently support 4 i.MX MPU platforms, which are the i.MX93 EVK, the i.MX8M 
 - Support for OpenThread v1.4 RCPs
 - Support for Zigbee and Openthread dual pan, Zigbee PRO R23 compliant stack, Zigbee coordinator, router and end device, OTA/Matter Zigbee bridge features for onoff, level, light, sences, thermostat, custom cluster, etc on IW612
 - Support for new platform i.MX91 EVK
-- Integrated Linux L6.6.23_2.1.0 and Yocto scarthgap
+- Integrated Linux L6.6.36_2.1.0 and Yocto scarthgap
 - Support Docker deployed Home Assistant and support Home Assistant Matter controller for both Phone App commissioner and on i.MX commissioner
 
 # How to build the Yocto image with integrated OpenThread Border Router
@@ -90,7 +90,7 @@ The following packages are required to build the Yocto Project:
 Then, Yocto build environment must be setup.
 
 The Yocto source code and meta-nxp-connectivity recipes are maintained with a manifest file, used by repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.6.23-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK, i.MX8ULP EVK and i.MX91 EVK.
+This document is tested with the i.MX Yocto 6.6.36-2.1.0 release. The hardware tested are: i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX93 EVK, i.MX8ULP EVK and i.MX91 EVK.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -100,10 +100,11 @@ Run the commands below to download this release:
 
     $ mkdir ${MY_YOCTO} # this directory will be the top directory of the Yocto source code
     $ cd ${MY_YOCTO}
-    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-scarthgap -m imx-6.6.23-2.1.0.xml
+    $ repo init -u https://github.com/nxp-imx/imx-manifest -b imx-linux-scarthgap -m imx-6.6.36-2.1.0.xml
     $ repo sync
     $ cd ${MY_YOCTO}/sources/meta-nxp-connectivity
     $ git remote update
+    $ git checkout imx_matter_2024_q3
 
 More information about the downloaded Yocto release can be found in the corresponding i.MX Yocto Project User’s Guide, which can be found at [NXP official website](http://www.nxp.com/imxlinux).
 
