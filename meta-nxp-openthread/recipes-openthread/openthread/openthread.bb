@@ -13,7 +13,6 @@ python () {
         d.setVar('S', '${WORKDIR}/git')
         d.setVar('WORKPATH', '${WORKDIR}/git')
     else:
-        d.setVar('S', '${UNPACKDIR}/git')
         d.setVar('WORKPATH', '${UNPACKDIR}/')
 }
 
