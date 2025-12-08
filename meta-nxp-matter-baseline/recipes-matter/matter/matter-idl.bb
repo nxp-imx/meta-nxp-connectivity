@@ -10,7 +10,7 @@ BBCLASSEXTEND = "native"
 
 inherit setuptools3
 
-S = "${WORKDIR}/git/scripts/py_matter_idl"
+S = "${UNPACKDIR}/matter-idl-1.0/scripts/py_matter_idl"
 
 RDEPENDS:${PN} += " \
     python3-click-native \

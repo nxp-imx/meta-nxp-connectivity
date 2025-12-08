@@ -4,7 +4,7 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "v1.5-branch-imx_matter_2025_q4"
+SRCBRANCH = "1.5-branch-imx_matter_2025_q4-post"
 #IMX_MATTER_SRC ?= "gitsm://github.com/NXP/matter.git;protocol=https"
 IMX_MATTER_SRC ?= "gitsm://androidsource.nxp.com/project/github/connectedhomeip;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
@@ -14,7 +14,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "${AUTOREV}"
+SRCREV = "fd8e15b34bacf9eb78d33d573d80aa0abc6a108b"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging-native python3-click-native openssl  matter-idl-native python3-jinja2-native python3-lark-native python3-setuptools-native python3-python-path-native "
@@ -52,8 +52,6 @@ TARGET_ARM_ARCH = "${@get_arm_arch(d)}"
 TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
 
 USE_ELE ?= "false"
-
-S = "${WORKDIR}/git"
 
 # Defines Matter applications to build. Format is a pipe-separated string:
 # app-path|binary-name|output-dir|extra-gn-args|install-binary-name
