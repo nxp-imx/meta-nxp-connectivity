@@ -82,7 +82,7 @@ The following packages are required to build the Yocto Project:
 
     $ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \
     build-essential chrpath socat cpio python3 python3-pip python3-pexpect cmake \
-    xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
+    xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libegl1 libsdl1.2-dev \
     pylint xterm npm zstd build-essential libpython3-dev libdbus-1-dev python3.8-venv lz4 \
     git git-lfs gcc g++ pkg-config libssl-dev libglib2.0-dev libavahi-client-dev ninja-build \
     python3-venv python3-dev libgirepository1.0-dev libcairo2-dev libreadline-dev default-jre
@@ -291,6 +291,8 @@ This SDK can be generated with the following commands:
     $ cd ${MY_YOCTO}/bld-xwayland-imx6ull
 
     $ bitbake imx-image-sdk -c populate_sdk
+    # In this step, you may need install one more time dependency by running:
+    $ sudo apt-get install git-lfs
 
 Then, install the Yocto SDK, by running the SDK installation script with root permission:
 
@@ -393,11 +395,14 @@ Then configure the Thread device:
 
 On __i.MX93 FRDM, i.MX93 EVK, i.MX95 15x15 EVK__, we will use IW612 as Thread device, on __i.MX91 EVK, i.MX91 QSB, i.MX91 FRDM__, we will use IW610 as Thread device, execute the following commands to start the OTBR:
 
+    # For i.MX93 FRDM:
+    $ otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev2.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
+    # For i.MX93 EVK, i.MX95 15x15 EVK, i.MX91 EVK, i.MX91 QSB and i.MX91 FRDM:
     $ otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     $ iptables -A FORWARD -i mlan0 -o wpan0 -j ACCEPT
     $ iptables -A FORWARD -i wpan0 -o mlan0 -j ACCEPT
 
-**Note: Please [check GPIO device](./docs/guides/nxp_mpu_matter_demos.md#check-gpio-device) to determine gpio-reset-device and gpio-int-device.**
+**Note: Please [check SPI device](./docs/guides/nxp_mpu_matter_demos.md#check-spi-dev) to identify the SPI device name and [check GPIO device](./docs/guides/nxp_mpu_matter_demos.md#check-gpio-device) to determine gpio-reset-device and gpio-int-device used in the RadioURL option of otbr-agent-iwxxx.**
 
 On __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX8ULP EVK__, we will use a dedicated Thread device (NXP K32W or any third party RCP):
 Plugin the Thread module into the USB OTG port of __i.MX8M Mini EVK__, __i.MX6ULL EVK__ or __i.MX8ULP EVK__. A USB device should be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.

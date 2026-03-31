@@ -133,6 +133,16 @@ Then setup by running the following commands:
         otbr-web &
         、、、
 
+<a name="check-spi-dev"></a>
+
+**Note: The SPI device name may change on i.MX93 FRDM , you can use the "ls /dev/spidev*" command to check the specific SPI device name.**
+
+#### Check the SPI device name for i.MX93 FRDM
+        $ ls /dev/spidev*
+        /dev/spidev2.0
+
+This means you have to start the otbr-agent with the command "otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi://***/dev/spidev2.0***?gpio-reset-device=/dev/gpiochip0&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' & "
+
 <a name="check-gpio-device"></a>
 
 **Note: The GPIO device may change, you can use the "gpioinfo" command or "gpiodetect" command to determine gpio-reset-device and gpio-int-device.**
@@ -296,16 +306,18 @@ Since chip-tool-trusty can run on the i.MX8M Mini EVK platform, the chip-tool in
 
 Please use below commands to setup ot-daemon on an device:
 
-    #load WiFi driver and FW
+    # Load WiFi driver and FW
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
 
-    #For i.MX8M Mini EVK + 88W8987, i.MX8ULP EVK and i.MX6ULL EVK + 88W8987 with K32W RCP:
+    # For i.MX8M Mini EVK + 88W8987, i.MX8ULP EVK and i.MX6ULL EVK + 88W8987 with K32W RCP:
     $ ot-daemon 'spinel+hdlc+uart:///dev/ttyUSB0?uart-baudrate=1000000' &
 
-    #For i.MX93 FRDM / i.MX93 EVK / i.MX95 15x15 EVK + IW612, i.MX91 EVK / i.MX91 QSB / i.MX91 FRDM + IW610:
+    # For i.MX93 FRDM + IW612:
+    $ ot-daemon-iwxxx 'spinel+spi:///dev/spidev2.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
+    # For i.MX93 EVK / i.MX95 15x15 EVK + IW612, i.MX91 EVK / i.MX91 QSB / i.MX91 FRDM + IW610:
     $ ot-daemon-iwxxx 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
 
-**Note: Please [check GPIO device](#check-gpio-device) to determine gpio-reset-device and gpio-int-device.**
+**Note: Please [check SPI device](#check-spi-dev) to identify the SPI device name and [check GPIO device](#check-gpio-device) to determine gpio-reset-device and gpio-int-device used in the RadioURL option of otbr-agent-iwxxx..**
 
 You can test the ot-daemon with another device running otbr-agent, [start the thread network](#start-thread) on the other device.
 
