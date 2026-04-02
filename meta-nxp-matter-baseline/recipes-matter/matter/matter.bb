@@ -4,6 +4,8 @@ DESCRIPTION = "This layer loads the main Matter applications"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
+inherit pkgconfig
+
 SRCBRANCH = "v1.5-branch-imx_matter_2026_q1"
 IMX_MATTER_SRC ?= "git://github.com/NXP/matter.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
@@ -95,8 +97,8 @@ do_configure() {
 
         final_args_content="${GN_BASE_ARGS_CONTENT} ${extra_args}"
 
-        PKG_CONFIG_SYSROOT_DIR=${PKG_CONFIG_SYSROOT_DIR} \
-        PKG_CONFIG_LIBDIR=${PKG_CONFIG_PATH} \
+        PKG_CONFIG_SYSROOT_DIR="${PKG_CONFIG_SYSROOT_DIR}" \
+        PKG_CONFIG_LIBDIR="${PKG_CONFIG_LIBDIR}" \
         gn gen --root="${S}/examples/${app_path}" "${S}/examples/${app_path}/out/${output_dir}" --script-executable="${MATTER_PY_PATH}" --args="${final_args_content}"
 
         cd ${S}
