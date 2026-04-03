@@ -8,8 +8,14 @@ SRCBRANCH = "master"
 SRC_URI = "gitsm://github.com/nxp-imx/libtrustymatter.git;protocol=https;branch=${SRCBRANCH}"
 SRCREV = "95f8b30d83da8bf05f3e6b776919511f58766540"
 
-FILES:${PN} += "/usr/lib/systemd/system/storageproxyd.service"
+FILES:${PN} += "${systemd_system_unitdir}/storageproxyd.service"
 
 DEPENDS += " pkgconfig-native systemd "
 
-inherit cmake
+inherit cmake pkgconfig
+
+EXTRA_OECMAKE:append = " -DSYSTEMD_UNIT_DIR=${systemd_system_unitdir}"
+
+do_configure:prepend() {
+    export PKG_CONFIG_PATH="${STAGING_LIBDIR}/pkgconfig:${STAGING_DATADIR}/pkgconfig:$PKG_CONFIG_PATH"
+}
