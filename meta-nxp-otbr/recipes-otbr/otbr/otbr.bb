@@ -11,10 +11,10 @@ FILES:${PN} += "usr/share"
 FILES:${PN} += "usr/lib"
 FILES:${PN} += "usr/sbin"
 
-DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables protobuf-c protobuf protobuf-native "
+DEPENDS += " jsoncpp avahi boost pkgconfig-native mdns libnetfilter-queue ipset libnftnl nftables protobuf-c protobuf protobuf-native dbus "
 RDEPENDS:${PN} += " jsoncpp mdns radvd libnetfilter-queue ipset libnftnl nftables bash protobuf protobuf-c "
 
-inherit cmake
+inherit cmake pkgconfig
 SRC_URI = "gitsm://github.com/openthread/ot-br-posix.git;branch=main;protocol=https"
 
 SRC_URI += "file://0001-correct-otbr-reference-scripts-install-folder.patch"
