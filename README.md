@@ -624,3 +624,6 @@ A : You can save the commission information using the following command:
 
     $ export TMPDIR=/etc/matter
 
+Q5 : What should I do if I encounter insufficient storage space when downloading Docker containers on the i.MX91 FRDM?
+
+A  : Due to the limited eMMC storage capacity of the i.MX91 FRDM, an SD card with a minimum capacity of 16 GB is required to run Home Assistant. Please flash the i.MX 91 FRDM Matter yocto image to the SD card and boot it from the SD card. For instructions on how to run HA on the i.MX91 FRDM, please refer to the [Home Assistant guide](./docs/guides/nxp_mpu_matter_Home_Assistant.md).

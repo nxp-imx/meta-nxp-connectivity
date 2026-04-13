@@ -28,9 +28,82 @@ Figure. HA schematic diagram for i.MX MPU platform
 
 ## Deploying the Docker containers on the i.MX MPU platform
 
-You should first download and deploy the Docker containers on an i.MX MPU platform.
+### i.MX91 FRDM pre-deployment steps
 
-Download and deploy the homeassistant and matter-server Docker images.
+To run HA on the i.MX91 FRDM, please flash the i.MX91 FRDM Matter Yocto image to an SD card with a capacity of at least 16 GB and boot the board from the SD card. Before downloading and deploying the Home Assistant and Matter Server Docker images on the i.MX91 FRDM, please perform the following two steps. ___If you are using other platforms, you can skip this section and directly move on to deploying the Docker containers in the next section.___
+
+Step 1. Create a new partition to store the Docker images.
+
+    root@imx91frdm-iwxxx-matter:~# fdisk /dev/mmcblk1
+
+        Welcome to fdisk (util-linux 2.41.1).
+        Changes will remain in memory only, until you decide to write them.
+        Be careful before using the write command.
+
+        This disk is currently in use - repartitioning is probably a bad idea.
+        It's recommended to umount all file systems, and swapoff all swap
+        partitions on this disk.
+
+        Command (m for help): p
+
+        Disk /dev/mmcblk1: 59.48 GiB, 63864569856 bytes, 124735488 sectors
+        Units: sectors of 1 * 512 = 512 bytes
+        Sector size (logical/physical): 512 bytes / 512 bytes
+        I/O size (minimum/optimal): 512 bytes / 512 bytes
+        Disklabel type: dos
+        Disk identifier: 0x076c4a2a
+
+        Device         Boot  Start      End  Sectors  Size Id Type
+        /dev/mmcblk1p1 *     16384   540671   524288  256M  c W95 FAT32 (LBA)
+        /dev/mmcblk1p2      540672 14172159 13631488  6.5G 83 Linux
+
+        Command (m for help): n
+
+        Partition type
+        p   primary (2 primary, 0 extended, 2 free)
+        e   extended (container for logical partitions)
+        Select (default p): p
+        Partition number (3,4, default 3): 3
+        First sector (2048-124735487, default 2048): 14180000
+        Last sector, +/-sectors or +/-size{K,M,G,T,P} (14180000-124735487, default 124735487):
+
+        Created a new partition 3 of type 'Linux' and of size 52.7 GiB.
+
+        Command (m for help): w
+        The partition table has been altered.
+        Syncing disks.
+
+    root@imx91frdm-iwxxx-matter:~# mkfs.ext4 /dev/mmcblk1p3
+        mke2fs 1.47.3 (8-Jul-2025)
+        Discarding device blocks: done
+        Creating filesystem with 13819436 4k blocks and 3457024 inodes
+        Filesystem UUID: 77309a3c-1448-47fe-ba73-78cb933720cd
+        Superblock backups stored on blocks:
+                32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+                4096000, 7962624, 11239424
+
+        Allocating group tables: done
+        Writing inode tables: done
+        Creating journal (65536 blocks): done
+        Writing superblocks and filesystem accounting information: done
+
+Step 2. Mount the new partition to the "~/image" folder and restart the docker service using the commands below.
+
+    root@imx91frdm-iwxxx-matter:~# mkdir image
+    root@imx91frdm-iwxxx-matter:~# mount /dev/mmcblk1p3 image
+    root@imx91frdm-iwxxx-matter:~# mkdir ~/image/docker
+    root@imx91frdm-iwxxx-matter:~# mkdir ~/image/containerd
+    root@imx91frdm-iwxxx-matter:~# systemctl stop docker
+    root@imx91frdm-iwxxx-matter:~# cd /var/lib/
+    root@imx91frdm-iwxxx-matter:/var/lib# mv docker docker_old
+    root@imx91frdm-iwxxx-matter:/var/lib# mv containerd containerd_old
+    root@imx91frdm-iwxxx-matter:/var/lib# ln -s ~/image/docker/ ./
+    root@imx91frdm-iwxxx-matter:/var/lib# ln -s ~/image/containerd/ ./
+    root@imx91frdm-iwxxx-matter:/var/lib# systemctl start docker
+
+### Deploying the Docker containers on all supported i.MX MPU Platforms
+
+Download and deploy the homeassistant and matter-server Docker images using the commands below.
 
     $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v $(pwd)/config:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2026.3
     $ docker run -d --name matter-server --restart=unless-stopped --security-opt apparmor=unconfined -v $(pwd)/data:/data --network=host ghcr.io/home-assistant-libs/python-matter-server:8.1.0 --storage-path /data --paa-root-cert-dir /data/credentials
