@@ -13,7 +13,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "${AUTOREV}"
+SRCREV = "84ff3c1b5981d27a52e902febab5f143269ab45f"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging-native python3-click-native openssl  matter-idl-native python3-jinja2-native python3-lark-native python3-setuptools-native python3-python-path-native "
