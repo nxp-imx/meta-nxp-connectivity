@@ -1,4 +1,4 @@
-From 131572a6ce8cf5fe5c8917b67502133d9edfdf3b Mon Sep 17 00:00:00 2001
+From b511a425f381e2c92d6bcf98e3cad4bd943ddf6c Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
 Date: Tue, 18 Jun 2024 16:49:19 +0800
 Subject: [PATCH] Enhance the FIFO communication
@@ -8,14 +8,14 @@ This is a workaround for make the nxp-media-app demo stable.
 
 Signed-off-by: Haoran Wang <elven.wang@nxp.com>
 Change-Id: I25ce159abfab7d8770a64df38fa664524e219010
+
+Upstream-Status: Inappropriate  [platform specific changes]
 ---
  tools/gplay2/gplay2.c | 1 +
  1 file changed, 1 insertion(+)
 
-Upstream-Status: Inappropriate  [platform specific changes]
-
 diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
-index 31cfd98..72a373a 100755
+index 3b11a06..521b817 100755
 --- a/tools/gplay2/gplay2.c
 +++ b/tools/gplay2/gplay2.c
 @@ -124,6 +124,7 @@ ack_matter(const gchar * ack)

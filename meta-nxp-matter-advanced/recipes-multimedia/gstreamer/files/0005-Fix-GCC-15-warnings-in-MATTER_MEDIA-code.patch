@@ -1,12 +1,12 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From bba99d5d1c9426f41f6225ad73ca121e01a0855b Mon Sep 17 00:00:00 2001
 From: Haoran Wang <elven.wang@nxp.com>
-Date: Thu, 03 Apr 2026 00:00:00 +0800
+Date: Fri, 3 Apr 2026 00:00:00 +0800
 Subject: [PATCH] Fix GCC 15 warnings in MATTER_MEDIA code
 
 Fix compilation errors when building with GCC 15 and -Werror:
 
 1. Fix format specifier: strlen() returns size_t, use %zu instead of %d
-2. Fix unused return value of write() with warn_unused_result attribute  
+2. Fix unused return value of write() with warn_unused_result attribute
 3. Fix unused return value of read() with warn_unused_result attribute
 4. Fix unused variable stdin_poll when MATTER_MEDIA is defined
 
@@ -16,14 +16,14 @@ with GCC 15's stricter warning checks.
 Signed-off-by: Haoran Wang <elven.wang@nxp.com>
 Upstream-Status: Inappropriate [GCC 15 compatibility fix for platform patch]
 ---
- tools/gplay2/gplay2.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ tools/gplay2/gplay2.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/tools/gplay2/gplay2.c b/tools/gplay2/gplay2.c
-index 72a373a..b1c2d3e 100755
+index 521b817..2dff827 100755
 --- a/tools/gplay2/gplay2.c
 +++ b/tools/gplay2/gplay2.c
-@@ -120,8 +120,11 @@ char * media_fifo_ack = "/tmp/fifo_nxp_media_ack";
+@@ -122,8 +122,11 @@ char * media_fifo_ack = "/tmp/fifo_nxp_media_ack";
  void
  ack_matter(const gchar * ack)
  {
@@ -36,7 +36,7 @@ index 72a373a..b1c2d3e 100755
    sleep(1);
    close(fd);
  }
-@@ -1043,7 +1046,9 @@ input_thread_fun (gpointer data)
+@@ -1007,18 +1010,23 @@ input_thread_fun (gpointer data)
    GstPlay *play = sPlay->play;
    GstPlayVideoRenderer *VideoRender = sPlay->VideoRender;
    gplay_pconfigions *options = sPlay->options;
@@ -46,7 +46,7 @@ index 72a373a..b1c2d3e 100755
  
    while (gexit_input_thread == FALSE) {
      sCommand[0] = ' ';
-@@ -1052,10 +1057,13 @@ input_thread_fun (gpointer data)
+     errno = 0;
  #ifdef MATTER_MEDIA
      fd = open(media_fifo, O_RDONLY);
 -    read(fd, sCommand, sizeof(sCommand));
@@ -64,3 +64,4 @@ index 72a373a..b1c2d3e 100755
      if (poll (&stdin_poll, 1, 500)) {
 -- 
 2.34.1
+
