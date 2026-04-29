@@ -15,7 +15,6 @@ MATTER_APPLICATIONS += " \
 #   'nxp-evse-app/linux|chip-nxp-evse-app|aarch64||chip-nxp-evse-app'
 #   'nxp-heat-pump-app/linux|chip-nxp-heat-pump-app|aarch64||chip-nxp-heat-pump-app'
 #   'nxp-solar-power-app/linux|chip-nxp-solar-power-app|aarch64||chip-nxp-solar-power-app'
-#   'nxp-thermostat/linux|nxp-thermostat-app|aarch64-trusty|chip_with_trusty_os=true|nxp-thermostat-app-trusty' 
 #   'nxp-water-heater-app/linux|chip-nxp-water-heater-app|aarch64||chip-nxp-water-heater-app'
 
 # Append advanced applications to the central list. These use the standard 'aarch64' output directory
@@ -36,6 +35,7 @@ MATTER_APPLICATIONS += " \
 MATTER_APPLICATIONS:append = " ${@bb.utils.contains('MACHINE_FEATURES', 'trusty', " \
     'lighting-app/linux|chip-lighting-app|aarch64-trusty|chip_with_trusty_os=true|chip-lighting-app-trusty' \
     'chip-tool|chip-tool|aarch64-trusty|chip_with_trusty_os=true|chip-tool-trusty' \
+    'nxp-thermostat/linux|nxp-thermostat-app|aarch64-trusty|chip_with_trusty_os=true|nxp-thermostat-app-trusty' \
     'nxp-media-app/linux|nxp-media-app|aarch64-trusty|chip_with_trusty_os=true|nxp-media-app-trusty' \
 ", '', d)}"
 
