@@ -17,7 +17,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "0d1d89a89816558a30eb0663863c771ae82cd1c1"
+SRCREV = "db37b6acdc40fee80a326198ea910d09a0343c26"
 
 # Fetch submodules selectively using checkout_submodules.py instead of gitsm
 do_checkout_submodules() {
