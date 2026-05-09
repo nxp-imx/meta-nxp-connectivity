@@ -66,10 +66,6 @@ USE_ELE ?= "false"
 # Defines Matter applications to build. Format is a pipe-separated string:
 # app-path|binary-name|output-dir|extra-gn-args|install-binary-name
 
-#TODO: restore below application:
-#'energy-management-app/linux|chip-energy-management-app|aarch64||chip-energy-management-app'
-#'nxp-thermostat/linux|nxp-thermostat-app|aarch64||nxp-thermostat-app'
-
 MATTER_APPLICATIONS = " \
     'lighting-app/linux|chip-lighting-app|aarch64||chip-lighting-app' \
     'all-clusters-app/linux|chip-all-clusters-app|aarch64||chip-all-clusters-app' \
@@ -80,6 +76,8 @@ MATTER_APPLICATIONS = " \
     'bridge-app/linux|chip-bridge-app|aarch64||chip-bridge-app' \
     'chip-tool|chip-tool-web2|aarch64-web|chip_with_web2=1 enable_rtti=true chip_with_imx_ele=false|chip-tool-web2' \
     'bridge-app/nxp/linux-imx|imx-chip-bridge-app|aarch64||imx-chip-bridge-app' \
+    'evse-app/linux|chip-evse-app|aarch64||chip-evse-app' \
+    'nxp-thermostat/linux|nxp-thermostat-app|aarch64||nxp-thermostat-app' \
 "
 
 do_configure() {
