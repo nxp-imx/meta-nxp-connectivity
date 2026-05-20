@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ */
+
+/* Supported for chipsets:
+ - IW61x
+ Chip support list end */
+
+#include "imx95-19x19-frdm-pro.dts"
+
+&lpuart5 {
+	bluetooth {
+		fw-init-baudrate = <3000000>;
+	};
+};
+
+&lpi2c2 {
+	pcal6408: gpio@20 {
+		compatible = "nxp,pcal9554b";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		status = "okay";
+		gpio-line-names = "IWxxx_NB_SPI_ENA", "IWxxx_NB_IND_RST_15_4";
+
+		spi-en-hog {
+			gpio-hog;
+			gpios = <0 GPIO_ACTIVE_HIGH>;
+			output-high;
+		};
+	};
+};
