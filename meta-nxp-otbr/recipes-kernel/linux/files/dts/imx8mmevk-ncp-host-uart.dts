@@ -1,0 +1,22 @@
+#include "imx8mm-evk.dts"
+
+&micfil {
+    status = "disabled";
+};
+
+&uart3 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_uart3 &pinctrl_gpio_pm3>;
+    assigned-clocks = <&clk IMX8MM_CLK_UART3>;
+    assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_80M>;
+    fsl,uart-has-rtscts;
+    status = "okay";
+};
+
+&iomuxc {
+	pinctrl_gpio_pm3: gpiopm3grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI5_RXD0_GPIO3_IO21		0x1d9
+		>;
+	};
+};
