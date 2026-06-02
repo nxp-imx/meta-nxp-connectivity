@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ */
+
+/* Supported for chipsets:
+ - IW61x
+ Chip support list end */
+
+#include "imx95-15x15-frdm.dts"
+
+/ {
+	model = "NXP i.MX95 15X15 FRDM board for IW612";
+};
+
+&lpuart5 {
+	bluetooth {
+		fw-init-baudrate = <3000000>;
+	};
+};
+
+/* Add GPIO naming for imx_otbr_gpiochip_spidev_cfg.sh auto-detection */
+&lpi2c2 {
+	pcal6408_b: gpio@20 {
+		gpio-line-names = "IWxxx_NB_SPI_ENA", "IWxxx_NB_IND_RST_15_4";
+	};
+};
+
+/* SPI INT on GPIO5_IO8 (EKEY_nARET_1.8), named for script detection */
+&gpio5 {
+	gpio-line-names = "", "", "", "", "", "", "", "", "IWxxx_NB_SPI_INT";
+};
+
+/* Add spidev label for script to locate correct spidev device via sysfs */
+&lpspi3 {
+	fsl,spi-num-chipselects = <1>;
+	spidev0: spi@0 {
+		spi-cs-inactive-delay-ns = <50000>;
+		label = "IWxxx_SPIDEV";
+	};
+};

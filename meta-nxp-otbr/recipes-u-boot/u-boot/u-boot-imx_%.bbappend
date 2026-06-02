@@ -8,3 +8,4 @@ SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx91s-frdm-iwxxx-matter", 'fil
 SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx95-15x15-evk-iwxxx-matter", 'file://uboot-config/0001-imx95-15x15-evk-ffu_gpio_irq.cfg', '', d)}"
 SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx8mpfrdm-iwxxx-matter", 'file://uboot-config/0001-imx8mp-frdm-ffu-gpio-irq-dtb.cfg', '', d)}"
 SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx95-frdm-pro-iwxxx-matter", 'file://uboot-config/0001-imx95-19x19-frdm-pro-iw612-dtb.cfg', '', d)}"
+SRC_URI += "${@bb.utils.contains_any('MACHINE', "imx95-frdm-iwxxx-matter", 'file://uboot-config/0001-imx95-15x15-frdm-iw612-dtb.cfg', '', d)}"

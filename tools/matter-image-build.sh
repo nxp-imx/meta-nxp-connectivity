@@ -14,6 +14,7 @@ DEFAULT_MACHINES=(
     "imx95-15x15-evk-iwxxx-matter"
     "imx95-19x19-evk-iwxxx-matter"
     "imx95-frdm-pro-iwxxx-matter"
+    "imx95-frdm-iwxxx-matter"
 )
 
 detect_yocto_root() {
