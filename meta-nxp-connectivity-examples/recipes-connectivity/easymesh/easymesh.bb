@@ -7,14 +7,14 @@ COMPATIBLE_MACHINE:armv8 = "(.*)"
 COMPATIBLE_MACHINE:armv8a = "(.*)"
 
 
-SRC_URI[md5sum] = "a9627e478a77aeed3ccabfb1b6ef4ff6"
-SRC_URI[sha256sum] = "b06bab06bba9a64d09479c1f0453f7d0c75c25480f609dfebe565414a30466bb"
+SRC_URI[md5sum] = "d9f412dd47a239f7775f8a801f661c16"
+SRC_URI[sha256sum] = "aa742c1591c78bef65649c22917fda8202e3f970e3e511a695923628366abc74"
 
 inherit fsl-eula2-unpack2
 LIC_FILES_CHKSUM = "file://COPYING;md5=bc649096ad3928ec06a8713b8d787eac"
 
-SRC_URI = "https://www.nxp.com/lgfiles/NMG/SCE/MATTER/easymesh-yocto-1.0-M012.bin;fsl-eula=true"
-S = "${UNPACKDIR}/easymesh-yocto-1.0-M012"
+SRC_URI = "https://www.nxp.com/lgfiles/NMG/SCE/MATTER/easymesh-yocto-1.0-M013.bin;fsl-eula=true"
+S = "${UNPACKDIR}/easymesh-yocto-1.0-M013"
 
 INSANE_SKIP:${PN} = "already-stripped ldflags"
 INSANE_SKIP:${PN}-dev = "ldflags"
