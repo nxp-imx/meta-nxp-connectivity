@@ -14,7 +14,7 @@ DEPENDS += " readline "
 RDEPENDS:${PN} += " readline bash"
 inherit cmake
 
-SRC_URI = "gitsm://github.com/NXP/nxp_zboss_libs_sdk.git;protocol=https;branch=release/linux;tag=LINUX-v019.2601.028"
+SRC_URI = "gitsm://github.com/NXP/nxp_zboss_libs_sdk.git;protocol=https;branch=release/linux;tag=LINUX-v019.2602.049"
 SRCREV = "${AUTOREV}"
 
 # Add "hello" Zigbee new application
@@ -46,8 +46,7 @@ do_install:append() {
 
     install -d ${D}${sysconfdir}
     install -d ${D}${sysconfdir}/default
-    install -m 0644 ${S}/services/etc/default/zb_app.env ${D}${sysconfdir}/default
-    install -m 0644 ${S}/services/etc/default/zb_mux.env ${D}${sysconfdir}/default
+    install -m 0644 ${S}/services/etc/default/zb_mux_app.config ${D}${sysconfdir}/default
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${S}/services/usr/lib/systemd/system/zb_app.service ${D}${systemd_system_unitdir}
