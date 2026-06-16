@@ -48,9 +48,18 @@ def get_arm_cpu(d):
             return 'cortex-a53'
     return 'cortex-a53'
 
+def get_matter_extra_cflags(d):
+    for arg in (d.getVar('TUNE_FEATURES') or '').split():
+        if arg == "cortexa7":
+            return '"-O1",'
+        if arg == "armv8a":
+            return ''
+    return ''
+
 TARGET_CPU = "${@get_target_cpu(d)}"
 TARGET_ARM_ARCH = "${@get_arm_arch(d)}"
 TARGET_ARM_CPU = "${@get_arm_cpu(d)}"
+MATTER_EXTRA_CFLAGS = "${@get_matter_extra_cflags(d)}"
 
 MATTER_PKG_CONFIG_LIBDIR = "${STAGING_LIBDIR}/pkgconfig:${STAGING_DATADIR}/pkgconfig"
 
@@ -77,6 +86,7 @@ do_configure() {
         pw_protobuf_compiler_TOOLCHAIN="${chip_root}/build/toolchain/custom:custom"
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        ${MATTER_EXTRA_CFLAGS}
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
@@ -93,6 +103,7 @@ do_configure() {
         pw_protobuf_compiler_TOOLCHAIN="${chip_root}/build/toolchain/custom:custom"
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        ${MATTER_EXTRA_CFLAGS}
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
@@ -109,6 +120,7 @@ do_configure() {
         pw_protobuf_compiler_TOOLCHAIN="${chip_root}/build/toolchain/custom:custom"
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        ${MATTER_EXTRA_CFLAGS}
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
@@ -125,6 +137,7 @@ do_configure() {
         pw_protobuf_compiler_TOOLCHAIN="${chip_root}/build/toolchain/custom:custom"
         target_cflags=[
                         "-DCHIP_DEVICE_CONFIG_WIFI_STATION_IF_NAME=\"mlan0\"",
+                        ${MATTER_EXTRA_CFLAGS}
                        ]
         custom_toolchain="${build_root}/toolchain/custom"
         target_cc="${CC}"
