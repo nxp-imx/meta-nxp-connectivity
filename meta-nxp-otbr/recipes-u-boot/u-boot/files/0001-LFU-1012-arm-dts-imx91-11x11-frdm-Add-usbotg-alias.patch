@@ -1,0 +1,58 @@
+From 27ff2d087210195965af9474ecffc3408326e86d Mon Sep 17 00:00:00 2001
+From: Haoran Wang <elven.wang@nxp.com>
+Date: Tue, 16 Jun 2026 19:36:38 +0800
+Subject: [PATCH] LFU-1012: arm: dts: imx91-11x11-frdm: Add usbotg alias
+
+Update u-boot DTS files for FRDM-IMX91 to support USB gadet.
+
+Upstream-Status: Inappropriate  [platform specific changes]
+
+Signed-off-by: Joseph Guo <qijian.guo@nxp.com>
+---
+ arch/arm/dts/imx91-11x11-frdm-u-boot.dtsi | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/arch/arm/dts/imx91-11x11-frdm-u-boot.dtsi b/arch/arm/dts/imx91-11x11-frdm-u-boot.dtsi
+index 61a44d7360e..62d703263a1 100644
+--- a/arch/arm/dts/imx91-11x11-frdm-u-boot.dtsi
++++ b/arch/arm/dts/imx91-11x11-frdm-u-boot.dtsi
+@@ -6,6 +6,25 @@
+ #include "imx91-u-boot.dtsi"
+ 
+ / {
++	aliases {
++		usb_gadget0 = &usbg1;
++		usb_gadget1 = &usbg2;
++	};
++
++	usbg1: usbg1 {
++		   compatible = "fsl,imx27-usb-gadget";
++		   dr_mode = "peripheral";
++		   chipidea,usb = <&usbotg1>;
++		   status = "okay";
++	};
++
++	usbg2: usbg2 {
++		   compatible = "fsl,imx27-usb-gadget";
++		   dr_mode = "peripheral";
++		   chipidea,usb = <&usbotg2>;
++		   status = "okay";
++	};
++
+ 	wdt-reboot {
+ 		compatible = "wdt-reboot";
+ 		wdt = <&wdog3>;
+@@ -21,6 +40,10 @@
+ 	};
+ };
+ 
++&usbotg1 {
++	extcon = <&ptn5110>;
++};
++
+ &s4muap {
+ 	bootph-pre-ram;
+ 	bootph-some-ram;
+-- 
+2.34.1
+
