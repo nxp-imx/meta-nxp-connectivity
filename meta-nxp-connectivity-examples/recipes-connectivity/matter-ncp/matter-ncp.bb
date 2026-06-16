@@ -4,7 +4,7 @@ DESCRIPTION = "This layer loads the Matter applications with Redfinch NCP"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRCBRANCH = "release-matter-ncp-2025q4"
+SRCBRANCH = "release-matter-ncp-2026q2"
 IMX_MATTER_SRC = "gitsm://github.com/NXP/matter.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 SRC_URI += "file://0001-MATTER-3758-Remove-fatal-warnings-ld-flags.patch"
@@ -12,7 +12,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "b772a02270a03ebadaa211ebfe6b34af4c901bba"
+SRCREV = "55cfe3cf06f78dbddf5e038ff9516fdf7ccee2d2"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging python3-click libusb glib-2.0 "
