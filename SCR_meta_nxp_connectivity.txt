@@ -1,7 +1,7 @@
 NXP Software Content Register
 
 Release - Matter Solutions
-2026-March
+2026-July
 
 --------------------------------------------
 NXP Provided Packages
