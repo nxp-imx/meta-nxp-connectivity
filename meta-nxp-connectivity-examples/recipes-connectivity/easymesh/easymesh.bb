@@ -3,9 +3,7 @@ DESCRIPTION = "EasyMesh data element binaries, libraries and configuration files
 LICENSE = "Proprietary"
 
 COMPATIBLE_MACHINE = "(-)"
-COMPATIBLE_MACHINE:armv8 = "(.*)"
-COMPATIBLE_MACHINE:armv8a = "(.*)"
-
+COMPATIBLE_MACHINE:aarch64 = "(.*)"
 
 SRC_URI[md5sum] = "d9f412dd47a239f7775f8a801f661c16"
 SRC_URI[sha256sum] = "aa742c1591c78bef65649c22917fda8202e3f970e3e511a695923628366abc74"
