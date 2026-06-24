@@ -28,9 +28,9 @@ Figure. HA schematic diagram for i.MX MPU platform
 
 ## Deploying the Docker containers on the i.MX MPU platform
 
-### i.MX91 FRDM pre-deployment steps
+### i.MX 91 FRDM pre-deployment steps
 
-To run HA on the i.MX91 FRDM, please flash the i.MX91 FRDM Matter Yocto image to an SD card with a capacity of at least 16 GB and boot the board from the SD card. Before downloading and deploying the Home Assistant and Matter Server Docker images on the i.MX91 FRDM, please perform the following two steps. ___If you are using other platforms, you can skip this section and directly move on to deploying the Docker containers in the next section.___
+To run HA on the i.MX 91 FRDM, please flash the i.MX 91 FRDM Matter Yocto image to an SD card with a capacity of at least 16 GB and boot the board from the SD card. Before downloading and deploying the Home Assistant and Matter Server Docker images on the i.MX 91 FRDM, please perform the following two steps. ___If you are using other platforms, you can skip this section and directly move on to deploying the Docker containers in the next section.___
 
 Step 1. Create a new partition to store the Docker images.
 
@@ -100,20 +100,22 @@ Step 2. Mount the new partition to the "~/image" folder and restart the docker s
     root@imx91frdm-iwxxx-matter:/var/lib# ln -s ~/image/docker/ ./
     root@imx91frdm-iwxxx-matter:/var/lib# ln -s ~/image/containerd/ ./
     root@imx91frdm-iwxxx-matter:/var/lib# systemctl start docker
+    root@imx91frdm-iwxxx-matter:/var/lib# systemctl restart containerd
 
 ### Deploying the Docker containers on all supported i.MX MPU Platforms
 
-Download and deploy the homeassistant and matter-server Docker images using the commands below.
+Download and deploy the homeassistant and matter-server Docker images.
 
     $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v $(pwd)/config:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2026.3
     $ docker run -d --name matter-server --restart=unless-stopped --security-opt apparmor=unconfined -v $(pwd)/data:/data --network=host ghcr.io/home-assistant-libs/python-matter-server:8.1.0 --storage-path /data --paa-root-cert-dir /data/credentials
 
-It will take a few minutes to download and deploy the images. You can check the images by running "$ docker image" after the deployment is complete.
+It takes a few minutes to download and deploy the images. You can check the images by running "$ docker image" after the deployment is complete.
 
-    root@imx93evk-iwxxx-matter:~# docker images
-    REPOSITORY                                         TAG       IMAGE ID       CREATED        SIZE
-    ghcr.io/home-assistant/home-assistant              2026.3    0e091dfce306   3 days ago     3.29GB
-    ghcr.io/home-assistant-libs/python-matter-server   8.1.0     170aa093ce91   6 months ago   644MB
+    root@imx91frdm-iwxxx-matter:~# docker images
+                                                                                                        i Info    U  In Use
+    IMAGE                                                    ID             DISK USAGE   CONTENT SIZE   EXTRA
+    ghcr.io/home-assistant-libs/python-matter-server:8.1.0   170aa093ce91        644MB          144MB    U
+    ghcr.io/home-assistant/home-assistant:2026.3             916682086154        3.3GB          597MB    U
 
 <a name="running-app"></a>
 
@@ -133,7 +135,7 @@ First, you can use the commands below to connect to the Wi-Fi AP on the i.MX Doc
 
     $ ifconfig mlan0       # check IP address
 
-If you need to commission a Thread device in HA, please [setup OTBR on the i.MX Docker device](.nxp_mpu_matter_demos.md#matter-demos-with-otbr)
+If you need to commission a Thread device in HA, [setup OTBR on the i.MX Docker device](./nxp_mpu_matter_demos.md#running-matter-demos-with-otbr-and-openthread-on-the-imx-mpu-platform).
 
 Then, connect to the same Wi-Fi AP, enable Bluetooth on your phone, and open the HA app on your phone and configure the HA server URL.
 
@@ -153,7 +155,7 @@ Once you have connected the Home Assistant server, you should integrate the Pyth
 
 Integrate the Python Matter server into the Phone application:
 
-Click on "Setting" – "Devices & services" – "+ Add integration" at the bottom right corner – search for "Matter" – slelect the "Matter" – enter URL "ws://localhost:5580/ws" – "Submit" to integrate Python Matter Server.
+Click "Setting" – "Devices & services" – "+ Add integration" at the bottom-right corner – search for "Matter" – select the "Matter" – enter URL "ws://localhost:5580/ws" – "Submit" to integrate Python Matter Server.
 
 <img src="../images/home_assistant_demo/config-matter_server.png" width = "200"/><img src="../images/home_assistant_demo/config-matter_server-1.png" width = "200"/>
 
@@ -161,7 +163,7 @@ Figure. Integrate the Python Matter server
 
 Integrate the Thread service into the HA instance:
 
-Click on "Setting" – "Devices & services" – "+ Add integration" at the bottom right corner – search for "Thread" - select the "Thread" . The Thread service will be added to HA instance as shown below.
+Click "Setting" – "Devices & services" – "+ Add integration" at the bottom-right corner – search for "Thread" - select the "Thread". The Thread service is added to HA instance as shown below.
 
 <img src="../images/home_assistant_demo/thread_1.png" width = "200"/><img src="../images/home_assistant_demo/thread_2.png" width = "200"/>
 
@@ -169,15 +171,15 @@ Figure. Integrate the Thread service
 
 Integrate the Open Thread Border Router REST API into HA instance:
 
-Click on "Setting" – "Devices & services" – "+ Add integration" at the bottom right corner - search for "Open Thread Border Router" - select the "Open Thread Border Router" – Enter URL "http://ip:8081" (IP is the otbr-agent device's IP, it uses 8081 port for REST API by default) – Submit, the Open Thread Border Router REST API will add into HA instance.
+Click "Setting" – "Devices & services" – "+ Add integration" at the bottom-right corner - search for "Open Thread Border Router" - select the "Open Thread Border Router" – Enter URL "http://ip:8081" (IP is the otbr-agent device's IP, it uses 8081 port for REST API by default) – Submit, the Open Thread Border Router REST API will add into HA instance.
 
 <img src="../images/home_assistant_demo/config-otbr_1.png" width = "200"/><img src="../images/home_assistant_demo/config-otbr_2.png" width = "200"/>
 
 Figure. Integrate the Thread Border Router
 
-Set the preferred network and sync Thread credentials
+Set the preferred network and sync Thread credentials.
 
-Go to "Setting" - "Devices & services" - "Thread" - click the configurtion logo - set or check the right border router as preferred network.
+Go to "Setting" - "Devices & services" - "Thread" - click the configuration logo - set or check the right border router as the preferred network.
 Then, go to "Setting" – "Companion app" – "Troubleshooting" – "Sync Thread credentials" to Sync the credentials.
 
 <img src="../images/home_assistant_demo/config-otbr_3.png" width = "200"/><img src="../images/home_assistant_demo/config-otbr_4.png" width = "200"/>
@@ -192,7 +194,7 @@ This chapter shows how to commission an i.MX Matter device on HA application.
 
 First, set up the i.MX Matter device. There are two ways to run the Matter application. Take the chip-lighting-app as an example. You can also setup the Matter application on a Thread device.
 
-Please run the commands below if the i.MX Matter device is i.MX93 or i.MX91 to enable the ELE. For other boards, proceed to Option 1 or Option 2.
+Run the commands below if the i.MX Matter device is i.MX 93 or i.MX 91 to enable the ELE. For other boards, proceed to Option 1 or Option 2.
 
     $ systemctl enable nvm_daemon
     $ systemctl start nvm_daemon
@@ -219,7 +221,7 @@ Option 2
     $ hciconfig hci0 up
     $ chip-lighting-app --wifi --ble-device 0
 
-After running chip-lighting-app, you will find a log line similar to the one below, copy the URL and open it in a browser, you can see the QR code of this Matter application.
+After running the chip-lighting-app, you will find a log line similar to the one below, copy the URL and open it in a browser, you can see the QR code of this Matter application.
 
     CHIP:SVR: https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3A-24J042C00KA0648G00
 
@@ -231,13 +233,11 @@ Figure. How to start the commissioning on the phone app
 
 Once the QR code is scanned, it goes through the following processes to connect to the i.MX Matter application chip-lighting-app.
 
-<a name="commissioning-process"></a>
-
 <img src="../images/home_assistant_demo/connect_1.png" width = "200"/> <img src="../images/home_assistant_demo/connect_2.png" width = "200"/> <img src="../images/home_assistant_demo/connect_3.png" width = "200"/> <img src="../images/home_assistant_demo/connect_4.png" width = "200"/>
 
 Figure. Device connection procedure
 
-Once the device has been successfully connected, you will be able to control it.
+Once the device has been successfully connected, you are able to control it.
 
 <a name="known-issue"></a>
 
@@ -249,9 +249,9 @@ Once the device has been successfully connected, you will be able to control it.
 
 ## FAQ
 
-### What to do if the download fails or the download speed of the Docker image is very slow?
+### What to do if the download fails or the download speed of the Docker image is slow?
 
-The download failure or slow download speed may be caused by network issues. Please use the following commands to set the proxies for the Docker service. Then retry to download and deploy the Docker image again.
+The download failure or slow download speed may be caused by network issues. Use the following commands to set the proxies for the Docker service. Then retry to download and deploy the Docker image again.
 
     $ mkdir /etc/systemd/system/docker.service.d
     $ vi /etc/systemd/system/docker.service.d/http-proxy.conf
@@ -265,7 +265,7 @@ The download failure or slow download speed may be caused by network issues. Ple
 
 ### What to do if the commissioning fails?
 
-Please check the status of the Docker service, as well as the network status and the status of the Bluetooth interface.
+Check the status of the Docker service, and the network status and the status of the Bluetooth interface.
 
     $ systemctl status docker    # check the Docker service status
     $ systemctl start docker     # start the Docker service
@@ -306,13 +306,13 @@ You need to make sure that the Docker service is active, an IP has been assigned
                 RX bytes:849 acl:0 sco:0 events:57 errors:0
                 TX bytes:1078 acl:0 sco:0 commands:57 errors:0
 
-If the device is connected to a network cable, use the following command to turn off the ethernet interface.
+If the device is connected to a network cable, use the following command to turn off the Ethernet interface.
 
         $ ifconfig eth0 down
 
 ### What to do if the commissioning fails with matter-server logs "CHIP_ERROR [chip.native.DIS] Timeout waiting for mDNS resolution."?
 
-When commissioning over ble-wifi or onnetwork failures occur, especially when OTBR is set up. You need to check the matter-server container's logs by "$ docker logs matter-server", if the logs include "CHIP_ERROR [chip.native.DIS] Timeout waiting for mDNS resolution", you can try to resolve this issue by running below commands to clear avahi cache then retry the commissioning process.
+When commissioning device over BLE or IP failures occur, especially when OTBR is set up. You need to check the matter-server container's logs by "$ docker logs matter-server", if the logs include "CHIP_ERROR [chip.native.DIS] Timeout waiting for mDNS resolution", you can try to resolve this issue by running below commands to clear avahi cache then retry the commissioning process.
 
 	$ sudo systemctl stop avahi-daemon
 	$ sudo rm -rf /var/run/avahi-daemon/*
@@ -321,6 +321,6 @@ When commissioning over ble-wifi or onnetwork failures occur, especially when OT
 
 ### What should be done when an attempt to add the OpenThread Border Router's REST API fails with a 'Failed to connect' error?
 
-Please add the option "--rest-listen-address 0.0.0.0" when starting otbr-agent or otbr-agent-iwxxx, for example:"
+Add the option "--rest-listen-address 0.0.0.0" when starting otbr-agent or otbr-agent-iwxxx, for example:"
 
 	$ otbr-agent-iwxxx -I wpan0 -B mlan0 --rest-listen-address 0.0.0.0 spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip4&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0
