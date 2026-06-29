@@ -19,8 +19,16 @@ PATCHTOOL = "git"
 
 SRCREV = "05bb641b7eda8910685a70b142e58d15739e2364"
 
-# Fetch submodules selectively using checkout_submodules.py instead of gitsm
+BB_ENV_PASSTHROUGH_ADDITIONS:append = " http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"
+
 do_checkout_submodules() {
+    export http_proxy="${@d.getVar('http_proxy') or d.getVar('HTTP_PROXY') or ''}"
+    export https_proxy="${@d.getVar('https_proxy') or d.getVar('HTTPS_PROXY') or ''}"
+    export no_proxy="${@d.getVar('no_proxy') or d.getVar('NO_PROXY') or ''}"
+    export HTTP_PROXY="${http_proxy}"
+    export HTTPS_PROXY="${https_proxy}"
+    export NO_PROXY="${no_proxy}"
+
     cd ${S}
     ${S}/scripts/checkout_submodules.py --force --recursive --deinit-unmatched --platform imx
 }
