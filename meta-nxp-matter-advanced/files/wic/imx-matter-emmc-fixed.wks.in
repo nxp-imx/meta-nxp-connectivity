@@ -1,0 +1,26 @@
+# short-description: i.MX Matter eMMC image with fixed-size rootfs partition
+# long-description:
+# Variant of imx-imx-boot-bootpart.wks.in for i.MX Matter machines that
+# target a specific eMMC. The rootfs partition uses --fixed-size so wic does
+# not apply its built-in per-partition overhead-factor (default 1.3), which
+# makes IMAGE_ROOTFS_SIZE the exact rootfs partition size and lets the image
+# be sized to a known eMMC capacity.
+#
+# The rootfs --fixed-size tracks ${IMAGE_ROOTFS_SIZE} (KiB), which wic expands
+# from bitbake before generating the image, so the size is set only in
+# local.conf (e.g. via imx-emmc-sizer.py --apply) and the wks follows.
+#
+# The disk layout used is:
+#  - ---------- -------------- --------------
+# | | imx-boot |     boot     |    rootfs    |
+#  - ---------- -------------- --------------
+# ^ ^          ^              ^              ^
+# | |          |              |              |
+# 0 |        8MiB          264MiB         264MiB + fixed rootfs
+#   ${IMX_BOOT_SEEK} 32 or 33kiB, see reference manual
+#
+part u-boot --source rawcopy --sourceparams="file=imx-boot.tagged" --ondisk mmcblk --no-table --align ${IMX_BOOT_SEEK}
+part /boot --source bootimg-partition --ondisk mmcblk --fstype=vfat --label boot --active --align 8192 --fixed-size 256
+part / --source rootfs --ondisk mmcblk --fstype=ext4 --label root --align 8192 --fixed-size ${IMAGE_ROOTFS_SIZE}k
+
+bootloader --ptable msdos
