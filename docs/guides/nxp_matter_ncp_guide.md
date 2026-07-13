@@ -2,9 +2,9 @@
 
 This document describes how to use the MATTER-NCP demos on the i.MX MPU platforms. It shows how to run MATTER-NCP demos on the i.MX MPU platform and how to do wifi-bt commissioning between chip-tool and chip-all-clusters-app-ncp apps.
 
-## Release Version Information
+## Release version information
 
-To ensure proper functionality, the MATTER‑NCP must be used in conjunction with the ncp‑device. Therefore, the MATTER‑NCP version released in this cycle is required to match the corresponding SDK release version.
+To ensure proper functionality, the MATTER‑NCP must be used with the ncp‑device. Therefore, the MATTER‑NCP version released in this cycle is required to match the corresponding SDK release version.
 The SDK release link associated with this MATTER‑NCP version is provided below. You may download the appropriate SDK source code from GitHub and use it to compile the ncp‑device.
 
 MATTER-NCP RELEASE: 2026Q1
@@ -13,15 +13,15 @@ https://github.com/nxp-mcuxpresso/mcuxsdk-manifests
 
 ## Hardware requirements
 
-- Two i.MX 8M Mini EVK boards (one board acts as the Matter controller, running chip-tool, and the other will be the end device, running the chip-all-clusters-app-ncp apps.)
+- Two i.MX 8M Mini EVK boards (one board acts as the Matter controller, running chip-tool, and the other are the end device, running the chip-all-clusters-app-ncp apps.)
 
 The i.MX 8M Mini EVK, which running the chip-all-clusters-app-ncp apps connect with RDRW612 as the connection of ncp-host and ncp-device.
 
 - RDRW612 A2 BGA board
 
-The RDRW612 acts as ncp-device, and ensure that the BLE antenna is connected to RDRW612 board to prevent the BLE disconnection during BLE pairing.
+The RDRW612 acts as ncp-device, and ensure that the Bluetooth Low Energy antenna is connected to the RDRW612 board to prevent the Bluetooth Low Energy disconnection during Bluetooth Low Energy pairing.
 
-The four interfaces USB, UART, SPI, and SDIO are supported between all-clusters-app-ncp and ncp-device, you can refer to this ncp user manual below to setup:
+The four interfaces USB, UART, SPI, and SDIO are supported between all-clusters-app-ncp and ncp-device, you can refer to this ncp user manual below to set up:
 https://www.nxp.com/webapp/Download?colCode=UM12095
 
 - Compilation of ncp device
@@ -77,31 +77,31 @@ Do commissioning and control the end devices on the controller device.
 
     $ ./chip-tool pairing ble-wifi 8888 ${SSID} ${PASSWORD} 20202021 3840
 
-If you can see that the IP address is obtained on the device (all-cluster-app) side, it proves that the device has already connected to the external AP.
+Verify that the device (all-cluster-app) has obtained an IP address. If the IP is obtained, the device is successfully connected to the external AP
 
     [1748353915.770112][551:551] CHIP:DL: Got IP address on interface: ncp_wlan IP: 192.168.0.188
 
-Then the controller and device will setup IP communication by case handshake, after that if you can see below log, it means that the commissioning process is successfully completed.
+The controller and device establish IP communication using the CASE handshake. The following log indicates that commissioning was completed successfully.
 
     CHIP:TOO: Device commissioning completed with success
 
 ## Matter chip-tool control chip-all-clusters-app-ncp apps after matter commission successfully
 
-Read onoff status
+Read onoff status.
 
     $ chip-tool onoff read on-off 8888 1
 
-You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value should be FALSE before enabling OnOff.
+You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value must be FALSE before enabling OnOff.
 
     [2025-05-22 14:25:04.603] [1747865814.155617][647:649] CHIP:TOO:   OnOff: FALSE
 
-Toggle to enable onoff
+Toggle to enable onoff.
 
     $ chip-tool onoff toggle 8888 1
 
 Read onoff status again
-    $ chip-tool onoff read on-off 8888 1
+    $ chip-tool onoff read on-off 8888 1.
 
-You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value should be TRUE after enabling OnOff.
+You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value must be TRUE after enabling OnOff.
 
     [2025-05-22 14:25:04.603] [1747865814.155617][647:649] CHIP:TOO:   OnOff: TRUE
