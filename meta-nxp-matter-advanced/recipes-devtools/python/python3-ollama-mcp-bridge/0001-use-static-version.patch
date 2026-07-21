@@ -1,0 +1,35 @@
+Pin a static version and drop the hatch-vcs build dependency.
+
+Upstream derives the version from git tags via hatch-vcs, which is not
+available in OpenEmbedded. Pin the released version and use plain hatchling.
+The sdist already ships a baked src/ollama_mcp_bridge/_version.py.
+
+Upstream-Status: Inappropriate [oe-specific packaging; upstream uses VCS-derived version]
+
+--- ollama_mcp_bridge-0.12.0.orig/pyproject.toml	2026-07-21 13:51:35.060958962 +0900
++++ ollama_mcp_bridge-0.12.0/pyproject.toml	2026-07-21 13:51:35.075730122 +0900
+@@ -1,6 +1,6 @@
+ [project]
+ name = "ollama-mcp-bridge"
+-dynamic = ["version"]
++version = "0.12.0"
+ description = "Bridge API service connecting Ollama with Model Context Protocol (MCP) servers"
+ readme = "README.md"
+ requires-python = ">=3.10"
+@@ -25,15 +25,9 @@
+ Source = "https://github.com/jonigl/ollama-mcp-bridge"
+ 
+ [build-system]
+-requires = ["hatchling", "hatch-vcs"]
++requires = ["hatchling"]
+ build-backend = "hatchling.build"
+ 
+-[tool.hatch.version]
+-source = 'vcs'
+-
+-[tool.hatch.build.hooks.vcs]
+-version-file = "src/ollama_mcp_bridge/_version.py"
+-
+ [project.scripts]
+ ollama-mcp-bridge = "ollama_mcp_bridge.main:main"
+ 

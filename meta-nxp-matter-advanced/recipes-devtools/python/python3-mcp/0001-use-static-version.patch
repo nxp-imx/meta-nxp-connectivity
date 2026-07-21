@@ -1,0 +1,37 @@
+Pin a static version and drop the uv-dynamic-versioning build dependency.
+
+Upstream builds the version from git tags via uv-dynamic-versioning, which is
+not available in OpenEmbedded. Pin the released version and use plain hatchling.
+
+Upstream-Status: Inappropriate [oe-specific packaging; upstream uses VCS-derived version]
+
+diff -ruN mcp-1.28.1.orig/pyproject.toml mcp-1.28.1/pyproject.toml
+--- mcp-1.28.1.orig/pyproject.toml	2026-07-21 13:50:53.790851209 +0900
++++ mcp-1.28.1/pyproject.toml	2026-07-21 13:50:53.808667400 +0900
+@@ -1,6 +1,6 @@
+ [project]
+ name = "mcp"
+-dynamic = ["version"]
++version = "1.28.1"
+ description = "Model Context Protocol SDK"
+ readme = "README.md"
+ requires-python = ">=3.10"
+@@ -76,17 +76,9 @@
+ ]
+ 
+ [build-system]
+-requires = ["hatchling", "uv-dynamic-versioning"]
++requires = ["hatchling"]
+ build-backend = "hatchling.build"
+ 
+-[tool.hatch.version]
+-source = "uv-dynamic-versioning"
+-
+-[tool.uv-dynamic-versioning]
+-vcs = "git"
+-style = "pep440"
+-bump = true
+-
+ [project.urls]
+ Homepage = "https://modelcontextprotocol.io"
+ Documentation = "https://py.sdk.modelcontextprotocol.io/"
