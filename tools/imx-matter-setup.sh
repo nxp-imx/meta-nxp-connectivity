@@ -20,7 +20,15 @@ apply_emmc_sizing() {
     elif [ -n "${EMMC_NOMINAL:-}" ]; then
         _mode="--nominal"; _val="$EMMC_NOMINAL"
     else
-        return 0
+        # No eMMC capacity specified. Instead of silently leaving the rootfs
+        # unsized (which lets the Matter fixed-size wks fall back to bitbake's
+        # 64MiB IMAGE_ROOTFS_SIZE floor and hard-cap the partition, making
+        # do_image_wic overflow), apply a conservative default. Override with
+        # EMMC_DEFAULT_NOMINAL, or set EMMC_BYTES/EMMC_NOMINAL for exact sizing.
+        _mode="--nominal"; _val="${EMMC_DEFAULT_NOMINAL:-8G}"
+        echo "WARNING: neither EMMC_BYTES nor EMMC_NOMINAL set; defaulting rootfs" \
+             "sizing to nominal $_val. Set EMMC_NOMINAL/EMMC_BYTES to match your" \
+             "target eMMC if this is wrong." >&2
     fi
     if [ -x "$_sizer" ] && python3 "$_sizer" "$_mode" "$_val" --apply "$_conf"; then
         echo "eMMC sizing applied to $_conf (backup: ${_conf}.bak)."
