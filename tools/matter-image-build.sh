@@ -11,7 +11,6 @@ DEFAULT_MACHINES=(
     "imx8mnddr3levk-matter"
     "imx8ulpevk-matter"
     "imx6ullevk"
-    "imx95-15x15-evk-iwxxx-matter"
     "imx95-19x19-evk-iwxxx-matter"
     "imx95-frdm-pro-iwxxx-matter"
     "imx95-frdm-iwxxx-matter"

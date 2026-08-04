@@ -65,7 +65,7 @@ The following Matter-related binaries are installed into the Yocto image root fi
 
 # i.MX MPU Matter platform
 
-Support is provided for 11 i.MX MPU platforms. The platform includes i.MX 93 FRDM and EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK, i.MX 91 EVK, QSB, and FRDM, i.MX 8M Plus FRDM, i.MX 95 15×15 EVK, i.MX 95 FRDM, and i.MX 95 FRDM PRO. For more details, refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+Support is provided for 10 i.MX MPU platforms. The platform includes i.MX 93 FRDM and EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK, i.MX 91 EVK, QSB, and FRDM, i.MX 8M Plus FRDM, i.MX 95 FRDM, and i.MX 95 FRDM PRO. For more details, refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 <a name="new-feature"></a>
 
@@ -99,7 +99,7 @@ Make sure that your default Python3 version is 3.11:
 Then, the Yocto build environment must be set up.
 
 The Yocto source code and meta-nxp-connectivity recipes are maintained with a manifest file, used by the repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.18.20_2.0.0 release. The platforms tested are: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK. i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 15×15 EVK.
+This document is tested with the i.MX Yocto 6.18.20_2.0.0 release. The platforms tested are: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK. i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -140,9 +140,6 @@ Change the current directory to the top directory of the Yocto source code and e
     # For i.MX 91 FRDM:
     $ MACHINE=imx91frdm-iwxxx-matter DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx91frdm
 
-    # For i.MX 95 15×15 EVK:
-    $ MACHINE=imx95-15x15-evk-iwxxx-matter DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx95
-
     # For i.MX 95 FRDM:
     $ MACHINE=imx95-frdm-iwxxx-matter DISTRO=fsl-imx-xwayland source sources/meta-nxp-connectivity/tools/imx-matter-setup.sh bld-xwayland-imx95frdm
 
@@ -154,7 +151,7 @@ Change the current directory to the top directory of the Yocto source code and e
 
 This creates a Python virtual environment for the Matter build. To exit the Python virtual environment, run “$ deactivate”. You can also run “$ source matter_venv/bin/activate” at the top directory of the Yocto source code to reenter the Python virtual environment for the Matter build.
 
-This creates a build directory (namely bld-xwayland-imx93/ for i.MX 93 FRDM and i.MX 93 EVK, bld-xwayland-imx8mm/ for i.MX 8M Mini EVK, bld-xwayland-imx6ull/ for i.MX 6ULL EVK, bld-xwayland-imx8ulp/ for i.MX 8ULP EVK, bld-xwayland-imx91/ for i.MX 91 EVK, bld-xwayland-imx91qsb/ for i.MX 91 QSB, bld-xwayland-imx91frdm/ for i.MX 91 FRDM, bld-xwayland-imx95 for i.MX 95 15×15 EVK, bld-xwayland-imx95-frdm for i.MX 95 FRDM, bld-xwayland-imx95-frdm-pro for i.MX 95 FRDM PRO or bld-xwayland-imx8mp-frdm for i.MX 8M Plus FRDM), and enters this directory automatically. Execute the command below to generate the Yocto images:
+This creates a build directory (namely bld-xwayland-imx93/ for i.MX 93 FRDM and i.MX 93 EVK, bld-xwayland-imx8mm/ for i.MX 8M Mini EVK, bld-xwayland-imx6ull/ for i.MX 6ULL EVK, bld-xwayland-imx8ulp/ for i.MX 8ULP EVK, bld-xwayland-imx91/ for i.MX 91 EVK, bld-xwayland-imx91qsb/ for i.MX 91 QSB, bld-xwayland-imx91frdm/ for i.MX 91 FRDM, bld-xwayland-imx95-frdm for i.MX 95 FRDM, bld-xwayland-imx95-frdm-pro for i.MX 95 FRDM PRO or bld-xwayland-imx8mp-frdm for i.MX 8M Plus FRDM), and enters this directory automatically. Execute the command below to generate the Yocto images:
 
     $ bitbake imx-image-multimedia
 
@@ -166,7 +163,6 @@ After execution of the previous commands, the Yocto images will be generated:
 - ${MY_YOCTO}/bld-xwayland-imx91/tmp/deploy/images/imx91evk-iwxxx-matter/imx-image-multimedia-imx91evk-iwxxx-matter.wic.zst for i.MX 91 EVK.
 - ${MY_YOCTO}/bld-xwayland-imx91qsb/tmp/deploy/images/imx91qsb-iwxxx-matter/imx-image-multimedia-imx91qsb-iwxxx-matter.wic.zst for i.MX 91 QSB.
 - ${MY_YOCTO}/bld-xwayland-imx91frdm/tmp/deploy/images/imx91frdm-iwxxx-matter/imx-image-multimedia-imx91frdm-iwxxx-matter.wic.zst for i.MX 91 FRDM.
-- ${MY_YOCTO}/bld-xwayland-imx95/tmp/deploy/images/imx95-iwxxx-matter/imx-image-multimedia-imx95-15x15-evk-iwxxx-matter.wic.zst for i.MX 95 15×15 EVK.
 - ${MY_YOCTO}/bld-xwayland-imx95-frdm/tmp/deploy/images/imx95-frdm-iwxxx-matter/imx-image-multimedia-imx95-frdm-iwxxx-matter.rootfs.wic.zst for i.MX 95 FRDM.
 - ${MY_YOCTO}/bld-xwayland-imx95-frdm-pro/tmp/deploy/images/imx95-frdm-pro-iwxxx-matter/imx-image-multimedia-imx95-frdm-pro-iwxxx-matter.rootfs.wic.zst for i.MX 95 FRDM PRO.
 - ${MY_YOCTO}/bld-xwayland-imx8mp-frdm/tmp/deploy/images/imx8mp-frdm-iwxxx-matter/imx-image-multimedia-imx8mp-frdm-iwxxx-matter.rootfs.wic.zst for i.MX 8M Plus FRDM.
@@ -194,9 +190,6 @@ The zst images are symbolic link files, so you must copy them to a dedicated fol
     # For i.MX 91 FRDM:
     $ cp ${MY_YOCTO}/bld-xwayland-imx91frdm/tmp/deploy/images/imx91frdm-iwxxx-matter/imx-image-multimedia-imx91frdm-iwxxx-matter.wic.zst ${MY_images}
 
-    # For i.MX 95 15×15 EVK:
-    $ cp ${MY_YOCTO}/bld-xwayland-imx95/tmp/deploy/images/imx95-iwxxx-matter/imx-image-multimedia-imx95-15x15-evk-iwxxx-matter.wic.zst ${MY_images}
-
     # For i.MX 95 FRDM:
     $ cp ${MY_YOCTO}/bld-xwayland-imx95-frdm/tmp/deploy/images/imx95-frdm-iwxxx-matter/imx-image-multimedia-imx95-frdm-iwxxx-matter.rootfs.wic.zst ${MY_images}
     
@@ -206,7 +199,7 @@ The zst images are symbolic link files, so you must copy them to a dedicated fol
     # For i.MX 8M Plus FRDM:
     $ cp ${MY_YOCTO}/bld-xwayland-imx8mp-frdm/tmp/deploy/images/imx8mp-frdm-iwxxx-matter/imx-image-multimedia-imx8mp-frdm-iwxxx-matter.rootfs.wic.zst ${MY_images}
 
-You can use the zstd and dd commands to flash the images to a microSD card for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 15×15 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO and i.MX 8M Plus FRDM. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 8 boards. The i.MX 8ULP EVK supports only booting from EMMC, not from microSD. Other platforms support both booting from EMMC and microSD images.
+You can use the zstd and dd commands to flash the images to a microSD card for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 FRDM, i.MX 95 FRDM PRO and i.MX 8M Plus FRDM. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 8 boards. The i.MX 8ULP EVK supports only booting from EMMC, not from microSD. Other platforms support both booting from EMMC and microSD images.
 
 For use with the zstd and dd command method, use the zstd command to unzip the *.zst archive, and then use the dd command to program the output file to a microSD card.
 
@@ -238,10 +231,6 @@ ___Be cautious when executing the dd command below, making sure that the output 
     $ zstd -d imx-image-multimedia-imx91frdm-iwxxx-matter.wic.zst
     $ sudo dd if=imx-image-multimedia-imx91frdm-iwxxx-matter.wic of=/dev/sdc bs=4M conv=fsync
 
-    # For i.MX 95 15×15 EVK:
-    $ zstd -d imx-image-multimedia-imx95-15x15-evk-iwxxx-matter.wic.zst
-    $ sudo dd if=imx-image-multimedia-imx95-15x15-evk-iwxxx-matter.wic of=/dev/sdc bs=4M conv=fsync
-
     # For i.MX 95 FRDM:
     $ zstd -d imx-image-multimedia-imx95-frdm-iwxxx-matter.rootfs.wic.zst
     $ sudo dd if=imx-image-multimedia-imx95-frdm-iwxxx-matter.rootfs.wic of=/dev/sdc bs=4M conv=fsync
@@ -259,7 +248,7 @@ For use with the uuu method, install [uuu](https://github.com/nxp-imx/mfgtools/r
     $ uuu -version
     uuu (Universal Update Utility) for nxp imx chips -- libuuu_1.5.201-0-g727fc2b
 
-___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, set the following boards to microSD boot mode: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 15×15 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, and i.MX 8M Plus FRDM.
+___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, set the following boards to microSD boot mode: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 FRDM, i.MX 95 FRDM PRO, and i.MX 8M Plus FRDM.
  Then boot the image from the microSD card. Place i.MX 8ULP EVK into EMMC boot mode to boot the image from the EMMC.___
 
     $ cd ${MY_images}
@@ -285,9 +274,6 @@ ___Before flashing the image, follow the prompts on the board to put the board i
     # For i.MX 91 FRDM:
     $ sudo uuu -b sd_all imx-image-multimedia-imx91frdm-iwxxx-matter.wic.zst
 
-    # For i.MX 95 15×15 EVK:
-    $ sudo uuu -b sd_all imx-image-multimedia-imx95-15x15-evk-iwxxx-matter.wic.zst
-
     # For i.MX 95 FRDM:
     $ sudo uuu -b sd_all imx-image-multimedia-imx95-frdm-iwxxx-matter.rootfs.wic.zst
 
@@ -297,7 +283,7 @@ ___Before flashing the image, follow the prompts on the board to put the board i
     # For i.MX 8M Plus FRDM:
     $ sudo uuu -b sd_all imx-image-multimedia-imx8mp-frdm-iwxxx-matter.rootfs.wic.zst
 
-The prebuilt images for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, and i.MX 95 15×15 EVK can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+The prebuilt images for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK, i.MX 91 EVK, i.MX 91 QSB, and i.MX 91 FRDM can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 __Note: For i.MX 93 FRDM, it is essential to modify the fdtfile for it to work properly.__
 To set the fdtfile, save the fdtfile setting, boot the board, enter the U-Boot mode, and run the following commands.
@@ -440,11 +426,11 @@ Use the commands below to connect the OTBR to the Wi-Fi access point:
 
 Then configure the Thread device:
 
-On __i.MX 93 FRDM, i.MX 93 EVK, i.MX 95 15×15 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM__, use IW612 as Thread device. On __i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM__, use IW610 as Thread device, execute the following commands to start the OTBR.
+On __i.MX 93 FRDM, i.MX 93 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM__, use IW612 as Thread device. On __i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM__, use IW610 as Thread device, execute the following commands to start the OTBR.
 
     # For i.MX 93 FRDM:
     $ otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev2.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
-    # For i.MX 93 EVK, i.MX 95 15×15 EVK, i.MX 91 EVK, i.MX 91 QSB and i.MX 91 FRDM:
+    # For i.MX 93 EVK, i.MX 91 EVK, i.MX 91 QSB and i.MX 91 FRDM:
     $ otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
     # For i.MX 95 FRDM:
     otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip5&gpio-int-device=/dev/gpiochip3&gpio-int-line=8&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
@@ -491,7 +477,7 @@ The Matter application has been installed into the Yocto image by default. If yo
 
  ___Make sure that the shell is not in the Yocto SDK environment___. Then, export a shell environment variable named IMX_SDK_ROOT to specify the path of the SDK.
 
-    # For i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 8ULP EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM and i.MX 95 15×15 EVK:
+    # For i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 8ULP EVK, i.MX 91 EVK, i.MX 91 QSB and i.MX 91 FRDM:
     $ export IMX_SDK_ROOT=/opt/fsl-imx-xwayland/6.18-wrynose-imx8n9
 
     # For i.MX 6ULL EVK:
