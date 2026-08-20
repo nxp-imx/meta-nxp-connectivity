@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ */
+
+/* Supported for chipsets:
+ - IW610
+ Chip support list end */
+
+/dts-v1/;
+
+#include <dt-bindings/usb/pd.h>
+#include "imx93w-evk.dts"
+
+/ {
+	// Patch for IW61x:
+	// v1: ffu_gpio_irq (make GPIO_SPI_INT interruptible)
+	// v2: gpio naming and options description in model
+	// v3: SPI 50µs interleaved
+	model = "NXP i.MX93W EVK board for IW610-v3: IWxxx SPI INT enabled, 50µs delay";
+	compatible = "fsl,imx93w-evk", "fsl,imx93";
+};
+
+&lpspi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpspi1>;
+	cs-gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	spidev0: spi@0 {
+		reg = <0>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+		spi-cs-inactive-delay-ns = <50000>;
+		label="IWxxx_SPIDEV";
+	};
+};
+
+/* SPI RESET on GPIO2_IO28, named for script detection */
+&gpio3 {
+	gpio-line-names = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "IWxxx_NB_IND_RST_15_4";
+};
+
+/* SPI INT on GPIO3_IO26, named for script detection */
+&gpio4 {
+	gpio-line-names = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "IWxxx_NB_SPI_INT";
+};
+
+&iomuxc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+
+	pinctrl_hog: hoggrp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO28__GPIO2_IO28         0x39e
+		>;
+	};
+
+	pinctrl_lpspi1: lpspi1grp {
+		fsl,pins = <
+			MX93_PAD_SAI1_TXC__LPSPI1_SIN			0x3fe /* SPI_A_SDI_(IO0) */
+			MX93_PAD_SAI1_RXD0__LPSPI1_SOUT			0x3fe /* SPI_A_SDO_(IO1) */
+			MX93_PAD_SAI1_TXD0__LPSPI1_SCK			0x3fe /* SPI_A_SCK */
+			MX93_PAD_SAI1_TXFS__GPIO1_IO11			0x3fe /* SPI_A_CS0# */
+		>;
+	};
+};
