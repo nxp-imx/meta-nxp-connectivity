@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DEFAULT_MACHINES=(
-    "imx93evk-iwxxx-matter"
+    "imx93-frdm-iwxxx-matter"
     "imx91evk-iwxxx-matter"
     "imx91qsb-iwxxx-matter"
     "imx91frdm-iwxxx-matter"
