@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ */
+
+/* Supported for chipsets:
+ - IW610
+ Chip support list end */
+
+/dts-v1/;
+
+#include <dt-bindings/usb/pd.h>
+#include "imx93w-frdm.dts"
+
+/ {
+	// Patch for IW61x:
+	// v1: ffu_gpio_irq (make GPIO_SPI_INT interruptible)
+	// v2: gpio naming and options description in model
+	// v3: SPI 50µs interleaved
+	model = "NXP i.MX93W FRDM board";
+	compatible = "fsl,imx93w-frdm", "fsl,imx93";
+};
+
+&spidev0 {
+    spi-cs-inactive-delay-ns = <50000>;
+    label = "IWxxx_SPIDEV";
+};
+
+/* SPI RESET on GPIO2_IO28, named for script detection */
+&gpio3 {
+	gpio-line-names = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "IWxxx_NB_IND_RST_15_4";
+};
+
+/* SPI INT on GPIO3_IO26, named for script detection */
+&gpio4 {
+	gpio-line-names = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "IWxxx_NB_SPI_INT";
+};
