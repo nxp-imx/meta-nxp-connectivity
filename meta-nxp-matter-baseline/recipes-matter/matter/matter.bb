@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 inherit pkgconfig
 
-SRCBRANCH = "v1.6.1-branch-imx_matter_2026_q3"
+SRCBRANCH = "v1.7-branch-imx_matter_2026_q3"
 IMX_MATTER_SRC ?= "git://github.com/NXP/matter.git;protocol=https"
 SRC_URI = "${IMX_MATTER_SRC};branch=${SRCBRANCH}"
 SRC_URI:append = " \
@@ -17,7 +17,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "afbd826ce1c92dfa19585002cc1419ed3b8df3b6"
+SRCREV = "ff49d05ba2942d7f6517dd7397df9b7a848916d1"
 
 BB_ENV_PASSTHROUGH_ADDITIONS:append = " http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"
 
