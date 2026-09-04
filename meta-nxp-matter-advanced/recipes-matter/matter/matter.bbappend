@@ -5,6 +5,7 @@ DEPENDS += "${@bb.utils.contains('MACHINE_FEATURES', 'has-iwxxx', ' zigbee-rcp-s
 RDEPENDS:${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'has-iwxxx', ' zigbee-rcp-sdk ', '', d)}"
 
 MATTER_APPLICATIONS += " \
+    'nxp-media-app/linux|nxp-media-app|aarch64||nxp-media-app' \
     'thread-br-app/linux|imx-thread-br-app|aarch64||imx-thread-br-app' \
 "
 
@@ -15,7 +16,6 @@ MATTER_APPLICATIONS += " \
 #   'nxp-heat-pump-app/linux|chip-nxp-heat-pump-app|aarch64||chip-nxp-heat-pump-app'
 #   'nxp-solar-power-app/linux|chip-nxp-solar-power-app|aarch64||chip-nxp-solar-power-app'
 #   'nxp-water-heater-app/linux|chip-nxp-water-heater-app|aarch64||chip-nxp-water-heater-app
-#   'nxp-media-app/linux|nxp-media-app|aarch64||nxp-media-app'
 
 # Append advanced applications to the central list. These use the standard 'aarch64' output directory
 # and do not require extra GN arguments.
