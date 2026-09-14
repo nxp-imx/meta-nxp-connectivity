@@ -17,7 +17,7 @@ MATTER_PY_PATH ?= "${STAGING_BINDIR_NATIVE}/python3-native/python3"
 
 PATCHTOOL = "git"
 
-SRCREV = "ff49d05ba2942d7f6517dd7397df9b7a848916d1"
+SRCREV = "8ca77ecacb74ca875092bddd3908b6b257790b38"
 
 BB_ENV_PASSTHROUGH_ADDITIONS:append = " http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"
 
