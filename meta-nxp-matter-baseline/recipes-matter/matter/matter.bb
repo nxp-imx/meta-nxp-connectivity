@@ -38,7 +38,7 @@ do_checkout_submodules[vardepsexclude] = "http_proxy https_proxy no_proxy HTTP_P
 addtask checkout_submodules after do_unpack before do_patch
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging-native python3-click-native openssl  matter-idl-native python3-jinja2-native python3-lark-native python3-setuptools-native python3-python-path-native "
+DEPENDS += " gn-native ninja-native avahi dbus-glib-native pkgconfig-native boost python3-pip-native python3-packaging-native python3-click-native openssl  matter-idl-native python3-jinja2-native python3-lark-native python3-setuptools-native python3-python-path-native protobuf-native python3-protobuf-native "
 RDEPENDS_${PN} += " libavahi-client boost boost-dev boost-staticdev openssl "
 FILES:${PN} += "usr/share"
 
