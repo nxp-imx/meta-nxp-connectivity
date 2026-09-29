@@ -26,7 +26,7 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
 - i.MX 8ULP EVK + IW416(WiFi-BT combo module) → Role: Matter controller or Matter end device.
 
-- i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM + IW610(WiFi-BT-Thread tri-radio chipset) → Role: Matter controller or Matter end device.
+- i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM / i.MX 93W FRDM + IW610(WiFi-BT-Thread tri-radio chipset) → Role: Matter controller or Matter end device.
 
    For more information on the details of the i.MX MPU Matter platforms, visit the [NXP MPU Matter platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
@@ -57,11 +57,11 @@ For devices that support the Thread protocol, this guide uses the NXP K32W DK6 m
 
  <img src="../images/matter_demos/imx9-otbr.png" width = "500"/>
 
-Figure Matter with OTBR network topology diagram for i.MX 93 FRDM, i.MX 93 EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, and i.MX 95 15x15 EVK
+Figure Matter with OTBR network topology diagram for i.MX 9 platforms
 
  <img src="../images/matter_demos/imx8mm_imx6ull_imx8ulp-otbr.png" width = "500"/>
 
-Figure Matter with OTBR network topology diagram for i.MX 8M Mini EVK or i.MX 6ULL EVK
+Figure Matter with OTBR network topology diagram for i.MX 8M Mini EVK or i.MX 8ULP EVK or i.MX 6ULL EVK
 
 The commissioning process consists of the following main stages:
 
@@ -83,12 +83,12 @@ Step 1. Save the Wi-Fi SSID and password to a file.
 
 Step 2. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX MPU Platform.
 
-#### For i.MX 93 FRDM / i.MX 93 EVK / i.MX 95 15x15 EVK + IW612 and i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM + IW610 platform:
+#### For i.MX 93 FRDM / i.MX 93 EVK / i.MX 95 15x15 EVK + IW612 and i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM / i.MX 93W FRDM + IW610 platform:
 
-For i.MX 93 FRDM, it is essential to modify the fdtfile for it to work properly. Enter U-Boot mode and run the following commands to set the fdtfile, save the fdtfile setting, and boot the board.
+For i.MX 93 EVK, it is essential to modify the fdtfile for it to work properly. Enter U-Boot mode and run the following commands to set the fdtfile, save the fdtfile setting, and boot the board.
 
         u-boot=> print fdtfile
-        fdtfile=imx93-11x11-evk-ffu_gpio_irq.dtb
+        fdtfile=imx93-11x11-frdm.dtb
         u-boot=> fatls mmc 1
         u-boot=> fatls mmc 1
         35183104   Image
@@ -97,11 +97,11 @@ For i.MX 93 FRDM, it is essential to modify the fdtfile for it to work properly.
             45915   imx93-11x11-frdm.dtb
             ......
 
-        u-boot=> setenv fdtfile imx93-11x11-frdm.dtb
+        u-boot=> setenv fdtfile imx93-11x11-evk-ffu_gpio_irq.dtb
         u-boot=> saveenv
         Saving Environment to MMC... Writing to MMC(1)... OK
         u-boot=> print fdtfile
-        fdtfile=imx93-11x11-frdm.dtb
+        fdtfile=imx93-11x11-evk-ffu_gpio_irq.dtb
         u-boot=> boot
 
 Then set up by running the following commands:
@@ -173,7 +173,7 @@ In the following case, you need use "gpio-reset-device=/dev/gpiochip5" (whose I2
         gpiochip5 [0-0020] (8 lines)
         ...
 
-###### Check gpiochip for i.MX 95 15x15 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, and i.MX 8M Plus FRDM:
+###### Check gpiochip for i.MX 95 15x15 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM, and i.MX 93W FRDM:
 
 **A hardware config needed on i.MX 95 15x15 EVK: turn on the SW10 Pin1 to "ON", which enable the SPI CS for IW612.**
 
@@ -196,6 +196,10 @@ For the i.MX 95 FRDM PRO board, use the below GPIOs and lines.
 For the i.MX 8M Plus FRDM board, use the below GPIOs and lines.
     Interrupt GPIO :  gpiochip6 [0-0021]          Interrupt line : line 13
     Reset GPIO     :  gpiochip6 [0-0021]          Reset line     : line 12
+
+For the i.MX 93W FRDM board, use the below GPIOs and lines.
+    Interrupt GPIO :  gpiochip2 [43830000.gpio]   Interrupt line : line 26
+    Reset GPIO     :  gpiochip1 [43820000.gpio]   Reset line     : line 28
 
 #### For i.MX 8M Mini EVK + 88W8987 + K32W platform or i.MX 8ULP EVK + IW416 + K32W platform:
 
@@ -327,7 +331,7 @@ Use the below commands to set up ot-daemon on a device:
 
     # For i.MX 93 FRDM + IW612:
     $ ot-daemon-iwxxx 'spinel+spi:///dev/spidev2.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
-    # For i.MX 93 EVK / i.MX 95 15x15 EVK + IW612, i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM + IW610:
+    # For i.MX 93 EVK / i.MX 95 15x15 EVK + IW612, i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM / i.MX 93W FRDM + IW610:
     $ ot-daemon-iwxxx 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
 
 **Note: To identify the SPI device name [Check SPI device](#check-spi-device). To determine gpio-reset-device and gpio-int-device used in the RadioURL option of otbr-agent-iwxxx [check the GPIO device](#check-the-gpio-device).**

@@ -106,7 +106,7 @@ Step 2. Mount the new partition to the "~/image" folder and restart the Docker s
 
 Download and deploy the home assistant and matter-server Docker images.
 
-    $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v $(pwd)/config:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2026.3
+    $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v $(pwd)/config:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2026.9
     $ docker run -d --name matter-server --restart=unless-stopped --security-opt apparmor=unconfined -v $(pwd)/data:/data --network=host ghcr.io/home-assistant-libs/python-matter-server:8.1.0 --storage-path /data --paa-root-cert-dir /data/credentials
 
 It takes a few minutes to download and deploy the images. You can check the images by running "$ docker image" after the deployment is complete.
@@ -115,7 +115,7 @@ It takes a few minutes to download and deploy the images. You can check the imag
                                                                                                         i Info    U  In Use
     IMAGE                                                    ID             DISK USAGE   CONTENT SIZE   EXTRA
     ghcr.io/home-assistant-libs/python-matter-server:8.1.0   170aa093ce91        644MB          144MB    U
-    ghcr.io/home-assistant/home-assistant:2026.3             916682086154        3.3GB          597MB    U
+    ghcr.io/home-assistant/home-assistant:2026.9             3e6710a7ab2a       3.39GB          633MB    U
 
 <a name="running-app"></a>
 
@@ -219,7 +219,7 @@ Option 2
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
     $ modprobe btnxpuart
     $ hciconfig hci0 up
-    $ chip-lighting-app --wifi --ble-device 0
+    $ chip-lighting-app --wifi --ble-controller 0
 
 After running the chip-lighting-app, you will find a log line similar to the one below, copy the URL and open it in a browser, you can see the QR code of this Matter application.
 

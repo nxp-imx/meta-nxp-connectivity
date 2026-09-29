@@ -203,16 +203,16 @@ The application is now ready to be deployed on the i.MX target.
 
 ## Matter to Zigbee bridge example
 
-[MatterZigbeeRcp-bridge](https://github.com/NXP/matter/tree/v1.6-branch-imx_matter_2026_q2/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge) application demonstrates the complete Matter example on i.MX 93 & IW612.<br>
+[MatterZigbeeRcp-bridge](https://github.com/NXP/matter/tree/v1.7-branch-imx_matter_2026_q3/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge) application demonstrates the complete Matter example on i.MX 93 & IW612.<br>
 ![i.MX becomes a Matter to Zigbee Bridge](../images/zigbee/MatterToZigbee-Bridge.png)
 
 The i.MX Matter image enables a complete Matter Controller to run on a single i.MX 93 and IW612 platform.<br>
 
 * [Embedded Posix Openthread BorderRouter](https://github.com/nxp-imx/meta-nxp-connectivity/tree/master/meta-nxp-otbr/recipes-otbr/otbr-iwxxx) manages a Thread network and provides Ethernet or Wi-Fi networks connectivity.<br>
-* [Matter chip-tool](https://github.com/NXP/matter/tree/v1.6-branch-imx_matter_2026_q2/examples/chip-tool) is used to commission and control Matter wireless end-devices, either on Wi-Fi or on Thread networks.<br>
-* [M2ZigbeeRcp-bridge](https://github.com/NXP/matter/tree/v1.6-branch-imx_matter_2026_q2/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge#readme) is a Zigbee Coordinator allowing Zigbee end-devices to join, and transforming them into Matter bridged end-devices.<br>
+* [Matter chip-tool](https://github.com/NXP/matter/tree/v1.7-branch-imx_matter_2026_q3/examples/chip-tool) is used to commission and control Matter wireless end-devices, either on Wi-Fi or on Thread networks.<br>
+* [M2ZigbeeRcp-bridge](https://github.com/NXP/matter/tree/v1.7-branch-imx_matter_2026_q3/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge#readme) is a Zigbee Coordinator allowing Zigbee end-devices to join, and transforming them into Matter bridged end-devices.<br>
 
 > **_NOTE:_**
 It is not recommended to modify the meta-nxp-connectivity native otbr-agent-iwxxx and chip-tool executables.<br>
 **M2ZigbeeRcp-bridge** is an **example of a Matter to Zigbee bridge**.<br>
-You can modify this application and improve its features as described in the [dynamic-endpoint-control](https://github.com/NXP/matter/blob/v1.6-branch-imx_matter_2026_q2/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge/README.md#dynamic-endpoint-control) section.<br>
+You can modify this application and improve its features as described in the [dynamic-endpoint-control](https://github.com/NXP/matter/blob/v1.7-branch-imx_matter_2026_q3/examples/bridge-app/nxp/linux-M2ZigbeeRcp-bridge/README.md#dynamic-endpoint-control) section.<br>
