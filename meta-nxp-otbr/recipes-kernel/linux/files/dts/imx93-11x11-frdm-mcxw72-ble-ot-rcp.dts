@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ *
+ * FRDM-IMX93 (host) wired to an FRDM-MCXW72 acting as a COMBINED
+ * BLE-HCI (H4) controller + OpenThread RCP (Spinel), multiplexed over a
+ * SINGLE LPUART5 link. On the Linux host the 'muxd' userspace daemon demuxes
+ * the two channels into PTYs (BlueZ btattach + ot-daemon).
+ *
+ * 3-WIRE bring-up (validated approach from THREADIP-5693 / Elven):
+ *   TX, RX, GND only. NO RTS/CTS (neither board exposes LPUART flow-control
+ *   pins on a header). Reliability is handled by the mux FCS16 (detect+resync).
+ *
+ * KEY DIFFERENCE vs the stock imx93-11x11-frdm.dts:
+ *   - The stock board routes LPUART5 on the DAP pads (DAP_TDO/TDI/TMS_SWDIO/
+ *     TCLK_SWCLK) toward the on-board MAYA-W276 (IW612) radio module -> NOT
+ *     accessible on any header.
+ *   - Here LPUART5 is REMAPPED to GPIO_IO00 / GPIO_IO01, which are brought out
+ *     on the P11 EXPI connector at pins P11-27 / P11-28 (per UM12181 Table 21).
+ *   - The bluetooth child node (nxp,88w8987-bt) is removed so the kernel does
+ *     NOT bind btnxpuart; /dev/ttyLP4 becomes a plain raw UART for raw HCI.
+ *
+ * Physical wiring (cross-connect), matching FRDM-MCXW72 UM12222:
+ *   i.MX93 LPUART5_TX  (P11-27, GPIO_IO00)  -->  MCXW72 UART0_RX (mikroBUS J5-3)
+ *   i.MX93 LPUART5_RX  (P11-28, GPIO_IO01)  <--  MCXW72 UART0_TX (mikroBUS J5-4)
+ *   Common GND between the two boards.
+ *
+ * Port settings for bring-up: 115200 8N1, no flow control.
+ * Resulting device node: /dev/ttyLP4 (alias serial4 = &lpuart5).
+ */
+
+#include "imx93-11x11-frdm.dts"
+
+/ {
+	model = "NXP FRDM-IMX93 + FRDM-MCXW72 (BLE-HCI + Thread-RCP over single LPUART5, 3-wire)";
+};
+
+/*
+ * Remap LPUART5 onto GPIO_IO00/GPIO_IO01 (P11-27/P11-28) and make it a plain UART.
+ * The re-declared &lpuart5 overrides the stock node; /delete-node/ removes the
+ * combo bluetooth child; /delete-property/ drops the 88W8987 combo enable line.
+ */
+&lpuart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart5_frdm_mcxw72>;   /* GPIO_IO00/IO01, not the DAP pads */
+	/delete-property/ pinctrl-assert-gpios;     /* was the 88W8987 combo enable */
+	status = "okay";
+
+	/delete-node/ bluetooth;                    /* remove nxp,88w8987-bt -> no btnxpuart */
+};
+
+&iomuxc {
+	/* New pinmux group: LPUART5 TX/RX on GPIO_IO00/IO01 (3-wire, no RTS/CTS). */
+	pinctrl_uart5_frdm_mcxw72: uart5frdmmcxw72grp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO00__LPUART5_TX   0x31e   /* P11-27 -> MCXW72 J5-3 (RX) */
+			MX93_PAD_GPIO_IO01__LPUART5_RX   0x31e   /* P11-28 <- MCXW72 J5-4 (TX) */
+		>;
+	};
+};
