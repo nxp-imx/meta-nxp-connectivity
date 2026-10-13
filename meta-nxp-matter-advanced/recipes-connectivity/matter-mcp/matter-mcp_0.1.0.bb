@@ -1,13 +1,13 @@
 SUMMARY = "MCP server exposing Matter device tools to a local LLM"
 DESCRIPTION = "A Python MCP server that talks to chip-tool over WebSocket and \
 exposes Matter tools, bridged to an Ollama LLM via ollama-mcp-bridge."
-HOMEPAGE = "http://androidsource.nxp.com/project/stash/mcp-dev"
-LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+HOMEPAGE = "https://github.com/nxp-imx/imx-matter-utils"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=d3800cfcc18f27ff8823d542831950f7"
 
-SRCBRANCH = "imx_matter_rep_v1.1"
-SRC_URI = "git://androidsource.nxp.com/project/stash/mcp-dev;protocol=http;branch=${SRCBRANCH}"
-SRCREV = "ef3c7254abe70f5672977e1679efd0b6790156a0"
+SRCBRANCH = "master"
+SRC_URI = "git://github.com/nxp-imx/imx-matter-utils.git;protocol=https;branch=${SRCBRANCH}"
+SRCREV = "48f837fbc77371e3f77669ec0788665da8ac249b"
 
 inherit python_setuptools_build_meta
 
