@@ -13,18 +13,21 @@ The provided `muxd` userspace daemon multiplexes and demultiplexes these logical
 
 ## EAR1 Package Contents
 
-- `zephyr.elf`: MCXW72 application firmware. Program using J-Link.
+- `zephyr_frdm_mcxw72_external_xtal.elf`: MCXW72 application firmware for FRDM-MCXW72 boards using the external 32 kHz crystal. Program using J-Link.
+- `zephyr_mcxw72_internal_fro32k_xtal.elf`: MCXW72 application firmware for boards using the internal FRO32K (no external 32 kHz crystal). Program using J-Link.
 - `mcxw72_nbu_dyn_full.bin`: MCXW72 dynamic NBU firmware.
 - `muxd.c`: C implementation of the Linux host UART multiplexer daemon.
-- `muxd.py`: Python implementation of the Linux host UART multiplexer daemon.
 
 ## MCXW72 Firmware Programming
 
 ### Application firmware
 
-Program the supplied `zephyr.elf` using J-Link.
+Program the application firmware that matches your board's 32 kHz clock source
+using J-Link. Use `zephyr_frdm_mcxw72_external_xtal.elf` for boards with an
+external 32 kHz crystal, or `zephyr_mcxw72_internal_fro32k_xtal.elf` for boards
+relying on the internal FRO32K.
 ```bash
-loadfile zephyr.elf
+loadfile zephyr_frdm_mcxw72_external_xtal.elf
 r
 g
 exit
@@ -46,16 +49,11 @@ Program `mcxw72_nbu_dyn_full.bin` by following the official Zephyr FRDM-MCXW72 N
 
 The Linux UART device name depends on the customer platform.
 
-## Linux Host: C and Python Implementations
+## Linux Host: C Implementation
 
-This package ships two interchangeable implementations of the daemon. Both implement the same on-wire frame format and communicate with the same `uart_mux` firmware on the MCXW72.
+This package ships a C implementation of the daemon. It implements the on-wire frame format and communicates with the `uart_mux` firmware on the MCXW72. It includes options such as `--no-flow`, `--crc-init0`, and `--replay`. A native or cross-compilation C toolchain is required.
 
-| Implementation | File | When to use |
-|---|---|---|
-| **C** | `muxd`, built from `muxd.c` | Recommended for the target. It includes additional options such as `--no-flow`, `--crc-init0`, and `--replay`. A native or cross-compilation C toolchain is required. |
-| **Python** | `muxd.py` | Suitable for quick bring-up. It requires no compilation and uses only Python standard-library modules: `termios`, `os`, `pty`, and `fcntl`. Supported options include `--uart`, `--baud`, and `-v`. |
-
-Both implementations create two PTYs and print the BLE and OpenThread attachment information.
+The daemon creates two PTYs and prints the BLE and OpenThread attachment information.
 
 ```text
                          +----------------------- muxd -----------------------+
@@ -68,8 +66,12 @@ Physical UART <--------> | UART                                         |    |
 
 ### Build the C Implementation
 
+The C daemon is split into a thin wire-up (`src/muxd.c`), a Linux OS port
+(`src/port_linux.c`), and the shared wire-protocol logic (`src/shared/`). Use
+the supplied Makefile to build all of them:
+
 ```bash
-cc -O2 -Wall -Wextra -o muxd muxd.c
+make
 ```
 
 ### Run the C Implementation
@@ -84,21 +86,7 @@ For verbose logging:
 ./muxd --uart /dev/<uart-device> --baud 921600 --no-flow -v
 ```
 
-### Run the Python Implementation
-
-No build is required.
-
-```bash
-python3 muxd.py --uart /dev/<uart-device> --baud 921600
-```
-
-For verbose logging:
-
-```bash
-python3 muxd.py --uart /dev/<uart-device> --baud 921600 -v
-```
-
-Like the C implementation, the Python implementation creates two PTYs.
+The daemon creates two PTYs.
 
 ```text
 BLE HCI PTY:   /dev/pts/X  -> btattach -B /dev/pts/X -P h4
@@ -106,10 +94,6 @@ OT Spinel PTY: /dev/pts/Y  -> spinel+hdlc+uart:///dev/pts/Y?uart-baudrate=921600
 ```
 
 The PTY numbers are dynamically assigned. Use the paths printed by `muxd`.
-
-The Python implementation uses an FCS initial value of `0xFFFF` and a plain UART without hardware flow control, matching the 3-wire bring-up configuration.
-
-The C-only options `--no-flow`, `--crc-init0`, and `--replay` are not implemented in Python. Use the C implementation when these options are required.
 
 ## On-Wire Frame Format
 
@@ -157,7 +141,7 @@ Start SYNC | CHANNEL | FLAGS | LENGTH | PAYLOAD | FCS16 | End SYNC
 
 ### FCS Configuration
 
-For this EAR1 package, the default FCS configuration used by the supplied `muxd` implementations is:
+For this EAR1 package, the default FCS configuration used by the supplied `muxd` implementation is:
 
 | Parameter | Value |
 |---|---|

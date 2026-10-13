@@ -1,8 +1,7 @@
 SUMMARY = "MCXW72 HCI/Spinel single-UART multiplexer daemon (muxd)"
 DESCRIPTION = "Userspace daemon that lets a single physical UART between a Linux \
 host (i.MX) and an MCXW72 carry both BLE HCI (H4) consumed by BlueZ and \
-OpenThread Spinel (HDLC) consumed by ot-daemon. Ships a C implementation (muxd) \
-and a stdlib-only Python implementation (muxd.py)."
+OpenThread Spinel (HDLC) consumed by ot-daemon. Ships a C implementation (muxd)."
 HOMEPAGE = "https://www.nxp.com"
 SECTION = "connectivity"
 
@@ -10,11 +9,20 @@ LICENSE = "CLOSED"
 
 SRC_URI = " \
     file://src/muxd.c \
+    file://src/port_linux.c \
+    file://src/port_linux.h \
+    file://src/shared/uart_mux.c \
+    file://src/shared/uart_mux.h \
+    file://src/shared/hci_bridge.c \
+    file://src/shared/hci_bridge.h \
+    file://src/shared/spinel_bridge.c \
+    file://src/shared/spinel_bridge.h \
+    file://src/shared/bridge_port.h \
     file://Makefile \
-    file://muxd.py \
     file://mcxw72-ble-ot-rcp-README.md \
     file://mcxw72_binaries/mcxw72_nbu_dyn_full.bin \
-    file://mcxw72_binaries/zephyr.elf \
+    file://mcxw72_binaries/zephyr_frdm_mcxw72_external_xtal.elf \
+    file://mcxw72_binaries/zephyr_mcxw72_internal_fro32k_xtal.elf \
 "
 
 inherit deploy
@@ -30,17 +38,11 @@ do_install() {
     # C daemon
     install -d ${D}${sbindir}
     install -m 0755 ${S}/muxd ${D}${sbindir}/muxd
-
-    # Python implementation (installed alongside as an alternative)
-    install -m 0755 ${S}/muxd.py ${D}${sbindir}/muxd.py
 }
 
 FILES:${PN} += " \
     ${sbindir}/muxd \
-    ${sbindir}/muxd.py \
 "
-
-RDEPENDS:${PN} += "python3-core"
 
 # Stage the README and MCXW72 flash binaries into the build's deploy directory
 # (DEPLOY_DIR_IMAGE/mcxw72-ble-ot-mux). These are intentionally NOT added to
@@ -52,8 +54,10 @@ do_deploy() {
         ${DEPLOYDIR}/mcxw72-ble-ot-rcp-README.md
     install -m 0644 ${S}/mcxw72_binaries/mcxw72_nbu_dyn_full.bin \
         ${DEPLOYDIR}/mcxw72-ble-ot-mux/mcxw72_nbu_dyn_full.bin
-    install -m 0644 ${S}/mcxw72_binaries/zephyr.elf \
-        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr.elf
+    install -m 0644 ${S}/mcxw72_binaries/zephyr_frdm_mcxw72_external_xtal.elf \
+        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr_frdm_mcxw72_external_xtal.elf
+    install -m 0644 ${S}/mcxw72_binaries/zephyr_mcxw72_internal_fro32k_xtal.elf \
+        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr_mcxw72_internal_fro32k_xtal.elf
 }
 addtask deploy after do_compile before do_build
 
