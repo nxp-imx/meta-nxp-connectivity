@@ -34,7 +34,7 @@ You can find the source files for the `chip-tool-web2` in the `${matter}/example
 
 Before using the `chip-tool-web2`, you must compile it from source on Linux.
 
-> **Note:** To ensure compatibility, you must always build the `chip-tool-web2` from the same revision of the `connectedhomeip` repository.
+> **Note:** To ensure compatibility, always build the `chip-tool-web2` from the same revision of the `connectedhomeip` repository.
 
 ### Building the chip-tool-web2
 
@@ -50,11 +50,11 @@ Before using `chip-tool-web2`, make sure that the i.MX board is properly connect
 
 #### Default setup
 
-The image built by `meta-nxp-connectivity` includes the `chip-tool` binary in the i.MX SoC `/usr/bin` directory, and all front end files are already copied to `/usr/share/chip-tool-web/frontend2`. Therefore, to use `chip-tool-web2`, you only must copy the newly compiled `chip-tool-web2` binary to the `/usr/bin` directory.
+The image built by `meta-nxp-connectivity` includes the `chip-tool` binary in the i.MX SoC `/usr/bin` directory, and all front-end files are already copied to `/usr/share/chip-tool-web/frontend2`. Therefore, to use `chip-tool-web2`, copy the newly compiled `chip-tool-web2` binary to the `/usr/bin` directory.
 
 #### Custom setup
 
-If you want to specify a custom location for the front end files, you can follow these steps:
+If you want to specify a custom location for the front-end files, you can follow these steps:
 - Copy the `frontend2` file to the desired location:
     ```
     $ cp ${matter}/examples/chip-tool/webui-2_0/frontend2 $frontend_path
@@ -78,7 +78,7 @@ If you see the following logs: `CHIP:DL: CHIP task running` and `CHIP:TOO: LWS_C
 
 The `chip-tool-web2` can run on various devices, including desktops, laptops, and mobile devices. To access the `chip-tool-web2`, follow these steps:
 
-- Open a web browser (such as Chrome.) on the device you want to use.
+- Open a web browser (such as Chrome) on the device you want to use.
 - Enter the IP address of the i.MX board followed by `:8889` in the address bar of the browser. You can find the IP address of the i.MX board by running the `ifconfig` command on the board.
 - You see the `chip-tool-web2` homepage. Follow the instructions in the [section](#using-chip-tool-web2-to-commission-a-matter-device) to proceed.
 
@@ -102,7 +102,7 @@ You can open the navigation sidebar from the homepage by clicking the navigation
 
 This section provides instructions for using `chip-tool-web2` to commission Matter devices, with a focus on the chip-lighting-app application clusters on i.MX MPU platforms.
 
-It must be noted that chip-tool-web2 complements, rather than replaces, the chip-tool command-line tool. While it provides a GUI for executing commands, certain operations may still require the command-line interface. Users can still use the chip-tool command-line tool if they prefer or must, but `chip-tool-web2` provides an additional option for interacting with Matter devices. The following sections provide a detailed overview of the features currently available in chip-tool-web2.
+Note that chip-tool-web2 complements, rather than replaces, the chip-tool command-line tool. While it provides a GUI for executing commands, certain operations may still require the command-line interface. Users can still use the chip-tool command-line tool if they prefer or must, but `chip-tool-web2` provides an additional option for interacting with Matter devices. The following sections provide a detailed overview of the features currently available in chip-tool-web2.
 
 An official Matter document explaining how to use the chip-tool as a Matter controller, can be found [here](https://github.com/project-chip/connectedhomeip/blob/master/examples/chip-tool/README.md).
 
@@ -113,17 +113,17 @@ For more information on how to use Matter applications on i.MX MPU platforms, se
 The chip-tool offers two modes of operation: `Single Command Mode` and `Interactive Mode`, each with unique features and appropriate use cases. For detailed information about these modes, refer to the official documentation available at [Interactive mode versus single-command mode](
 https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md#chip-tool-modes).
 
-It should be noted that chip-tool-web2 uses the `Interactive Mode` to allow users to conveniently send multiple commands through the web interface and to improve the management of Matter devices.
+Note that chip-tool-web2 uses the `Interactive Mode` to allow users to conveniently send multiple commands through the web interface and to improve the management of Matter devices.
 
 ### Commissioning a Matter device
 
-The chip-tool-web2 supports four commissioning types, “Add Thread Device”, “Add WIFI device”, "Add OnNetwork Device", and "Add Device by QRCode". You can start commissioning by clicking the corresponding buttons in the GUI header to start commissioning.
+The chip-tool-web2 supports four commissioning types, “Add Thread Device”, “Add WIFI Device”, "Add OnNetwork Device", and "Add Device by QR code". You can start commissioning by clicking the corresponding buttons in the GUI header to start commissioning.
 
 <img src="../images/chip-tool-web2/chip-tool-web2_pairing.png" alt="Alt text" width="500"/>
 
 #### Add Thread Device
 
-Click the `Add Thread Device` button. Enter the `Device ID`, `Device Code`, `Device Alias`, and `Device Bluetooth Discriminator`. Then, click the `Get Dataset` button to get the Open Thread dataset (Make sure that you run the otbr-agent in the i.MX device and the wpan0 interface is up before getting the dataset). Then you can click the `Send Command` to trigger the command to commission the device to the existing Thread network:
+Click the `Add Thread Device` button. Enter the `Device ID`, `Device Code`, `Device Alias`, and `Device Bluetooth Discriminator`. Then, click the `Get Dataset` button to get the OpenThread dataset (Make sure that you run the otbr-agent in the i.MX device and the wpan0 interface is up before getting the dataset). Then you can click the `Send Command` to trigger the command to commission the device to the existing Thread network:
 
 ```
 $ chip-tool pairing ble-thread <node_id> hex:<dataset> <pin_code> <discriminator>
@@ -136,9 +136,9 @@ In this command:
 
 > **Note:** When entering the _<dataset\>_, there is no need to add the `hex:` prefix, as this is already added by default in the chip-tool-web backend.
 
-To obtain the Open Thread dataset, you can either form the OpenThread network manually by following the instructions provided in the [Configure OpenThread network](./nxp_mpu_matter_demos.md#configure-openthread-network), or via otbr-web.
+To obtain the OpenThread dataset, you can either form the OpenThread network manually by following the instructions provided in the [Configure OpenThread network](./nxp_mpu_matter_demos.md#configure-openthread-network), or via otbr-web.
 
-#### Add Wi-Fi device
+#### Add WIFI Device
 
 Click the `Add WIFI Device` button. Enter the `Device ID`, `Device Code`, `Device Alias`, `Network SSID`, `Network Password` and `Device Bluetooth Discriminator`. Then, click the `Send Command` to trigger the command to commission the device to the existing Wi-Fi network:
 
@@ -166,9 +166,9 @@ In this command:
 
 <a name="add-device-by-qrcode"></a>
 
-#### Add Device by QRCode
+#### Add Device by QR code
 
-Add a device by QRCode support for pairing a new end device by scanning the QRCode. It also supports pairing with a multiadmin device when ECM enables the commissioning window.
+Add a device by QR code support for pairing a new end device by scanning the QR code. It also supports pairing with a multiadmin device when ECM enables the commissioning window.
 
 If you must use the camera to scan the QR code, you must search for "chrome://flags/#unsafely-treat-insecure-origin-as-secure" in Chrome. Then, enter the "http://ip:port" and relaunch the browser like below:
 
@@ -178,7 +178,7 @@ Then, click the `Scan QR Code` and `Start Scan` buttons. A window pops up. Choos
 
 <img src="../images/chip-tool-web2/chip-tool-web2_camera_permission.png" alt="Alt text" width="500"/>
 
-After scanning the QRCode, the web interface will update the `QRcode` input field. Then, enter the `Device ID` and `Device Alias`, and click the `Send Command` to pairing device by QRCode. The following command is triggered to commission the device:
+After scanning the QR code, the web interface will update the `QRcode` input field. Then, enter the `Device ID` and `Device Alias`, and click the `Send Command` to pair the device by QR code. The following command is triggered to commission the device:
 
 ```
 $ chip-tool pairing code <node_id> <payload>
@@ -188,7 +188,7 @@ In this command:
 -   _<node_id\>_ is the user-defined device ID of the node being commissioned.
 -   _<payload\>_ is the scanned QR code, or enter the payload by yourself.
 
-> **Note:** The QRCode Scanning feature is only supported on Chrome for Windows and Android. It is not supported on iOS because Chrome on iOS does not allow setting chrome://flags.
+> **Note:** The QR code Scanning feature is only supported on Chrome for Windows and Android. It is not supported on iOS because Chrome on iOS does not allow setting chrome://flags.
 
 <hr>
 
@@ -253,7 +253,7 @@ Upon success, a confirmation message is shown. To update the device list, click 
 
 ## Subscription of Matter device OnOff cluster in chip-tool-web2
 
-Subscribing to an attribute lets you mirror the state of the attribute as it changes in the Matter network. Chip-tool-web2 support for subscribing to the `on-off` attribute of the `onoff` cluster. To see all the commissioned devices, click the `Subscriptions` button in sidebar. To subscribe device in device card, enter the `Endpoint ID`, `Subscription Min Interval`, `Subscription Max Interval`. Select `Cluster ON/OFF` and then click `Subscribe` button to trigger the subscribe command.
+Subscribing to an attribute lets you mirror the state of the attribute as it changes in the Matter network. Chip-tool-web2 supports subscribing to the `on-off` attribute of the `onoff` cluster. To see all the commissioned devices, click the `Subscriptions` button in the sidebar. To subscribe to a device in a device card, enter the `Endpoint ID`, `Subscription Min Interval`, `Subscription Max Interval`. Select `Cluster ON/OFF` and then click `Subscribe` button to trigger the subscribe command.
 
 ```
 $ chip-tool onoff subscribe on-off <min-interval> <max-interval> <node_id> <endpoint_id>
@@ -265,7 +265,8 @@ In this command:
 - _<node-id\>_ is the user-defined device ID of the commissioned node.
 - _<endpoint_id\>_ is the ID of the endpoint where the `onoff` cluster is implemented.
 
-> **Note:** The subscribe command must run in interactive mode to maintain the subscription. When chip-tool-web2 initiates a subscribe command, do not enter any other commands in the i.MX Matter device console, as this may interrupt subscription report updates.
+> **Note:** The subscribe command must run in Interactive Mode to maintain the subscription. When chip-tool-web2 initiates a subscribe command, do not enter any other commands in the i.MX Matter device console, as this may interrupt subscription report updates.
+
 The subscription information appears at the bottom of the interface as shown below:
 
 <img src="../images/chip-tool-web2/chip-tool-web2_subscription.png" alt="Alt text" width="500"/>
@@ -305,7 +306,7 @@ Enter the `Device Alias`, `Device ID`, and `Endpoint ID`. Then, use the followin
     ```
 -   Use the `Previous` button to trigger the following command to play previous media:
     ```
-    $ chip-tool mediaplayback privious <node_id> <endpoint_id>
+    $ chip-tool mediaplayback previous <node_id> <endpoint_id>
     ```
 -   Use the `Next` button to trigger the following command to play next media:
     ```
@@ -315,7 +316,7 @@ Enter the `Device Alias`, `Device ID`, and `Endpoint ID`. Then, use the followin
     ```
     $ chip-tool mediaplayback start-over <node_id> <endpoint_id>
     ```
--   Use the `Rewind` button to trigger the following command to rewind the current media, and then you can use the `Play` button to play the rewinded media:
+-   Use the `Rewind` button to trigger the following command to rewind the current media, and then you can use the `Play` button to play the rewound media:
     ```
     $ chip-tool mediaplayback rewind <node_id> <endpoint_id>
     ```
@@ -370,8 +371,8 @@ In the structure above,
 - ${nodeid}: The nodeid of the device.
 - ${endpoint}: The endpoint of the device.
 - ${cluster}: The cluster name to which the device belongs.
-- ${attribute}: The name of the attribute being reported. In this case, the default attributes are `CurrentState`, `StartTime`, `Duration`, `Sampled Position`, `PlatbackSpeed`.
-- ${value}: The value of the attribute. There are three possible values for `CurrentState`: `Play`, `Pause`, `Stop`. The value of start time is always `0`. The value of `Duration` is currently playing media's duration. There are five possible values for `PlatbackSpeed`: `1.000000`, `2.000000`, `4.000000`, `8.000000`, `10.000000`.
+- ${attribute}: The name of the attribute being reported. In this case, the default attributes are `CurrentState`, `StartTime`, `Duration`, `Sampled Position`, `PlaybackSpeed`.
+- ${value}: The value of the attribute. There are three possible values for `CurrentState`: `Play`, `Pause`, `Stop`. The value of start time is always `0`. The value of `Duration` is currently playing media's duration. There are five possible values for `PlaybackSpeed`: `1.000000`, `2.000000`, `4.000000`, `8.000000`, `10.000000`.
 
 <hr>
 
@@ -381,7 +382,7 @@ In the structure above,
 
 Binding describes a relationship between the device that contains the binding cluster and the end device. The chip-tool-web2 supports binding a light in one light_switch_combo device to the switch in another light_switch_combo device, allowing the light in another device to be controlled by the switch of one device.
 
-To access the `Binding` function in the chip-tool-web2, click `Binding` button on sidebar. The following interface is displayed:
+To access the `Binding` function in the chip-tool-web2, click `Binding` button in the sidebar. The following interface is displayed:
 
 <img src="../images/chip-tool-web2/chip-tool-web2_binding.png" alt="Alt text" width="500"/>
 
@@ -389,7 +390,7 @@ To access the `Binding` function in the chip-tool-web2, click `Binding` button o
 
 First, the light_switch_combo application should run properly on the K32W Matter device, and then use the chip-tool-web2 ble-thread pairing method to commission with two light_switch_combo devices separately.
 
-Two light-switch_combo devices, one used as the switch device and the other used as the light device. Before binding, the access control list must be written. Therefore, in the `Write ACL` section, enter the `Lighting Node Alias` and `Lighting Node ID` of the light_switch_combo device, which play as lighting device. Then, enter the `Switch Node Alias` and `Switch Node ID` of the light_switch_combo device, which play as switch device. For `ACL EndPoint ID`, it is recommended to use endpoint `0`. To trigger write acl command like below, click the `Write ACL` button.
+Two light_switch_combo devices, one used as the switch device and the other used as the light device. Before binding, the access control list must be written. Therefore, in the `Write ACL` section, enter the `Lighting Node Alias` and `Lighting Node ID` of the light_switch_combo device, which play as lighting device. Then, enter the `Switch Node Alias` and `Switch Node ID` of the light_switch_combo device, which play as switch device. For `ACL EndPoint ID`, it is recommended to use endpoint `0`. To trigger write acl command like below, click the `Write ACL` button.
 ```
 chip-tool accesscontrol write acl <acl_data> <node_id> <endpoint_id>
 ```
@@ -404,7 +405,7 @@ For more details, you can refer to the [access control guide](https://github.com
 
 ### Write Binding
 
-After triggerring the write access list command, you can click the `Write Binding` button to binding the Light and Switch device，it will trigger the command:
+After triggering the write access list command, you can click the `Write Binding` button to binding the Light and Switch device, it will trigger the command:
 ```
 $ chip-tool binding write binding <binding_data> <node_id> <endpoint_id>
 ```
@@ -425,7 +426,7 @@ After the binding command is successfully executed, press SW2 two times on the d
 
 Multiadmin feature allows you to join a Matter device to multiple Matter fabrics and have multiple different Matter administrators administer it. Chip-tool-web2 supports the Basic Commissioning Method (BCM) and Enhanced Commission Method (ECM) to open the commissioning window of i.MX Matter device for a new administrator from another fabric.
 
-Click the `Multi-Admin` button in sidebar, the following interface is displayed:
+Click the `Multi-Admin` button in the sidebar, the following interface is displayed:
 
 <img src="../images/chip-tool-web2/chip-tool-web2_multiadmin.png" alt="Alt text" width="500"/>
 
@@ -439,9 +440,9 @@ In this command:
 -   _<option\>_ is equal to `0` for BCM and `1` for ECM.
 -   _<window_timeout\>_ is the time in seconds before the commissioning window closes.
 -   _<iteration\>_ is the number of PBKDF iterations to use to derive the PAKE verifier.
--   _<discriminator\>_ is device-specific discriminator determined during commissioning.
+-   _<discriminator\>_ is a device-specific discriminator determined during commissioning.
 
-When using the ECM, a manual pairing code and QRCode like below in the web interface are shown. Then you can add this device on another administrator by [`Add Device by QRCode`](#add-device-by-qrcode).
+When using the ECM, a manual pairing code and QR code are shown in the web interface as below. Then you can add this device on another administrator by [`Add Device by QRCode`](#add-device-by-qrcode).
 
 <img src="../images/chip-tool-web2/chip-tool-web2_ECM_QRCode.png" alt="Alt text" width="500"/>
 
@@ -485,7 +486,7 @@ When simulating events, the principle of "last trigger, first clear" must be use
 
 <img src="../images/chip-tool-web2/chip-tool-web2_eevse2.png" alt="Alt text" width="500"/>
 
-After the simulated charging demand event is triggered. Enter the value of `Minimum Charge Current` and `Maximum Charge Current`. To start charging by the below commands, click the `Enable Charging` button.
+After the simulated charging demand event is triggered, enter the value of `Minimum Charge Current` and `Maximum Charge Current`. To start charging, click the `Enable Charging` button, which triggers the following command:
 
 ```
 $ chip-tool energyevse enable-charging null <minimum_charge_current> <maximum_charge_current> <node_id> <endpoint_id> --timedInteractionTimeoutMs 3000
@@ -498,7 +499,7 @@ In this command:
 
 ### EEVSE Write
 
-Enter the value of `User Maximum Charge Current`. To set user-maximum-charge-current attribute value by below commands, click the `Write User Maximum Charge Current` button .
+Enter the value of `User Maximum Charge Current`. To set the user-maximum-charge-current attribute value, click the `Write User Maximum Charge Current` button, which triggers the following command:
 ```
 chip-tool energyevse write <user_maximum_charge_current> <node_id> <endpoint_id>
 ```
@@ -507,7 +508,7 @@ In this command:
 
 ### EEVSE Charging Disable
 
-Click the `Disable Charging` button to disable charging value by below commands.
+To disable charging value, click the `Disable Charging` button which triggers the following command:
 ```
 chip-tool energyevse disable <node_id> <endpoint_id> --timedInteractionTimeoutMs 3000
 ```
@@ -530,7 +531,7 @@ Use the following buttons to read the status of the `energyevse` attribute in th
     ```
     $ chip-tool energyevse read fault-state <node_id> <endpoint_id>
     ```
--   Use the `Charging Enabled Until` button to trigger the following command to read the charging-enabled-until of tenergyevse:
+-   Use the `Charging Enabled Until` button to trigger the following command to read the charging-enabled-until of energyevse:
     ```
     $ chip-tool energyevse read charging-enabled-until <node_id> <endpoint_id>
     ```
@@ -573,7 +574,7 @@ In the structure above,
 
 ## OTA updates on chip-tool-web2
 
-The chip-tool-web2 supports uploading OTA file and controlling OTA processing. Click the `OTA Updates` in sidebar, the following page displays:
+The chip-tool-web2 supports uploading OTA file and controlling OTA processing. Click the `OTA Updates` in the sidebar, the following page displays:
 
 <img src="../images/chip-tool-web2/chip-tool-web2_ota.png" alt="Alt text" width="500"/>
 
@@ -599,7 +600,7 @@ Run the chip-ota-requestor-app on another device. Refer to [chip-ota-request req
 
 ### Step 5 Commissioning with chip-ota-requestor-app
 
-Commissioning with chip-ota-provider-app in chip-tool-web2 by selecting `Add OnNetwork Device`.
+Commissioning with chip-ota-requestor-app in chip-tool-web2 by selecting `Add OnNetwork Device`.
 
 ### Step 6 Write ACL
 
@@ -620,11 +621,11 @@ After completing the OTA process, [check the OTA processing on the end device](.
 
 ## Network graph on chip-tool-web2
 
-The chip-tool-web2 supports displaying the network topology of commissioned devices. Click the `Network graph` in sidebar, the following page is displayed:
+The chip-tool-web2 supports displaying the network topology of commissioned devices. Click the `Network graph` in the sidebar, the following page is displayed:
 
 <img src="../images/chip-tool-web2/chip-tool-web2_networkgraph.png" alt="Alt text" width="500"/>
 
-Click on a device node in the topology view displays detailed information in the bottom-left corner of the page:
+Click a device node in the topology view which displays detailed information in the bottom-left corner of the page:
 
 - Device Type: Displayed as either "Root device" or "Node device".
 - Device Name: For root devices, this shows the name of the i.MX device.
@@ -659,7 +660,7 @@ Running `rm -rf /tmp/chip_*` removes these files. This allows the chip-tool-web2
 
 - The timeout for buttons in the chip-tool-web2 that execute commands is set to the default timeout, for example, 125 seconds for pairing buttons and 20 seconds for cluster read buttons. During the command execution process, the interface displays the command execution waiting effect. Wait patiently for the command to finish executing and return a result of `success` or `failed`.
 
-- In general, commands related to `Pairing` may take longer to execute, while commands related to `OnOff` functionality executes faster. If a pairing command takes a long time to execute and returns with `failed`, check that the device configuration follows the [documentation](./nxp_mpu_matter_demos.md). Also, try pairing again after running `rm -rf /tmp/chip_*`.
+- In general, commands related to `Pairing` may take longer to execute, while commands related to `OnOff` functionality execute faster. If a pairing command takes a long time to execute and returns with `failed`, check that the device configuration follows the [documentation](./nxp_mpu_matter_demos.md). Also, try pairing again after running `rm -rf /tmp/chip_*`.
 
 - The chip-tool-web2 supports commissioning multiple devices at the same time. Do not run `rm -rf /tmp/chip_*` while commissioning multiple devices at once, as this erases the useful information of the successfully paired devices.
 

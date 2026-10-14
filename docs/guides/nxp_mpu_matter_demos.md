@@ -75,7 +75,7 @@ The commissioning process consists of the following main stages:
 
 ### Set up OTBR on i.MX MPU platform
 
-To set up OTBR on the i.MX MPU platform, you must do three steps:
+To set up OTBR on the i.MX MPU platform, complete three steps:
 
 Step 1. Save the Wi-Fi SSID and password to a file.
 
@@ -137,7 +137,7 @@ Then set up by running the following commands:
 
 ##### Check SPI device
 
-**Note: The SPI device name may change on i.MX 93 FRDM, you can use the “ls /dev/spidev” command to check the specific SPI device name.**
+**Note: The SPI device name may change on i.MX 93 FRDM, use the “ls /dev/spidev” command to check the specific SPI device name.**
 
         $ ls /dev/spidev*
         /dev/spidev2.0
@@ -177,7 +177,7 @@ In the following case, you need use "gpio-reset-device=/dev/gpiochip5" (whose I2
 
 **A hardware config needed on i.MX 95 15x15 EVK: turn on the SW10 Pin1 to "ON", which enable the SPI CS for IW612.**
 
-For the i.MX 95 15x15 EVK board, you only must use "$ gpiodetect" to check the GPIO chips for reset and interrupt. The gpio-int-line=5 and gpio-reset-line=1 are fixed values. For example, in the following case, you must start the otbr-agent with the command "otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip0&gpio-int-device=/dev/gpiochip3&gpio-int-line=5&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &"
+For the i.MX 95 15x15 EVK board, you must only use "$ gpiodetect" to check the GPIO chips for reset and interrupt. The gpio-int-line=5 and gpio-reset-line=1 are fixed values. For example, in the following case, you must start the otbr-agent with the command "otbr-agent-iwxxx -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip0&gpio-int-device=/dev/gpiochip3&gpio-int-line=5&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &"
 
         & gpiodetect
         ...
@@ -256,7 +256,7 @@ For i.MX 6ULL, it is mandatory to change fdt_file to setup WiFi and BT. Enter U-
     => print fdt_file
     fdt_file=imx6ull-14x14-evk-btwifi.dtb
 
-The i.MX 6ULL OTBR setup commands are the same with the i.MX 8M Mini commands.
+The i.MX 6ULL OTBR setup commands are the same as the i.MX 8M Mini commands.
 
 *Note: If "$ ifconfig wpan0" can find the wpan0 as shown below, the otbr-agent was successfully set up.*
 
@@ -279,7 +279,7 @@ You can form the Openthread network manually by the following steps:
     $ ot-ctl ifconfig up
     $ ot-ctl thread start
 
-Then, you must get thread network credentials information.
+Then, you must get Thread network credentials information.
 
     $ ot-ctl dataset active -x
     # Then you will get a dataset like "0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8"
@@ -301,7 +301,7 @@ Commissioning command as below.
     # ble-thread pairing
     $ chip-tool pairing ble-thread 8888 hex:0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8 20202021 3840
 
-The parameter after "ble-thread" is node-id (here it is 8888, it can be any positive integer starting from 1) that must be set uniquely for each Matter device that joined the network, the last but one parameter is pin code (here it is fixed to 20202021), the last parameter is discriminator (here it is fixed to 3840).
+The parameter after "ble-thread" is node-id (here it is 8888, it can be any positive integer starting from 1) that must be set uniquely for each Matter device that joined the network, the second-to-last parameter is the pin code (here it is fixed to 20202021), the last parameter is discriminator (here it is fixed to 3840).
 
 If there is a message **“Device commissioning completed with success”** in the controller log, it means that the Matter device has successfully joined the network.
 
@@ -317,7 +317,7 @@ If there is a message **“Device commissioning completed with success”** in t
     # read the lighting on-off status
     $ chip-tool onoff read on-off 8888 1
 
-Since chip-tool-trusty can run on the i.MX 8M Mini EVK platform, the chip-tool in the above commands can replace chip-tool-trusty. **Before running chip-tool-trusty, you must use to the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.**
+Since chip-tool-trusty can run on the i.MX 8M Mini EVK platform, the chip-tool-trusty in the above commands can replace chip-tool. **Before running chip-tool-trusty, use the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.**
 
 ### Set up ot-daemon on i.MX MPU platform
 
@@ -334,7 +334,7 @@ Use the below commands to set up ot-daemon on a device:
     # For i.MX 93 EVK / i.MX 95 15x15 EVK + IW612, i.MX 91 EVK / i.MX 91 QSB / i.MX 91 FRDM / i.MX 93W FRDM + IW610:
     $ ot-daemon-iwxxx 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
 
-**Note: To identify the SPI device name [Check SPI device](#check-spi-device). To determine gpio-reset-device and gpio-int-device used in the RadioURL option of otbr-agent-iwxxx [check the GPIO device](#check-the-gpio-device).**
+**Note: To identify the SPI device name [Check SPI device](#check-spi-device). To determine the gpio-reset-device and gpio-int-device used in the RadioURL option of otbr-agent-iwxxx [check the GPIO device](#check-the-gpio-device).**
 
 You can test the ot-daemon with another device running otbr-agent. [Start the Thread network](#configure-openthread-network) on the other device.
 
@@ -360,7 +360,7 @@ The network topology diagram by using ble-wifi commissioning is shown below.
 
 Figure i.MX network topology diagram for ble-wifi commissioning
 
-The ble-wifi commissioning method requires the controller device must set up BT and connect to a Wi-Fi AP, the end device must setup BT.
+The ble-wifi commissioning method requires the controller device must have BT set up and connected to a Wi-Fi AP. The end device must set up BT.
 
 The commissioning process consists of the following main stages:
 
@@ -402,7 +402,7 @@ Load the Wi-Fi/BT firmware and set up BT:
 
 After setting up the network on both side platforms, run the example application on the end device.
 
-___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX 9 series platform since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, and others on i.MX 9 series platform, you must run "$ systemctl start nvm_daemon" to enable ELE (only must run once after each power up), and then run example applications.___
+___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX 9 series platform since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, and others on i.MX 9 series platform, run "$ systemctl start nvm_daemon" to enable ELE (run once after each power up), and then run example applications.___
 
     # to run chip-lighting-app
     $ chip-lighting-app --wifi --ble-controller 0
@@ -416,7 +416,7 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     # to run chip-bridge-app
     $ chip-bridge-app --wifi --ble-controller 0
 
-    # to run nxp-meida-app
+    # to run nxp-media-app
     $ nxp-media-app --wifi --ble-controller 0
 
     # to run chip-evse-app
@@ -425,9 +425,9 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
     # to run imx-thread-br-app
     $ imx-thread-br-app --wifi --ble-controller 0
 
-**Note: Before running imx-thread-br-app, ensure that the following prerequisites are completed on the end device: [Load the Wi-Fi/BT firmware and setup BT on the end device](#load-the-wi-fibt-firmware-and-set-up-bt-on-the-end-device). Set up the OpenThread Border Router by following the instructions for either [otbr-agent or otbr-agent-iwxxx](#setup-otbr-on-imx-mpu-platform). While setting up the Border Router, comment out the command line that connects to a Wi-Fi SSID (i.e., $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf) to avoid conflicts.**
+**Note: Before running imx-thread-br-app, ensure that the following prerequisites are completed on the end device: [Load the Wi-Fi/BT firmware and setup BT on the end device](#load-the-wi-fibt-firmware-and-set-up-bt-on-the-end-device). Set up the OpenThread Border Router by following the instructions for either [otbr-agent or otbr-agent-iwxxx](#setup-otbr-on-imx-mpu-platform). While setting up the Border Router, comment out the command line that connects to a Wi-Fi SSID (that is, $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf) to avoid conflicts.**
 
-#### Finally, commission and control the end devices on the controller device.
+#### Commission and control the end devices on the controller device
 
 ##### Commission the end devices
 
@@ -444,13 +444,13 @@ ___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-progra
 
     # read the local temperature from nxp-thermostat-app.
     $ chip-tool thermostat read local-temperature 8888 1
-    # read the abs-max-heat-setpoint-limit form nxp-thermostat-app.
+    # read the abs-max-heat-setpoint-limit from nxp-thermostat-app.
     $ chip-tool thermostat read abs-max-heat-setpoint-limit 8888 1
-    # read the abs-min-heat-setpoint-limit form nxp-thermostat-app.
+    # read the abs-min-heat-setpoint-limit from nxp-thermostat-app.
     $ chip-tool thermostat read abs-min-heat-setpoint-limit 8888 1
-    # read the max-heat-setpoint-limit form nxp-thermostat-app.
+    # read the max-heat-setpoint-limit from nxp-thermostat-app.
     $ chip-tool thermostat read max-heat-setpoint-limit 8888 1
-    # read the min-heat-setpoint-limit form nxp-thermostat-app.
+    # read the min-heat-setpoint-limit from nxp-thermostat-app.
     $ chip-tool thermostat read min-heat-setpoint-limit 8888 1
     # set max-heat-setpoint-limit=2800(28℃)，which should satisfy the equation "min-heat-setpoint-limit <= max-heat-setpoint-limit <= abs-max-heat-setpoint-limit".
     $ chip-tool thermostat write max-heat-setpoint-limit 2800 8888 1
@@ -491,14 +491,14 @@ Select the index of the audio jack for audio output. Skip this step when running
 
     $ chip-tool audio output select-output **2** 8888 1
 
-Then you should launch the app, and when you don't need it, you can stop it.
+Then you should launch the app, and when you do not need it, you can stop it.
 
     # launch the nxp-media-app
     $ chip-tool applicationlauncher launch-app 8888 1 --Application '{"catalogVendorID": 123, "applicationID": "exampleid"}'
     # stop the nxp-media-app
     $ chip-tool applicationlauncher stop-app 8888 1 --Application '{"catalogVendorID": 123, "applicationID": "exampleid"}'
 
-Control and read status for nxp-meida-app:
+Control and read status for nxp-media-app:
 
     # play media
     $ chip-tool mediaplayback play 8888 1
@@ -512,13 +512,13 @@ Control and read status for nxp-meida-app:
     $ chip-tool mediaplayback previous 8888 1
     # play next media
     $ chip-tool mediaplayback next 8888 1
-    # rewind the playing media, then use the play command to paly media
+    # rewind the playing media, then use the play command to play media
     $ chip-tool mediaplayback rewind 8888 1
     # fast forward the playing media, the playback speed will be 1-2-4-8-10
     $ chip-tool mediaplayback fast-forward 8888 1
     # move the current playback position forward by 20 seconds
     $ chip-tool mediaplayback skip-forward 20000 8888 1
-    # move the current playback position backwrd by 20 seconds
+    # move the current playback position backward by 20 seconds
     $ chip-tool mediaplayback skip-backward 20000 8888 1
     # move the current playback position to the 20th second
     $ chip-tool mediaplayback seek  20000 8888 1
@@ -554,7 +554,7 @@ Control and read status for nxp-meida-app:
 
 ###### Control the imx-thread-br-app
 
-**Note that the imx-thread-br-app only support enable the Thread Network when the interface is disabled.**
+**The imx-thread-br-app only supports enabling the Thread Network when the interface is disabled.**
 
     $ chip-tool threadborderroutermanagement read border-router-name 8888 1                      # BorderRouterName: NXP_iMX_OTBR-Agent
     $ chip-tool threadborderroutermanagement read border-agent-id 8888 1                         # BorderAgentID: 00112233445566778899AABBCCDDEEFF
@@ -575,12 +575,12 @@ Control and read status for nxp-meida-app:
 
 ###### Enable the secure storage service
 
-Currently, applications with trusty are supported on the i.MX 8M Mini EVK, such as chip-tool-trusty, chip-lighting-app-trusty, nxp-thermostat-app-trusty, and nxp-media-app-trusty. Before running these trusty example applications, you must execute the following commands to enable the secure storage service (only need to execute once after initial boot), and the following commissioning steps are consistent with the above.
+Currently, applications with trusty are supported on the i.MX 8M Mini EVK, such as chip-tool-trusty, chip-lighting-app-trusty, nxp-thermostat-app-trusty, and nxp-media-app-trusty. Before running these trusty example applications, you must execute the following commands to enable the secure storage service (only execute once, after initial boot), and the following commissioning steps are consistent with the above.
 
     $ systemctl enable storageproxyd
     $ systemctl start storageproxyd
 
-###  Run example applications with the on network commissioning method
+### Run example applications with the onnetwork commissioning method
 
 To test onnetwork, two devices must connect to the same Wi-Fi AP or connect to the same local area network. Taking the case of connecting to the same Wi-Fi AP as an example, the network topology diagram is shown below.
 
@@ -625,7 +625,7 @@ Finally, commission and control the end device on the controller device.
 
     # control commands same as ble-wifi commissioning method
 
-To run applications with trusty on the i.MX 8M Mini EVK by onnetwork commissioning way, you should use to the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.
+To run applications with trusty on the i.MX 8M Mini EVK by onnetwork commissioning way, use the [enable command](#enable-the-secure-storage-service) to enable the secure storage service.
 
 <a name="running-matter-ota-for-wi-fibt-firmware-and-application-on-the-imx-mpu-platform"></a>
 
@@ -668,7 +668,7 @@ If the ota update is successful, for firmware ota, the i.MX ota requestor device
 
 ## FAQ
 
-### Why chip-tool failed to control cluster after reboot?
+### Why did chip-tool fail to control the cluster after a reboot?
 
 Why does the chip-tool fail to control the cluster after a reboot? This is because the default storage location of chip-tool on the Yocto operating system is in the `/tmp` directory, which is a temporary file system (tempfs) that is reset during power cycles. This can result in the loss of pairing information between the controller and the cluster, which includes applications such as chip-lighting-app, nxp-thermostat-app, chip-bridge-app, and more. To preserve this pairing information, it is critical to store the information in a persistent location. The recommended solution is to set the `TMPDIR` environment variable to a persistent location, such as `/etc`, before using chip-tool. This simple step can help ensure that the pairing information is stored in a directory that persists after a reboot, allowing you to avoid having to pair your devices again after a reboot. To set the `TMPDIR` environment variable in `/etc', perform the following steps.
 

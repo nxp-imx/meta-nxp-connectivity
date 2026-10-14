@@ -1,4 +1,4 @@
-# Running Matter MATTER-NCP demos on i.MX MPU platforms
+# Running MATTER-NCP demos on i.MX MPU platforms
 
 This document describes how to use the MATTER-NCP demos on the i.MX MPU platforms. It shows how to run MATTER-NCP demos on the i.MX MPU platform and how to do wifi-bt commissioning between chip-tool and chip-all-clusters-app-ncp apps.
 
@@ -13,18 +13,18 @@ https://github.com/nxp-mcuxpresso/mcuxsdk-manifests
 
 ## Hardware requirements
 
-- Two i.MX 8M Mini EVK boards (one board acts as the Matter controller, running chip-tool, and the other are the end device, running the chip-all-clusters-app-ncp apps.)
+- Two i.MX 8M Mini EVK boards (one board acts as the Matter controller, running chip-tool, and the other is the end device, running the chip-all-clusters-app-ncp apps.)
 
-The i.MX 8M Mini EVK, which running the chip-all-clusters-app-ncp apps connect with RDRW612 as the connection of ncp-host and ncp-device.
+The i.MX 8M Mini EVK, running the chip-all-clusters-app-ncp apps connects with RDRW612 as the connection of ncp-host and ncp-device.
 
 - RDRW612 A2 BGA board
 
-The RDRW612 acts as ncp-device, and ensure that the Bluetooth Low Energy antenna is connected to the RDRW612 board to prevent the Bluetooth Low Energy disconnection during Bluetooth Low Energy pairing.
+The RDRW612 acts as ncp-device and ensures that the Bluetooth Low Energy antenna is connected to the RDRW612 board to prevent Bluetooth Low Energy disconnection during Bluetooth Low Energy pairing.
 
-The four interfaces USB, UART, SPI, and SDIO are supported between all-clusters-app-ncp and ncp-device, you can refer to this ncp user manual below to set up:
+The four interfaces USB, UART, SPI, and SDIO are supported between all-clusters-app-ncp and ncp-device. Refer to NXP NCP Application Guide for RW612 with MPU Host to set up:
 https://www.nxp.com/webapp/Download?colCode=UM12095
 
-- Compilation of ncp device
+- Compilation of the ncp device
 
 Refer to the user manual: https://www.nxp.com/webapp/Download?colCode=UM12095
 
@@ -46,14 +46,14 @@ Go to sdk-next/mcuxsdk/examples/_boards/rdrw612bga/ncp_examples/ncp_device/app_c
 
     #define CONFIG_NCP_MDNS_ENABLE      0
 
-## Verification about ble-wifi commissioning
+## Verification of ble-wifi commissioning
 
-Set up BT and connect to a wifi AP on controller device (DUT running chip-tool)
-- step1. Save your Wi-Fi SSID and Password to a file.
+Set up BT and connect to a Wi-Fi AP on controller device (DUT running chip-tool)
+- Step 1. Save your Wi-Fi SSID and Password to a file.
 
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
 
-- step2. Setup BT and connected to a WiFi AP.
+- Step 2. Set up BT and connected to a Wi-Fi AP.
 
     $modprobe moal mod_para=nxp/wifi_mod_para.conf
     $wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
@@ -62,7 +62,7 @@ Set up BT and connect to a wifi AP on controller device (DUT running chip-tool)
     $modprobe btnxpuart
     $hciconfig hci0 up
 
-Run the example application on the end device, the following example uses a USB interface.
+Run the example application on the end device, the following example uses the USB interface.
 
     $ export NCP_PORT=/dev/ttyUSB0, and for sdio: export NCP_PORT=/dev/mcu-sdio
     $ ./chip-all-clusters-app-ncp-usb --wifi --ble-device 0
@@ -77,7 +77,7 @@ Do commissioning and control the end devices on the controller device.
 
     $ ./chip-tool pairing ble-wifi 8888 ${SSID} ${PASSWORD} 20202021 3840
 
-Verify that the device (all-cluster-app) has obtained an IP address. If the IP is obtained, the device is successfully connected to the external AP
+Verify that the device (all-cluster-app) has obtained an IP address. If the IP is obtained, the device is successfully connected to the external AP.
 
     [1748353915.770112][551:551] CHIP:DL: Got IP address on interface: ncp_wlan IP: 192.168.0.188
 
@@ -85,13 +85,13 @@ The controller and device establish IP communication using the CASE handshake. T
 
     CHIP:TOO: Device commissioning completed with success
 
-## Matter chip-tool control chip-all-clusters-app-ncp apps after matter commission successfully
+## Matter chip-tool control chip-all-clusters-app-ncp apps after successful Matter commissioning
 
 Read onoff status.
 
     $ chip-tool onoff read on-off 8888 1
 
-You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value must be FALSE before enabling OnOff.
+You can see this log in the chip-tool console log. OnOff reflects the onoff status. The value must be FALSE before enabling OnOff.
 
     [2025-05-22 14:25:04.603] [1747865814.155617][647:649] CHIP:TOO:   OnOff: FALSE
 
@@ -99,9 +99,9 @@ Toggle to enable onoff.
 
     $ chip-tool onoff toggle 8888 1
 
-Read onoff status again
+Read onoff status again.
     $ chip-tool onoff read on-off 8888 1.
 
-You can see this log in the chip-tool console log. OnOff reflects on onoff status. The value must be TRUE after enabling OnOff.
+You can see this log in the chip-tool console log. OnOff reflects the onoff status. The value must be TRUE after enabling OnOff.
 
     [2025-05-22 14:25:04.603] [1747865814.155617][647:649] CHIP:TOO:   OnOff: TRUE

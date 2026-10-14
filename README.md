@@ -94,7 +94,7 @@ Make sure that your default Python3 version is 3.11:
 Then, the Yocto build environment must be set up.
 
 The Yocto source code and meta-nxp-connectivity recipes are maintained with a manifest file, used by the repo tool to download the corresponding source code.
-This document is tested with the i.MX Yocto 6.18.37_2.1.0 release. The platforms tested are: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK. i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 93W FRDM.
+This document is tested with the i.MX Yocto 6.18.37_2.1.0 release. The platforms tested are: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 8ULP EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 93W FRDM.
 Run the commands below to download this release:
 
     $ mkdir ~/bin
@@ -166,7 +166,7 @@ After execution of the previous commands, the Yocto images will be generated:
 - ${MY_YOCTO}/bld-xwayland-imx8mp-frdm/tmp/deploy/images/imx8mp-frdm-iwxxx-matter/imx-image-multimedia-imx8mp-frdm-iwxxx-matter.rootfs.wic.zst for i.MX 8M Plus FRDM.
 - ${MY_YOCTO}/bld-xwayland-imx93w-frdm/tmp/deploy/images/imx93w-frdm-iwxxx-matter/imx-image-multimedia-imx93w-frdm-iwxxx-matter.rootfs.wic.zst for i.MX 93W FRDM.
 
-The zst images are symbolic link files, so you must copy them to a dedicated folder ${MY_images} before unzipping them.
+The .zst images are symbolic link files, so you must copy them to a dedicated folder ${MY_images} before unzipping them.
 
     # For i.MX 93 FRDM and i.MX 93 EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93-frdm-iwxxx-matter/imx-image-multimedia-imx93-frdm-iwxxx-matter.rootfs.wic.zst ${MY_images}
@@ -201,7 +201,7 @@ The zst images are symbolic link files, so you must copy them to a dedicated fol
     # For i.MX 93W FRDM:
     $ cp ${MY_YOCTO}/bld-xwayland-imx93w-frdm/tmp/deploy/images/imx93w-frdm-iwxxx-matter/imx-image-multimedia-imx93w-frdm-iwxxx-matter.rootfs.wic.zst ${MY_images}
 
-You can use the zstd and dd commands to flash the images to a microSD card for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM, and i.MX 93W FRDM. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 12 boards. The i.MX 8ULP EVK supports only booting from EMMC, not from microSD. Other platforms support both booting from EMMC and microSD images.
+You can use the zstd and dd commands to flash the images to a microSD card for i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM, and i.MX 93W FRDM. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 12 boards. The i.MX 8ULP EVK supports only booting from eMMC, not from microSD. Other platforms support both booting from eMMC and microSD images.
 
 For use with the zstd and dd command method, use the zstd command to unzip the *.zst archive, and then use the dd command to program the output file to a microSD card.
 
@@ -255,7 +255,7 @@ For use with the uuu method, install [uuu](https://github.com/nxp-imx/mfgtools/r
     uuu (Universal Update Utility) for nxp imx chips -- libuuu_1.5.243-0-g230f1b1
 
 ___Before flashing the image, follow the prompts on the board to put the board into serial download mode. After flashing the image, set the following boards to microSD boot mode: i.MX 93 FRDM, i.MX 93 EVK, i.MX 8M Mini EVK, i.MX 6ULL EVK, i.MX 91 EVK, i.MX 91 QSB, i.MX 91 FRDM, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRDM, and i.MX 93W FRDM.
- Then boot the image from the microSD card. Place i.MX 8ULP EVK into EMMC boot mode to boot the image from the EMMC.___
+ Then boot the image from the microSD card. Place i.MX 8ULP EVK into eMMC boot mode to boot the image from the eMMC.___
 
     $ cd ${MY_images}
 
@@ -362,7 +362,7 @@ The user must import Yocto build environment, by sourcing this script each time 
     # For i.MX 6ULL EVK
     $ . /opt/fsl-imx-xwayland/6.18-wrynose-imx6ull/environment-setup-cortexa7t2hf-neon-poky-linux-gnueabi
 
-Fetch the latest otbr source code and execute the build for OTBR:
+Fetch the latest OTBR source code and execute the build for OTBR:
 
     $ mkdir ${MY_OTBR}  # this directory is the top directory of the OTBR source code
     $ cd ${MY_OTBR}
@@ -455,9 +455,9 @@ On __i.MX 93 FRDM, i.MX 93 EVK, i.MX 95 FRDM, i.MX 95 FRDM PRO, i.MX 8M Plus FRD
 
 **Note: To identify the SPI device name, [Check SPI device](./docs/guides/nxp_mpu_matter_demos.md#check-spi-dev). To determine gpio-reset-device and gpio-int-device, [check the GPIO device](./docs/guides/nxp_mpu_matter_demos.md#check-the-gpio-device).**
 
-On __i.MX 8M Mini EVK__, __i.MX 6ULL EVK__ or __i.MX 8ULP EVK__, use a dedicated Thread device (NXP K32W or any third party RCP).
+On __i.MX 8M Mini EVK__, __i.MX 6ULL EVK__ or __i.MX 8ULP EVK__, use a dedicated Thread device (NXP K32W or any third-party RCP).
 
-Plugin the Thread module into the USB OTG port of __i.MX 8M Mini EVK__, __i.MX 6ULL EVK__, or __i.MX 8ULP EVK__. A USB device must be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
+Plug in the Thread module into the USB OTG port of __i.MX 8M Mini EVK__, __i.MX 6ULL EVK__, or __i.MX 8ULP EVK__. A USB device must be visible as _/dev/ttyUSB_ or _/dev/ttyACM_.
 Once the USB device is detected, start the OTBR-related services.
 
 When using the RCP module, programmed with OpenThread Spinel firmware image, execute the following commands:
@@ -477,7 +477,7 @@ A document explaining how to use Matter with OTBR and OpenThread on the i.MX MPU
 
 # How to build Matter application
 
-The Matter application has been installed into the Yocto image by default. If you want to build it separately, run the below commands to download the Matter application source code and switch to the v1.6 branch:
+The Matter application has been installed into the Yocto image by default. If you want to build it separately, run the below commands to download the Matter application source code and switch to the v1.7 branch:
 
     $ mkdir ${MY_Matter_Apps}     # this is top-level directory of this project
     $ cd ${MY_Matter_Apps}
@@ -626,7 +626,7 @@ Starting with the i.MX Matter 2023 Q3 release, the i.MX Matter integrates the bu
 
 # FAQ
 
-Q1 : Why the “zstd -d imx-image-multimedia-imx8mmevk.wic.zst” command cannot be executed in the folder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/?
+Q1 : Why cannot the “zstd -d imx-image-multimedia-imx8mmevk.wic.zst” command be executed in the folder ${MY_YOCTO}/bld-xwayland-imx8mm/tmp/deploy/images/imx8mmevk/?
 
 A : Because imx-image-multimedia-imx8mmevk.wic.zst is a symbolic link file; zstd the link target file or copy imx-image-multimedia-imx8mmevk.wic.zst to another folder, then uncompress it using zstd.
 
