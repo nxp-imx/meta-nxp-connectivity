@@ -2,20 +2,20 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-09-23T03:09:18Z",
+    "created": "2026-10-14T02:02:10Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "meta-nxp-connectivity-imx_matter_2026_q3",
+  "name": "meta-nxp-connectivity-imx_matter_2026_q3-mcxw72-rcp-ble",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/f77d756b-ed18-46e2-a856-13e08fe6263c",
+  "documentNamespace": "https://nxp.com/spdx/59636534-d547-4b32-ba9b-88b922728e87",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-f77d756b-ed18-46e2-a856-13e08fe6263c",
+      "SPDXID": "SPDXRef-package-59636534-d547-4b32-ba9b-88b922728e87",
       "name": "meta-nxp-connectivity",
-      "versionInfo": "imx_matter_2026_q3",
+      "versionInfo": "imx_matter_2026_q3-mcxw72-rcp-ble",
       "licenseConcluded": "(MIT)",
       "licenseDeclared": "(MIT)",
       "downloadLocation": "https://github.com/nxp-imx/meta-nxp-connectivity",
@@ -29,7 +29,7 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-f77d756b-ed18-46e2-a856-13e08fe6263c"
+      "relatedSpdxElement": "SPDXRef-package-59636534-d547-4b32-ba9b-88b922728e87"
     }
   ]
 }
