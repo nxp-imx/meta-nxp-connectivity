@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
  * port_linux.h - Linux port API over the shared uart_mux library.
@@ -33,7 +33,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "uart_mux.h"
+#include "uart_mux_int.h"
 
 #ifdef __cplusplus
 extern "C" {

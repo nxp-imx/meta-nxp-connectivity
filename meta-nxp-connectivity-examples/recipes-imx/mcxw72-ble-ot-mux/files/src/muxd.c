@@ -1,4 +1,7 @@
 /*
+ * Copyright 2026 NXP
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * muxd - HCI/Spinel UART multiplexer daemon for MCXW72 (Linux host side)
  *
  * This file is now a THIN wire-up over the Linux OS port (port_linux.c) and the
@@ -38,7 +41,7 @@
 #include <unistd.h>
 
 #include "port_linux.h"
-#include "uart_mux.h"
+#include "uart_mux_int.h"
 #include "hci_bridge.h"
 #include "spinel_bridge.h"
 

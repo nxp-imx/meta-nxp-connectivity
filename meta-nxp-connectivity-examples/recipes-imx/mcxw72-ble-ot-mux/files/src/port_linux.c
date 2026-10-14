@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
  * port_linux.c - Linux OS port for the shared uart_mux library.
@@ -41,7 +41,7 @@
 
 #include <linux/serial.h>
 
-#include "uart_mux.h"
+#include "uart_mux_int.h"
 
 static int g_verbose;
 

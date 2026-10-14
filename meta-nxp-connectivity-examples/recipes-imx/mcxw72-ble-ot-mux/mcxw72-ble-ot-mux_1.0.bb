@@ -12,7 +12,7 @@ SRC_URI = " \
     file://src/port_linux.c \
     file://src/port_linux.h \
     file://src/shared/uart_mux.c \
-    file://src/shared/uart_mux.h \
+    file://src/shared/uart_mux_int.h \
     file://src/shared/hci_bridge.c \
     file://src/shared/hci_bridge.h \
     file://src/shared/spinel_bridge.c \

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
  * hci_bridge.c - OS-agnostic BLE HCI H4 bridge (shared Zephyr / Linux).
@@ -61,7 +61,7 @@
 /* Minimum reliable NBU scan->initiating settle on this 3-wire link (ms). */
 #define HCI_CREATE_CONN_SETTLE_MS 50U
 
-/* Mux channel id for BLE HCI (matches uart_mux.h UART_MUX_CH_BLE). */
+/* Mux channel id for BLE HCI (matches uart_mux_int.h UART_MUX_CH_BLE). */
 #define HCI_MUX_CHANNEL 0x02U
 
 /* -----------------------------------------------------------------------

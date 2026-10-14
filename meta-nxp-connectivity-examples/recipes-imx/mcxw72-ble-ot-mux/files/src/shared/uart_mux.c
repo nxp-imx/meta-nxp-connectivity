@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
  * uart_mux.c - OS-agnostic UART channel multiplexer core (frozen wire v1).
@@ -17,7 +17,7 @@
 
 #include <string.h>
 
-#include "uart_mux.h"
+#include "uart_mux_int.h"
 
 /* FCS16 seed. Frozen at 0xFFFF to match the Linux daemon default. */
 #define UART_MUX_FCS_INIT 0xFFFFU

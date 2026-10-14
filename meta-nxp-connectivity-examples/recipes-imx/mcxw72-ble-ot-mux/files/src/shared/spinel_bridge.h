@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
  * spinel_bridge.h - OS-agnostic OpenThread Spinel/HDLC bridge (shared
