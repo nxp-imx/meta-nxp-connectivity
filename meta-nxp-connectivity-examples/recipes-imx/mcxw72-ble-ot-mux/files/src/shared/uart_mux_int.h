@@ -2,7 +2,7 @@
  * Copyright 2026 NXP
  * SPDX-License-Identifier: Apache-2.0
  *
- * uart_mux_int.h - OS-agnostic UART channel multiplexer core (frozen wire v1).
+ * uart_mux_int.h - OS-agnostic UART channel multiplexer (frozen wire v1).
  *
  * This is pure C99 with ZERO OS dependency. The exact same source file is
  * compiled on Zephyr (backend = async UART DMA + workqueue) and on Linux
@@ -17,8 +17,8 @@
  *          computed over CHANNEL + FLAGS + LENGTH + PAYLOAD.
  */
 
-#ifndef UART_MUX_H_
-#define UART_MUX_H_
+#ifndef UART_MUX_CORE_H_
+#define UART_MUX_CORE_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -124,4 +124,4 @@ void uart_mux_rx_bytes(struct uart_mux *c,
 }
 #endif
 
-#endif /* UART_MUX_H_ */
+#endif /* UART_MUX_CORE_H_ */

@@ -21,8 +21,7 @@ SRC_URI = " \
     file://Makefile \
     file://mcxw72-ble-ot-rcp-README.md \
     file://mcxw72_binaries/mcxw72_nbu_dyn_full.bin \
-    file://mcxw72_binaries/zephyr_frdm_mcxw72_external_xtal.elf \
-    file://mcxw72_binaries/zephyr_mcxw72_internal_fro32k_xtal.elf \
+    file://mcxw72_binaries/zephyr.elf \
 "
 
 inherit deploy
@@ -54,10 +53,8 @@ do_deploy() {
         ${DEPLOYDIR}/mcxw72-ble-ot-rcp-README.md
     install -m 0644 ${S}/mcxw72_binaries/mcxw72_nbu_dyn_full.bin \
         ${DEPLOYDIR}/mcxw72-ble-ot-mux/mcxw72_nbu_dyn_full.bin
-    install -m 0644 ${S}/mcxw72_binaries/zephyr_frdm_mcxw72_external_xtal.elf \
-        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr_frdm_mcxw72_external_xtal.elf
-    install -m 0644 ${S}/mcxw72_binaries/zephyr_mcxw72_internal_fro32k_xtal.elf \
-        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr_mcxw72_internal_fro32k_xtal.elf
+    install -m 0644 ${S}/mcxw72_binaries/zephyr.elf \
+        ${DEPLOYDIR}/mcxw72-ble-ot-mux/zephyr.elf
 }
 addtask deploy after do_compile before do_build
 

@@ -472,7 +472,7 @@ int main(int argc, char **argv)
 	fprintf(stderr,
 		"[muxd] ready.\n"
 		"  BlueZ     : btattach -B %s -P h4 &\n"
-		"  OpenThread: otbr-agent ... 'spinel+hdlc+uart://%s?uart-baudrate=%d' &\n",
+		"  OpenThread: otbr-agent -d 1 -I wpan0 -B mlan0 'spinel+hdlc+uart://%s?uart-baudrate=%d' trel://mlan0 &\n",
 		ble_name, thr_name, baud);
 
 	uart_mux_port_run();

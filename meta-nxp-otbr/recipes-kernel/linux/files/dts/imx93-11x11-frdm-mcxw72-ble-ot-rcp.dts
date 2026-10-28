@@ -7,9 +7,8 @@
  * SINGLE LPUART5 link. On the Linux host the 'muxd' userspace daemon demuxes
  * the two channels into PTYs (BlueZ btattach + ot-daemon).
  *
- * 3-WIRE bring-up (validated approach from THREADIP-5693 / Elven):
- *   TX, RX, GND only. NO RTS/CTS (neither board exposes LPUART flow-control
- *   pins on a header). Reliability is handled by the mux FCS16 (detect+resync).
+ * 5-WIRE link with HW flow control: TX, RX, RTS, CTS, GND.
+ *   MCXW72 side = LPUART1 (RTS/CTS only exist on PTB5/PTB4 on MCXW727C).
  *
  * KEY DIFFERENCE vs the stock imx93-11x11-frdm.dts:
  *   - The stock board routes LPUART5 on the DAP pads (DAP_TDO/TDI/TMS_SWDIO/
@@ -20,19 +19,21 @@
  *   - The bluetooth child node (nxp,88w8987-bt) is removed so the kernel does
  *     NOT bind btnxpuart; /dev/ttyLP4 becomes a plain raw UART for raw HCI.
  *
- * Physical wiring (cross-connect), matching FRDM-MCXW72 UM12222:
- *   i.MX93 LPUART5_TX  (P11-27, GPIO_IO00)  -->  MCXW72 UART0_RX (mikroBUS J5-3)
- *   i.MX93 LPUART5_RX  (P11-28, GPIO_IO01)  <--  MCXW72 UART0_TX (mikroBUS J5-4)
+ * Physical wiring (cross-connect):
+ *   i.MX93 LPUART5_TX    (P11-27, GPIO_IO00) --> MCXW72 LPUART1_RX    PTB3 (J6 MOSI)
+ *   i.MX93 LPUART5_RX    (P11-28, GPIO_IO01) <-- MCXW72 LPUART1_TX    PTB2 (J6 SCK)
+ *   i.MX93 LPUART5_CTS_B (P11-3,  GPIO_IO02) <-- MCXW72 LPUART1_RTS_b PTB5 (J5 SCL)
+ *   i.MX93 LPUART5_RTS_B (P11-5,  GPIO_IO03) --> MCXW72 LPUART1_CTS_b PTB4 (J5 SDA)
  *   Common GND between the two boards.
  *
- * Port settings for bring-up: 115200 8N1, no flow control.
+ * Port settings: 921600 8N1, RTS/CTS (muxd opens the port with CRTSCTS).
  * Resulting device node: /dev/ttyLP4 (alias serial4 = &lpuart5).
  */
 
 #include "imx93-11x11-frdm.dts"
 
 / {
-	model = "NXP FRDM-IMX93 + FRDM-MCXW72 (BLE-HCI + Thread-RCP over single LPUART5, 3-wire)";
+	model = "NXP FRDM-IMX93 + FRDM-MCXW72 (BLE-HCI + Thread-RCP over single LPUART5, RTS/CTS)";
 };
 
 /*
@@ -42,7 +43,8 @@
  */
 &lpuart5 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart5_frdm_mcxw72>;   /* GPIO_IO00/IO01, not the DAP pads */
+	pinctrl-0 = <&pinctrl_uart5_frdm_mcxw72>;   /* GPIO_IO00..IO03, not the DAP pads */
+	uart-has-rtscts;                            /* HW flow control RTS/CTS */
 	/delete-property/ pinctrl-assert-gpios;     /* was the 88W8987 combo enable */
 	status = "okay";
 
@@ -50,11 +52,13 @@
 };
 
 &iomuxc {
-	/* New pinmux group: LPUART5 TX/RX on GPIO_IO00/IO01 (3-wire, no RTS/CTS). */
+	/* LPUART5 TX/RX/CTS/RTS on GPIO_IO00..IO03 (5-wire with GND, HW flow control). */
 	pinctrl_uart5_frdm_mcxw72: uart5frdmmcxw72grp {
 		fsl,pins = <
-			MX93_PAD_GPIO_IO00__LPUART5_TX   0x31e   /* P11-27 -> MCXW72 J5-3 (RX) */
-			MX93_PAD_GPIO_IO01__LPUART5_RX   0x31e   /* P11-28 <- MCXW72 J5-4 (TX) */
+			MX93_PAD_GPIO_IO00__LPUART5_TX     0x31e   /* P11-27 -> MCXW72 PTB3 RX  (J6 MOSI) */
+			MX93_PAD_GPIO_IO01__LPUART5_RX     0x31e   /* P11-28 <- MCXW72 PTB2 TX  (J6 SCK)  */
+			MX93_PAD_GPIO_IO02__LPUART5_CTS_B  0x31e   /* P11-3  <- MCXW72 PTB5 RTS (J5 SCL)  */
+			MX93_PAD_GPIO_IO03__LPUART5_RTS_B  0x31e   /* P11-5  -> MCXW72 PTB4 CTS (J5 SDA)  */
 		>;
 	};
 };
